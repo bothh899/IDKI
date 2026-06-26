@@ -1568,7 +1568,20 @@ let extra = `
             document.getElementById('checkout-total').innerText = "$" + finalTotal.toFixed(2);
         }
 
-        window.processPurchase = async () => {
+   window.processPurchase = async () => {
+            // 🔴 ១. ប្រព័ន្ធការពារ Spam (ទិញបានតែ ២ ដង ក្នុង ១ នាទី) 🔴
+            const now = Date.now();
+            let orderHistory = JSON.parse(localStorage.getItem('anti_spam_orders') || '[]');
+            
+            // លុបចោលកំណត់ត្រាណាដែលហួស ១ នាទី (60000 ms)
+            orderHistory = orderHistory.filter(time => now - time < 60000);
+            
+            // បើកត់ត្រាឃើញថាទិញ ២ ដងហើយក្នុង ១ នាទី គឺបិទមិនឲ្យទៅមុខទៀតទេ
+            if (orderHistory.length >= 2) {
+                return window.showUIModal('Warning ⚠️', 'អ្នកបានបញ្ជាទិញញឹកញាប់ពេកហើយ! សូមរង់ចាំ ១ នាទីសិន មុននឹងបន្ត។', 'OK', window.closeUIModal);
+            }
+            // -----------------------------------------------------------
+
             if(cartItems.length === 0) return window.showUIModal('Error', 'Your cart is empty!', 'OK', window.closeUIModal);
             
             let name = document.getElementById('buyer-name').value; 
@@ -1577,7 +1590,7 @@ let extra = `
             let coords = document.getElementById('buyer-coords').value;
             let note = document.getElementById('buyer-note').value;
             
-            if(!name || !phone || !address) return window.showUIModal('Missing Info', 'សូមបំពេញឈ្មោះ លេខទូរស័ព្ទ និងអាសយដ្ឋាន!', 'OK', window.closeUIModal);
+            if(!name || !phone || !address) return window.showUIModal('Missing Info', 'សូមបំពេញឈ្មោះ លេខទូរស័ព្ទ និងអាសយដ្ឋានឲ្យបានគ្រប់គ្រាន់!', 'OK', window.closeUIModal);
             
             let finalAddress = address;
             if(coords) finalAddress += ` | Maps: https://www.google.com/maps?q=${coords}`;
@@ -1610,13 +1623,18 @@ let extra = `
                 timestamp: Date.now(), 
                 status: "Pending", 
                 total: finalPayAmount, 
-                subtotal: subtotal, // លុយដើម
+                subtotal: subtotal, 
                 deliveryFee: deliveryFee,
-                promoCodeUsed: appliedPromo ? appliedPromo.code : null, // រក្សាទុកកូដបញ្ចុះតម្លៃ
+                promoCodeUsed: appliedPromo ? appliedPromo.code : null, 
                 discountAmount: finalPromoAmount,
                 customer: { name, phone, address: finalAddress, note, email: currentCustomer ? (currentCustomer.email || currentCustomer.phoneNumber || "Guest") : "Guest" }, 
                 items: finalItems 
             };
+
+            // 🔴 ២. កត់ត្រាទុកក្នុង LocalStorage ថាគាត់ទើបតែបានចុចទិញម្តង 🔴
+            orderHistory.push(Date.now());
+            localStorage.setItem('anti_spam_orders', JSON.stringify(orderHistory));
+            // -----------------------------------------------------------
 
             if(typeof window.startKHQRPayment === 'function') {
                 window.startKHQRPayment(finalPayAmount, orderData);
@@ -1646,9 +1664,10 @@ let extra = `
             }
         };
 
-        // 🔴 អនុគមន៍សម្រាប់ Save Order (Update ពិសេសមាន Telegram Alert) 🔴
+// 🔴 អនុគមន៍សម្រាប់ Save Order (Update ពិសេសមាន Telegram Alert ឆ្លងកាត់ Worker) 🔴
         window.saveOrderToFirebase = async (orderData) => {
             try {
+                // 1. Upload រូបវិក្កយបត្រទៅ Cloudflare R2
                 if (orderData.receiptImage && orderData.receiptImage.startsWith('data:image')) {
                     console.log("Uploading receipt to Cloudflare R2...");
                     const response = await fetch(orderData.receiptImage);
@@ -1659,26 +1678,23 @@ let extra = `
                     orderData.receiptImage = r2Url; 
                 }
 
-          if (!orderData.status || orderData.status === "Pending") {
+                if (!orderData.status || orderData.status === "Pending") {
                     orderData.status = "Paid via KHQR (Auto)"; 
                 }
                 
+                // 2. Save ទិន្នន័យចូល Firebase Firestore
                 await addDoc(collection(db, "orders"), orderData);
 
-                // 🔴 រក្សាទុកកូដបញ្ជាទិញក្នុងទូរស័ព្ទភ្ញៀវ (សម្រាប់ Guest Tracking) 🔴
+                // 3. រក្សាទុកកូដបញ្ជាទិញក្នុងទូរស័ព្ទភ្ញៀវ (សម្រាប់ Guest Tracking)
                 let guestOrders = JSON.parse(localStorage.getItem('idk_guest_orders') || '[]');
                 if (!guestOrders.includes(orderData.orderId)) {
                     guestOrders.push(orderData.orderId);
                     localStorage.setItem('idk_guest_orders', JSON.stringify(guestOrders));
                 }
 
-                // 🔴 បាញ់សារ (Alert) ចូល Telegram Group 🔴
-
-                // 🔴 បាញ់សារ (Alert) ចូល Telegram Group 🔴
+                // 🔴 4. បាញ់សារ (Alert) ចូល Telegram Group តាមរយៈ WORKER 🔴
                 try {
-                    const BOT_TOKEN = "8862983985:AAF-zbj6y5MwbH0HyFbWwh2jdd10BswtUAc"; 
-                    const CHAT_ID = "-1003710259151";
-                    
+                    // ក. រៀបចំអត្ថបទ (Text) ទាញចេញពី orderData ឲ្យស្អាតមាន Emoji
                     let itemsText = orderData.items.map(i => `▫️ ${i.title} (Size: ${i.size}) <b>x${i.qty}</b>`).join('\n');
                     
                     let tgMessage = `🚨 <b>ការកុម្ម៉ង់ថ្មី (New Order)</b> 🚨\n\n` +
@@ -1687,33 +1703,35 @@ let extra = `
                                   `📞 <b>ទូរស័ព្ទ:</b> <code>${orderData.customer.phone}</code>\n` +
                                   `📍 <b>ទីតាំង:</b> ${orderData.customer.address}\n` +
                                   `📝 <b>ចំណាំ:</b> ${orderData.customer.note || 'គ្មាន'}\n\n` +
-                                `🛍️ <b>ទំនិញដែលទិញ:</b>\n${itemsText}\n\n` +
-        `🚚 <b>សេវាដឹក:</b> $${orderData.deliveryFee.toFixed(2)}\n` +
-        (orderData.promoCodeUsed ? `🎟️ <b>Promo (${orderData.promoCodeUsed}):</b> -$${orderData.discountAmount.toFixed(2)}\n` : '') +
-        `💰 <b>សរុប:</b> <b>$${orderData.total.toFixed(2)}</b>\n` +
+                                  `🛍️ <b>ទំនិញដែលទិញ:</b>\n${itemsText}\n\n` +
+                                  `🚚 <b>សេវាដឹក:</b> $${orderData.deliveryFee.toFixed(2)}\n` +
+                                  (orderData.promoCodeUsed ? `🎟️ <b>Promo (${orderData.promoCodeUsed}):</b> -$${orderData.discountAmount.toFixed(2)}\n` : '') +
+                                  `💰 <b>សរុប:</b> <b>$${orderData.total.toFixed(2)}</b>\n` +
                                   `✅ <b>ស្ថានភាព:</b> ${orderData.status}`;
 
-// 🔴 បន្ថែមប៊ូតុង (Inline Keyboard) ពីក្រោមសារ Telegram 🔴
-let tgPayload = { chat_id: CHAT_ID, parse_mode: "HTML" };
-                    let tgEndpoint = `https://api.telegram.org/bot${BOT_TOKEN}/`;
-                    
-                    if (orderData.receiptImage && orderData.receiptImage.startsWith('http')) {                        tgEndpoint += 'sendPhoto';
-                        tgPayload.photo = orderData.receiptImage;
-                        tgPayload.caption = tgMessage;
-                    } else {
-                        tgEndpoint += 'sendMessage';
-                        tgPayload.text = tgMessage;
+                    // ខ. បើមានរូបវិក្កយបត្រ (Receipt) ដាក់ជា Link បន្ថែមពីក្រោមអត្ថបទ
+                    if (orderData.receiptImage && orderData.receiptImage.startsWith('http')) {
+                        tgMessage += `\n\n📸 <b>វិក្កយបត្រ (Receipt Image):</b> <a href="${orderData.receiptImage}">ចុចមើលរូបភាពទីនេះ</a>`;
                     }
 
-                    fetch(tgEndpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(tgPayload)
-                    }).then(res => console.log("Telegram alert sent!"));
+                    // គ. បាញ់អត្ថបទទៅកាន់ Worker Backend របស់អ្នក
+                    const workerURL = "https://idk-backend.vannvirakboth372.workers.dev";
+
+                    fetch(workerURL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ text: tgMessage })
+                    })
+                    .then(res => res.json())
+                    .then(data => console.log("Telegram alert sent through Worker successfully!"))
+                    .catch(err => console.error("Error routing order to Worker:", err));
+
                 } catch(tgErr) {
-                    console.log("Telegram Error:", tgErr);
+                    console.log("Telegram Message Error:", tgErr);
                 }
+                // -------------------------------------------------------------
                 
+                // 5. លោតសំឡេង និង Confetti អបអរសាទរ
                 const successSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
                 successSound.play().catch(e => console.log("Sound muted by browser"));
 
@@ -1721,6 +1739,7 @@ let tgPayload = { chat_id: CHAT_ID, parse_mode: "HTML" };
                     confetti({ particleCount: 150, spread: 80, origin: { y: 0.5 }, zIndex: 9999999 });
                 }
 
+                // 6. បង្ហាញវិក្កយបត្រនៅលើអេក្រង់ (UI Invoice)
                 let itemsHtml = orderData.items.map(item => `
                     <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; border-bottom: 1px dashed #333; padding-bottom: 8px;">
                         <div style="text-align: left; width: 70%; color: #ccc;">
@@ -1748,7 +1767,7 @@ let tgPayload = { chat_id: CHAT_ID, parse_mode: "HTML" };
                         </div>
                         <div style="display: flex; justify-content: space-between; font-size: 13px; color: #aaa; margin-bottom: 5px;">
                             <span>Delivery Fee:</span>
-                            <span>$${deliveryFee.toFixed(2)}</span>
+                            <span>$${orderData.deliveryFee.toFixed(2)}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 900; color: #4caf50; margin-top: 10px; border-top: 1px solid #333; padding-top: 10px;">
                             <span>TOTAL PAID:</span>
@@ -1779,9 +1798,10 @@ let tgPayload = { chat_id: CHAT_ID, parse_mode: "HTML" };
                         invoiceHtml 
                     );
                 }, 1500); 
+
             } catch (error) { 
                 console.error("Error saving order:", error); 
-                alert("Payment successful, but there was an error saving the receipt. Please contact support.");
+                window.showAlert("Error", "Payment successful, but there was an error saving the receipt. Please contact support.", "error");
             }
         };
 

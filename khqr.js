@@ -1,18 +1,19 @@
 // ==========================================
-// KHQR MODULE (SMART HYBRID: AUTO + MANUAL UPLOAD FALLBACK) - FIXED V5
+// KHQR MODULE (SMART HYBRID: AUTO + MANUAL UPLOAD FALLBACK) - REFACTORED TO USE WORKER
 // ==========================================
+
+const WORKER_URL = "https://idk-backend.vannvirakboth372.workers.dev"; // 🔴 ដូរទៅកាន់ Worker URL របស់អ្នក 🔴
 
 let pollingInterval;
 let timerInterval;
 
-// អនុគមន៍ហៅទៅកាន់ Backend របស់អ្នក
+// អនុគមន៍ហៅទៅកាន់ Worker ដើម្បីឆែក Status (ជំនួសអោយការហៅផ្ទាល់ទៅ 52.220.209.105)
 async function checkTransactionStatus(md5Hash) {
     try {
-        const targetUrl = `https://52.220.209.105.sslip.io/api/check-bakong`;
-        const response = await fetch(targetUrl, {
+        const response = await fetch(WORKER_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ md5Hash: md5Hash })
+            body: JSON.stringify({ action: "check_bakong", md5Hash: md5Hash })
         });
         
         if (!response.ok) return { isError: true, status: response.status }; 
@@ -33,8 +34,6 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
 
     let amountKHR = Math.round(totalAmount * 4100);
     
-    // បញ្ចូល Logo និង លុយ ($ / ៛) ទន្ទឹមគ្នាគ្មានសញ្ញា ~ តាមតម្រូវការ
-// បញ្ចូល Logo ថ្មី និង លុយ ($ / ៛) ទន្ទឹមគ្នាគ្មានសញ្ញា ~ តាមតម្រូវការ
     amountEl.innerHTML = `
         <img src="favicon.png" style="width: 80px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));" alt="Bakong">
         <div style="width: 1px; height: 40px; background: rgba(255,68,68,0.3);"></div>
@@ -50,31 +49,25 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
     modalEl.classList.add('active');
 
     try {
-        const tsKhqr = await import('https://cdn.jsdelivr.net/npm/ts-khqr@2.2.3/+esm');
-        const { KHQR, CURRENCY, TAG, COUNTRY } = tsKhqr;
         let uniqueBillNumber = "ORD" + Math.floor(100000 + Math.random() * 900000).toString();
 
-        const result = KHQR.generate({
-            tag: TAG.INDIVIDUAL, 
-            accountID: 'virakboth_vann@bkrt', 
-            merchantName: 'VIRAKBOTH VANN',
-            merchantCity: 'Phnom Penh',
-            currency: CURRENCY.KHR, 
-            amount: amountKHR, 
-            countryCode: COUNTRY.KH,
-            merchantCategoryCode: '5999',
-            billNumber: uniqueBillNumber, 
-            terminalId: "T001",
-            storeId: "IDKSHOP",
-            expirationTimestamp: Date.now() + 10 * 60 * 1000 // ម៉ោង ១០ នាទី
+        // 🔴 សុំអោយ Worker បង្កើត QR String ជំនួស Frontend 🔴
+        const generateResponse = await fetch(WORKER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                action: "generate_khqr", 
+                amountKHR: amountKHR, 
+                uniqueBillNumber: uniqueBillNumber 
+            })
         });
 
-        if (result.status.code !== 0) throw new Error(result.status.message);
+        const genData = await generateResponse.json();
+        if(!genData.success) throw new Error(genData.error || "បរាជ័យក្នុងការបង្កើត QR Code");
 
-        let dynamicKHQRString = result.data?.qrCode || result.data?.qr || result.data;
-        if (!dynamicKHQRString) throw new Error("មិនអាចទាញយកកូដ QR បានទេ!");
+        let dynamicKHQRString = genData.qrString;
 
-qrContainer.style.position = "relative";
+        qrContainer.style.position = "relative";
         new QRCode(qrContainer, {
             text: dynamicKHQRString,
             width: 200, 
@@ -82,7 +75,6 @@ qrContainer.style.position = "relative";
             correctLevel: QRCode.CorrectLevel.M
         });
         
-        // 🔴 ប្រើប្រាស់ DOM Method ដើម្បីការពារកុំឱ្យខូចផ្ទាំង Canvas របស់ QR Code 🔴
         const centerLogo = document.createElement('img');
         centerLogo.src = 'logobakong.png';
         centerLogo.style.position = 'absolute';
@@ -96,13 +88,12 @@ qrContainer.style.position = "relative";
         centerLogo.style.padding = '4px';
         centerLogo.style.borderRadius = '8px';
         
-        // ទុកពេលឱ្យវាគូរ QR រួចរាល់សិន ទើបបន្ថែម Logo ពីលើ
         setTimeout(() => {
             qrContainer.appendChild(centerLogo);
         }, 50);
 
         const md5Hash = md5(dynamicKHQRString);
-        // មុខងារសម្រាប់ឱ្យភ្ញៀវ Upload រូបភាពវិក្កយបត្រ (Plan B)
+        
         window.handleReceiptUpload = (event) => {
             const file = event.target.files[0];
             if (file) {
@@ -121,7 +112,6 @@ qrContainer.style.position = "relative";
                         
                         const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
                         
-                        // បង្ហាញរូបភាពតូចនៅខាងឆ្វេងប៊ូតុងភ្លាមៗ និងលាក់ប្រអប់ Upload ការពារដាច់អេក្រង់
                         document.getElementById('upload-label').style.display = 'none';
                         document.getElementById('receipt-action-area').style.display = 'flex';
                         document.getElementById('receipt-img').src = compressedBase64;
@@ -135,7 +125,6 @@ qrContainer.style.position = "relative";
             }
         };
 
-        // មុខងារចុចសញ្ញា X ដើម្បីលុបរូបភាពចេញវិញ និងប្តូររូបថ្មី
         window.removeReceipt = () => {
             document.getElementById('upload-label').style.display = 'block';
             document.getElementById('receipt-action-area').style.display = 'none';
@@ -149,7 +138,6 @@ qrContainer.style.position = "relative";
             if(typeof window.saveOrderToFirebase === 'function') window.saveOrderToFirebase(orderData); 
         };
 
-        // រៀបចំម៉ោងរាប់ថយក្រោយ ១០ នាទី (600 វិនាទី)
         let timeLeft = 600; 
         if(timerInterval) clearInterval(timerInterval);
         if(pollingInterval) clearInterval(pollingInterval);
@@ -169,7 +157,6 @@ qrContainer.style.position = "relative";
             }
         }, 1000);
 
-        // យន្តការឆែកស្ថានភាពស្វ័យប្រវត្តិ
         pollingInterval = setInterval(async () => {
             const apiResult = await checkTransactionStatus(md5Hash);
             
@@ -181,7 +168,7 @@ qrContainer.style.position = "relative";
                 if(typeof window.saveOrderToFirebase === 'function') window.saveOrderToFirebase(orderData); 
             } 
             else if (apiResult && (apiResult.isError || apiResult.responseCode === 1)) {
-                clearInterval(pollingInterval); // ឈប់ឆែកអូតូ លោតផ្ទាំង Manual ភ្លាម
+                clearInterval(pollingInterval); 
                 
                 statusEl.innerHTML = `
                     <div style="width: 100%; margin-top: 5px; background: #0a0a0a; padding: 12px; border-radius: 12px; border: 1px solid #222;">

@@ -84,7 +84,6 @@
     .banner-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
     /* Modern Responsive Tables */
-    /* Modern Responsive Tables */
     .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin-top: 20px;}
     .table-responsive::-webkit-scrollbar { height: 6px; }
     table { width: 100%; border-collapse: collapse; min-width: 700px; text-align: left; }
@@ -188,7 +187,6 @@
     .reorder-btn:disabled { opacity: 0.2; cursor: not-allowed; }
 
     /* 📱 MOBILE RESPONSIVE 📱 */
-    /* 📱 MOBILE RESPONSIVE 📱 */
     @media (max-width: 992px) {
         #dashboard-view { flex-direction: column; }
         .nav { width: 100%; height: auto; position: sticky; border-right: none; border-bottom: 1px solid var(--border); padding: 15px 20px; flex-direction: column; align-items: flex-start; background: rgba(9,9,11,0.95); backdrop-filter: blur(10px);}
@@ -278,6 +276,7 @@
             <div class="s-tab" onclick="window.switchSettingTab('sec-banners', this)">🖼️ Hero Banners</div>
             <div class="s-tab" onclick="window.switchSettingTab('sec-message', this)">📢 Pop-Ups</div>
             <div class="s-tab" onclick="window.switchSettingTab('sec-discount', this)">🏷️ Discounts</div>
+            <div class="s-tab" onclick="window.switchSettingTab('sec-promocode', this)">🎟️ Promo Codes</div>
         </div>
 
         <div id="sec-delivery" class="setting-section active">
@@ -294,6 +293,27 @@
         <div id="sec-banners" class="setting-section">
             <div class="add-form">
                 <div class="form-title" style="margin-bottom: 20px;">Homepage Cover Banners</div>
+                
+                <div class="form-grid" style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px dashed var(--border);">
+                    <div class="form-group">
+                        <label class="form-label">ទំហំសម្រាប់ កុំព្យូទ័រ (PC Aspect Ratio)</label>
+                        <select id="cfg-banner-ratio-pc" class="input-clean" onchange="window.saveBannerRatio()">
+                            <option value="21/9">21:9 (Ultra Wide - ខ្លីផ្ដេក)</option>
+                            <option value="16/9" selected>16:9 (Widescreen - ស្តង់ដារ)</option>
+                            <option value="4/3">4:3 (Classic TV)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ទំហំសម្រាប់ ទូរស័ព្ទ (Mobile Aspect Ratio)</label>
+                        <select id="cfg-banner-ratio-mobile" class="input-clean" onchange="window.saveBannerRatio()">
+                            <option value="16/9">16:9 (Widescreen - ខ្លី)</option>
+                            <option value="1/1" selected>1:1 (Square - ការ៉េ)</option>
+                            <option value="4/5">4:5 (Portrait - បន្តិច)</option>
+                            <option value="9/16">9:16 (Full Vertical - បញ្ឈរវែង)</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="file-upload-wrapper" style="margin-bottom: 20px;">
                     <span style="font-size: 13px; color: var(--gray); font-weight: 600;">+ Click to upload a new Cover Banner</span>
                     <input type="file" id="cfg-banner-upload" accept="image/*" onchange="window.uploadBanner(event)">
@@ -429,8 +449,72 @@
                 </table>
             </div>
         </div>
+
+        <div id="sec-promocode" class="setting-section">
+            <div class="add-form">
+                <div class="form-title" style="margin-bottom: 20px;">Create Promo Code</div>
+                <input type="hidden" id="cfg-promo-id">
+                
+                <div class="form-grid">
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Promo Code Name</label>
+                            <input type="text" id="cfg-promo-code" class="input-clean" placeholder="e.g., NEW10, KHMERNEWYEAR" style="text-transform: uppercase;">
+                        </div>
+                        <div class="form-grid" style="gap: 15px;">
+                            <div class="form-group">
+                                <label class="form-label">Discount Type</label>
+                                <select id="cfg-promo-type" class="input-clean" onchange="document.getElementById('promo-val-label').innerText = this.value === 'percent' ? 'Discount Amount (%)' : 'Discount Amount ($)'">
+                                    <option value="percent">Percentage (%)</option>
+                                    <option value="fixed">Fixed Amount ($)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" id="promo-val-label">Discount Amount (%)</label>
+                                <input type="number" id="cfg-promo-value" class="input-clean" placeholder="e.g., 10">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Expiry Date (Optional)</label>
+                            <input type="datetime-local" id="cfg-promo-expiry" class="input-clean" style="margin-bottom: 8px;">
+                            
+                            <div style="display: flex; gap: 8px; margin-bottom: 8px; align-items: stretch;">
+                                <input type="number" id="cfg-promo-custom-hours" class="input-clean" style="margin-bottom: 0; padding: 6px 12px; width: 130px; font-size: 12px; height: 34px;" placeholder="ចំនួនម៉ោង (ឧ. 24)">
+                                <button type="button" class="btn-text" style="font-size: 11px; padding: 0 15px; background: rgba(76, 175, 80, 0.1); color: #4caf50; border: 1px solid rgba(76, 175, 80, 0.2); height: 34px; display: flex; align-items: center; font-weight: 800;" onclick="window.applyCustomHours()">Set</button>
+                            </div>
+
+                            <span style="font-size: 11px; color: var(--gray);">Leave blank if never expires</span>
+                        </div>
+                        
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label class="size-checkbox" style="width: 100%; color: white;">
+                                <input type="checkbox" id="cfg-promo-active" checked style="accent-color: var(--success);"> Enable this Code
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; display: flex; gap: 15px; justify-content: flex-end;">
+                    <button type="button" class="btn-text" onclick="window.resetPromoForm()">Clear</button>
+                    <button type="button" class="btn-main" onclick="window.savePromoCode()">Save Promo Code</button>
+                </div>
+            </div>
+
+            <h3 style="font-size: 14px; text-transform: uppercase; margin-top: 40px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">Available Promo Codes</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead><tr><th>Code Name</th><th>Discount</th><th>Expiry Date</th><th>Status</th><th style="text-align: right;">Action</th></tr></thead>
+                    <tbody id="promo-table"><tr><td colspan="5" style="text-align:center; padding: 40px; color: var(--gray);">Loading...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
       </div>
-<div id="panel-products" class="panel">
+
+      <div id="panel-products" class="panel">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
           <h2 style="font-size: 24px; text-transform: uppercase; letter-spacing: -0.5px;">Inventory</h2>
           <div style="display: flex; gap: 10px;">
@@ -577,7 +661,7 @@
       </div>
   </div>
 
-<div class="modal-overlay" id="disc-items-modal">
+  <div class="modal-overlay" id="disc-items-modal">
       <div class="modal-content" style="max-width: 500px; padding: 25px;">
           <div class="modal-close" onclick="window.closeDiscModal()">✕</div>
           <h2 style="margin-bottom: 20px; text-transform: uppercase; font-size: 18px; letter-spacing: 0.5px;">Select Products</h2>
@@ -624,7 +708,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, getDoc, setDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
     import { S3Client, PutObjectCommand } from "https://cdn.jsdelivr.net/npm/@aws-sdk/client-s3/+esm";
 
     const firebaseConfig = {
@@ -749,7 +833,7 @@
         document.getElementById('disc-selected-count').innerText = `${count} items selected`;
     };
 
-// 🔴 Real-time Settings Listener 🔴
+    // 🔴 Real-time Settings Listener 🔴
     window.listenSettings = () => {
         onSnapshot(doc(db, "settings", "store_config"), (docSnap) => {
             if (docSnap.exists()) {
@@ -757,11 +841,12 @@
                 if(!currentConfig.discounts) currentConfig.discounts = [];
                 if(!currentConfig.announcements) currentConfig.announcements = [];
                 
-                // 🔴 ប្រែក្លាយរូបបណ្តោះអាសន្ន ទៅជារូបគោលអចិន្ត្រៃយ៍ 🔴
-                // បើប្រព័ន្ធឆែកឃើញថាទទេស្អាត វាទាញរូបចាស់២សន្លឹកនេះមកធ្វើជា Base ដើម
                 if(!currentConfig.heroBanners || currentConfig.heroBanners.length === 0) {
                     currentConfig.heroBanners = ['Cover.png', 'Cover2.png'];
                 }
+
+                if (currentConfig.bannerRatioDesktop) document.getElementById('cfg-banner-ratio-pc').value = currentConfig.bannerRatioDesktop;
+                if (currentConfig.bannerRatioMobile) document.getElementById('cfg-banner-ratio-mobile').value = currentConfig.bannerRatioMobile;
 
                 window.renderDiscountsTable(); 
                 window.renderAnnouncementsTable(); 
@@ -806,7 +891,6 @@
         const newIndex = index + direction;
         if (newIndex < 0 || newIndex >= banners.length) return;
         
-        // ប្តូរទីតាំងគ្នា (Swap)
         const temp = banners[index];
         banners[index] = banners[newIndex];
         banners[newIndex] = temp;
@@ -823,8 +907,8 @@
         if(!file) return;
         document.getElementById('uploading-banner-text').style.display = 'block';
         try {
-            // ហៅមុខងារ Compress ដែលបានបង្កើតពីមុន (បើមាន) ឬកុំប្រេសធម្មតា
-            const url = await uploadFileToR2(file); 
+            const compressedFile = await window.compressImage(file);
+            const url = await uploadFileToR2(compressedFile); 
             let banners = currentConfig.heroBanners ? [...currentConfig.heroBanners] : [];
             banners.push(url);
             await setDoc(doc(db, "settings", "store_config"), { heroBanners: banners }, { merge: true });
@@ -841,13 +925,29 @@
             let banners = [...currentConfig.heroBanners];
             banners.splice(index, 1);
             try {
-                // នៅពេលលុបអស់ វាដឹងថាទទេស្អាត []
                 await setDoc(doc(db, "settings", "store_config"), { heroBanners: banners }, { merge: true });
                 window.showAlert("Success", "លុបរូបចេញជោគជ័យ!", "success");
             } catch (error) { window.showAlert("Error", "មិនអាចលុបបានទេ។", "error"); }
         });
     };
-        window.saveDeliveryFee = async () => {
+    
+    // 🔴 អនុគមន៍រក្សាទុកទំហំ Banner 🔴
+    window.saveBannerRatio = async () => {
+        const pcRatio = document.getElementById('cfg-banner-ratio-pc').value;
+        const mobileRatio = document.getElementById('cfg-banner-ratio-mobile').value;
+        try {
+            await setDoc(doc(db, "settings", "store_config"), { 
+                bannerRatioDesktop: pcRatio,
+                bannerRatioMobile: mobileRatio
+            }, { merge: true });
+            window.showAlert("Success", "Banner Ratio Saved!", "success");
+        } catch (error) { 
+            console.error("Error saving banner ratio", error); 
+            window.showAlert("Error", "Failed to save ratio", "error");
+        }
+    };
+    
+    window.saveDeliveryFee = async () => {
         const fee = Number(document.getElementById('cfg-delivery').value) || 0;
         try {
             await setDoc(doc(db, "settings", "store_config"), { deliveryFee: fee }, { merge: true });
@@ -1041,6 +1141,122 @@
         window.updateDiscCount();
     };
 
+    // ==========================================
+    // 🔴 មុខងារ គ្រប់គ្រង PROMO CODE 🔴
+    // ==========================================
+    let currentPromoCodes = [];
+    const loadPromoCodes = async () => {
+        try {
+            const snap = await getDocs(collection(db, "promo_codes"));
+            currentPromoCodes = [];
+            snap.forEach(doc => currentPromoCodes.push({ id: doc.id, ...doc.data() }));
+            window.renderPromoTable();
+        } catch(e) { console.error("Error loading promo codes:", e); }
+    };
+    loadPromoCodes();
+
+    window.renderPromoTable = () => {
+        let html = '';
+        if (currentPromoCodes.length === 0) {
+            html = '<tr><td colspan="5" style="text-align:center; padding:40px; color:var(--gray);">No promo codes found.</td></tr>';
+        } else {
+            currentPromoCodes.forEach(p => {
+                let statusHtml = p.active ? `<span style="color:var(--success); font-weight:600;">Active</span>` : `<span style="color:var(--danger); font-weight:600;">Disabled</span>`;
+                let discHtml = p.type === 'percent' ? `${p.value}% OFF` : `$${p.value} OFF`;
+                html += `<tr>
+                    <td><b style="font-size:14px; color: var(--accent); letter-spacing: 1px;">${p.code}</b></td>
+                    <td><span style="background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">${discHtml}</span></td>
+                    <td><span style="font-size:11px; color:var(--gray)">${p.expiryDate ? p.expiryDate.replace('T',' ') : 'Never Expires'}</span></td>
+                    <td>${statusHtml}</td>
+                    <td style="text-align: right; white-space: nowrap;">
+                        <span class="btn-text" onclick="window.editPromo('${p.id}')" style="margin-right:5px;">Edit</span>
+                        <span class="btn-text danger" onclick="window.deletePromo('${p.id}')">Del</span>
+                    </td>
+                </tr>`;
+            });
+        }
+        document.getElementById('promo-table').innerHTML = html;
+    };
+
+    window.applyCustomHours = () => {
+        const hoursStr = document.getElementById('cfg-promo-custom-hours').value;
+        const hours = Number(hoursStr);
+        
+        if (!hoursStr || hours <= 0) {
+            return window.showAlert("Warning", "សូមបញ្ចូលចំនួនម៉ោងឲ្យបានត្រឹមត្រូវ (ឧ. 24)", "error");
+        }
+        
+        let date = new Date();
+        date.setHours(date.getHours() + hours);
+        
+        const offset = date.getTimezoneOffset() * 60000; 
+        const localISOTime = (new Date(date - offset)).toISOString().slice(0, 16);
+        
+        document.getElementById('cfg-promo-expiry').value = localISOTime;
+    };
+
+    window.savePromoCode = async () => {
+        const id = document.getElementById('cfg-promo-id').value;
+        const code = document.getElementById('cfg-promo-code').value.trim().toUpperCase();
+        const type = document.getElementById('cfg-promo-type').value;
+        const value = Number(document.getElementById('cfg-promo-value').value) || 0;
+        const expiryDate = document.getElementById('cfg-promo-expiry').value;
+        const active = document.getElementById('cfg-promo-active').checked;
+
+        if(!code || value <= 0) return window.showAlert("Warning", "Please enter a valid code and discount value!", "error");
+
+        const promoData = { code, type, value, expiryDate, active, timestamp: Date.now() };
+
+        try {
+            if(id) {
+                await updateDoc(doc(db, "promo_codes", id), promoData);
+                window.showAlert("Success", "Promo Code updated successfully!", "success");
+            } else {
+                const q = query(collection(db, "promo_codes"), where("code", "==", code));
+                const snap = await getDocs(q);
+                if(!snap.empty) return window.showAlert("Error", "This Promo Code already exists!", "error");
+                
+                await addDoc(collection(db, "promo_codes"), promoData);
+                window.showAlert("Success", "Promo Code created successfully!", "success");
+            }
+            window.resetPromoForm();
+            loadPromoCodes();
+        } catch (error) { window.showAlert("Error", "Failed to save promo code.", "error"); console.error(error); }
+    };
+
+    window.editPromo = (id) => {
+        let p = currentPromoCodes.find(x => x.id === id);
+        if(!p) return;
+        document.getElementById('cfg-promo-id').value = p.id;
+        document.getElementById('cfg-promo-code').value = p.code;
+        document.getElementById('cfg-promo-type').value = p.type;
+        document.getElementById('cfg-promo-value').value = p.value;
+        document.getElementById('cfg-promo-expiry').value = p.expiryDate || '';
+        document.getElementById('cfg-promo-active').checked = p.active;
+        document.getElementById('promo-val-label').innerText = p.type === 'percent' ? 'Discount Amount (%)' : 'Discount Amount ($)';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.deletePromo = (id) => {
+        window.showConfirm("Delete Promo", "Are you sure you want to delete this Promo Code?", async () => {
+            try {
+                await deleteDoc(doc(db, "promo_codes", id));
+                window.showAlert("Success", "Promo Code deleted!", "success");
+                loadPromoCodes();
+            } catch (error) { window.showAlert("Error", "Delete failed.", "error"); }
+        });
+    };
+
+    window.resetPromoForm = () => {
+        document.getElementById('cfg-promo-id').value = '';
+        document.getElementById('cfg-promo-code').value = '';
+        document.getElementById('cfg-promo-type').value = 'percent';
+        document.getElementById('cfg-promo-value').value = '';
+        document.getElementById('cfg-promo-expiry').value = '';
+        document.getElementById('cfg-promo-active').checked = true;
+        document.getElementById('promo-val-label').innerText = 'Discount Amount (%)';
+    };
+
     window.closeModal = (id) => { document.getElementById(id).style.display = 'none'; }
     window.openAddForm = () => { window.resetForm(); document.getElementById('form-mode-title').innerText = "Add New Product"; document.getElementById('product-form').style.display = 'block'; };
     window.closeForm = () => { document.getElementById('product-form').style.display = 'none'; };
@@ -1062,13 +1278,10 @@
         if(checkbox.checked) { stockInput.disabled = false; stockInput.focus(); } else { stockInput.disabled = true; stockInput.value = ""; }
     };
 
-window.previewCover = async (event) => {
+    window.previewCover = async (event) => {
         const file = event.target.files[0];
         if(!file) return;
-        
-        // ហៅមុខងារ Compress
         coverFile = await window.compressImage(file);
-        
         const container = document.getElementById('cover-preview-container');
         const reader = new FileReader();
         reader.onload = function(e) { container.innerHTML = `<div class="img-preview-box"><img src="${e.target.result}"><div class="remove-img-btn" onclick="window.removeCover()">✕</div></div>`; }
@@ -1081,10 +1294,8 @@ window.previewCover = async (event) => {
         const files = event.target.files;
         const container = document.getElementById('detail-preview-container');
         for(let i=0; i<files.length; i++) {
-            // ហៅមុខងារ Compress
             let compressedFile = await window.compressImage(files[i]);
             detailFiles.push(compressedFile);
-            
             const reader = new FileReader();
             reader.onload = function(e) {
                 const box = document.createElement('div'); box.className = 'img-preview-box';
@@ -1095,26 +1306,6 @@ window.previewCover = async (event) => {
             reader.readAsDataURL(compressedFile);
         }
         event.target.value = ''; 
-    };
-    window.removeDetail = (btn, index) => { btn.parentElement.remove(); detailFiles[index] = null; };
-
-    // 🔴 កែកន្លែង Upload Banner អោយ Compress ដែរ 🔴
-    window.uploadBanner = async (event) => {
-        const file = event.target.files[0];
-        if(!file) return;
-        document.getElementById('uploading-banner-text').style.display = 'block';
-        try {
-            const compressedFile = await window.compressImage(file); // Compress
-            const url = await uploadFileToR2(compressedFile);
-            let banners = currentConfig.heroBanners ? [...currentConfig.heroBanners] : [];
-            banners.push(url);
-            await setDoc(doc(db, "settings", "store_config"), { heroBanners: banners }, { merge: true });
-            window.showAlert("Success", "រូប Cover ត្រូវបានបញ្ចូលជោគជ័យ!", "success");
-        } catch(e) {
-            window.showAlert("Error", "ការបញ្ចូលបរាជ័យ សូមពិនិត្យ Internet។", "error");
-        }
-        document.getElementById('uploading-banner-text').style.display = 'none';
-        event.target.value = '';
     };
     window.removeDetail = (btn, index) => { btn.parentElement.remove(); detailFiles[index] = null; };
 
@@ -1168,12 +1359,9 @@ window.previewCover = async (event) => {
       } catch (error) { console.error(error); }
     };
 
-// 🔴 មុខងារបង្រួមរូបភាព (Image Compression) ឱ្យក្រោម 500KB 🔴
     window.compressImage = (file) => {
         return new Promise((resolve, reject) => {
             if (!file || !file.type.startsWith('image/')) { resolve(file); return; }
-            
-            // បើទំហំតូចជាង 300KB ស្រាប់ មិនបាច់បង្រួមទេ
             if (file.size / 1024 < 300) { resolve(file); return; }
 
             const reader = new FileReader();
@@ -1186,7 +1374,6 @@ window.previewCover = async (event) => {
                     let width = img.width;
                     let height = img.height;
                     
-                    // កំណត់ទំហំអតិបរមា 1200px (ច្បាស់គ្រប់គ្រាន់សម្រាប់ទូរស័ព្ទ និងកុំព្យូទ័រ)
                     const MAX_SIZE = 1200;
                     if (width > height && width > MAX_SIZE) {
                         height *= MAX_SIZE / width;
@@ -1201,7 +1388,6 @@ window.previewCover = async (event) => {
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
                     
-                    // បំប្លែងទៅជា WebP ដែលមានទំហំតូចបំផុត គុណភាព 80%
                     canvas.toBlob((blob) => {
                         const newFileName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
                         const newFile = new File([blob], newFileName, { type: 'image/webp', lastModified: Date.now() });
@@ -1213,14 +1399,6 @@ window.previewCover = async (event) => {
             reader.onerror = (error) => reject(error);
         });
     };
-
-    async function uploadFileToR2(file) {
-        const cleanFileName = Date.now() + '_' + file.name.replace(/\s+/g, '-');
-        const arrayBuffer = await file.arrayBuffer();
-        const fileData = new Uint8Array(arrayBuffer);
-        const command = new PutObjectCommand({ Bucket: R2_BUCKET_NAME, Key: cleanFileName, Body: fileData, ContentType: file.type });
-        await s3Client.send(command); return `${R2_PUBLIC_URL}/${cleanFileName}`;
-    }
 
     window.saveProduct = async () => {
       const id = document.getElementById('p-id').value;
@@ -1340,7 +1518,6 @@ window.previewCover = async (event) => {
         if (currentOrders.length === 0) { html = '<tr><td colspan="5" style="text-align:center; padding:40px; color: var(--gray);">No orders available yet.</td></tr>'; } 
         else {
             currentOrders.forEach(o => {
-// 🔴 Status មានតែ ២ ដំណាក់កាលប៉ុណ្ណោះ 🔴
         let color = o.status === 'Pending' ? '#f59e0b' : 
                             (o.status === 'Paid (Pending Verification)' ? '#f59e0b' : 
                             (o.status.includes('Paid') ? 'var(--success)' : 
@@ -1502,13 +1679,9 @@ window.previewCover = async (event) => {
         document.getElementById('user-modal').style.display = 'flex';
     };
 
-    // ==========================================
-    // 🔴 មុខងារ រៀបចំ Layout (Reorder Products) 🔴
-    // ==========================================
     window.tempReorderList = [];
 
     window.openReorderModal = () => {
-        // តម្រៀបតាម OrderIndex បើអត់មានយក 0
         window.tempReorderList = [...currentProducts].sort((a,b) => (a.orderIndex || 0) - (b.orderIndex || 0));
         window.renderReorderList();
         document.getElementById('reorder-modal').style.display = 'flex';
@@ -1544,7 +1717,6 @@ window.previewCover = async (event) => {
         const newIndex = index + direction;
         if (newIndex < 0 || newIndex >= window.tempReorderList.length) return;
         
-        // ធ្វើការ Swap ទីតាំងគ្នា
         const temp = window.tempReorderList[index];
         window.tempReorderList[index] = window.tempReorderList[newIndex];
         window.tempReorderList[newIndex] = temp;
@@ -1558,7 +1730,6 @@ window.previewCover = async (event) => {
         btn.disabled = true;
 
         try {
-            // Loop កែប្រែ OrderIndex ចូល Firebase សម្រាប់គ្រប់ទំនិញទាំងអស់
             for (let i = 0; i < window.tempReorderList.length; i++) {
                 const product = window.tempReorderList[i];
                 await updateDoc(doc(db, "products", product.id), { orderIndex: i });
@@ -1566,7 +1737,7 @@ window.previewCover = async (event) => {
             
             window.showAlert("Success", "Layout ត្រូវបានរៀបចំថ្មីជោគជ័យ!", "success");
             window.closeModal('reorder-modal');
-            window.loadProducts(); // Load ថ្មីដើម្បីអាប់ដេត Table
+            window.loadProducts(); 
         } catch (error) {
             console.error(error);
             window.showAlert("Error", "បរាជ័យក្នុងការ Save Layout។", "error");
@@ -1577,3 +1748,4 @@ window.previewCover = async (event) => {
     };
   </script>
 </body>
+</html>
