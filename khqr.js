@@ -1,29 +1,8 @@
 // ==========================================
-// KHQR MODULE (SMART HYBRID: AUTO + MANUAL UPLOAD FALLBACK) - UPDATED V6
+// KHQR MODULE (MANUAL UPLOAD ONLY) - FIXED V7
 // ==========================================
 
-let pollingInterval;
 let timerInterval;
-
-// 🔴 អនុគមន៍ហៅទៅកាន់ Cloudflare Worker របស់អ្នក 🔴
-async function checkTransactionStatus(md5Hash) {
-    try {
-        const targetUrl = `https://idk-backend.vannvirakboth372.workers.dev`;
-        const response = await fetch(targetUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                action: "check_bakong", // ប្រាប់ Worker ថាយើងចង់ឆែកការទូទាត់
-                md5Hash: md5Hash 
-            })
-        });
-        
-        if (!response.ok) return { isError: true, status: response.status }; 
-        return await response.json();
-    } catch (error) { 
-        return { isError: true, status: 500 }; 
-    }
-}
 
 window.startKHQRPayment = async (totalAmount, orderData) => {
     const amountEl = document.getElementById('khqr-total-amount');
@@ -34,6 +13,7 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
 
     if(!amountEl || !qrContainer || !statusEl || !modalEl) return;
 
+    // ប្តូរប្រាក់ដុល្លារទៅរៀល (ឧ. 4100)
     let amountKHR = Math.round(totalAmount * 4100);
     
     amountEl.innerHTML = `
@@ -51,7 +31,7 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
     modalEl.classList.add('active');
 
     try {
-        // 🔴 ប្រើប្រាស់ BakongKHQR ពី index.html ដោយផ្ទាល់ (លែង Error Module ទៀតហើយ) 🔴
+        // ប្រើប្រាស់ BakongKHQR ពី index.html ដោយផ្ទាល់
         if (typeof BakongKHQR === 'undefined') {
             throw new Error("ប្រព័ន្ធមិនទាន់ស្គាល់ KHQR ទេ។ សូម Refresh វេបសាយម្តងទៀត!");
         }
@@ -59,11 +39,11 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
         let uniqueBillNumber = "ORD" + Math.floor(100000 + Math.random() * 900000).toString();
 
         const qrData = {
-            tag: "1", // 1 សម្រាប់ Account ធម្មតា, 2 សម្រាប់ Merchant
-            accountID: 'virakboth_vann@bkrt', 
-            merchantName: 'VIRAKBOTH VANN',
+            tag: "1", 
+            accountID: 'virakboth_vann@bkrt', // 🔴 សូមប្តូរជាលេខគណនីបាគងរបស់លោកអ្នក
+            merchantName: 'VIRAKBOTH VANN', // 🔴 សូមប្តូរជាឈ្មោះរបស់លោកអ្នក
             merchantCity: 'Phnom Penh',
-            currency: "KHM", // KHM ប្រើសម្រាប់ប្រាក់រៀល
+            currency: "KHM", 
             amount: amountKHR.toString(), 
             countryCode: "KH",
             merchantCategoryCode: '5999',
@@ -86,7 +66,7 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
             correctLevel: QRCode.CorrectLevel.M
         });
         
-        // 🔴 ប្រើប្រាស់ DOM Method ដើម្បីការពារកុំឱ្យខូចផ្ទាំង Canvas របស់ QR Code 🔴
+        // បន្ថែម Logo បាគងនៅកណ្តាល QR
         const centerLogo = document.createElement('img');
         centerLogo.src = 'logobakong.png';
         centerLogo.style.position = 'absolute';
@@ -100,14 +80,30 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
         centerLogo.style.padding = '4px';
         centerLogo.style.borderRadius = '8px';
         
-        // ទុកពេលឱ្យវាគូរ QR រួចរាល់សិន ទើបបន្ថែម Logo ពីលើ
-        setTimeout(() => {
-            qrContainer.appendChild(centerLogo);
-        }, 50);
+        setTimeout(() => { qrContainer.appendChild(centerLogo); }, 50);
 
-        const md5Hash = md5(dynamicKHQRString);
-        
-        // មុខងារសម្រាប់ឱ្យភ្ញៀវ Upload រូបភាពវិក្កយបត្រ (Plan B)
+        // 🔴 បង្ហាញផ្ទាំង Upload វិក្កយបត្រភ្លាមៗ ដោយមិនបាច់រង់ចាំ 🔴
+        statusEl.innerHTML = `
+            <div style="width: 100%; margin-top: 5px; background: #0a0a0a; padding: 12px; border-radius: 12px; border: 1px solid #222;">
+                <p style="font-size: 12px; color: #ffaa00; margin-bottom: 10px; font-weight: bold;">⚠️ សូមថតអេក្រង់ (Screenshot) វិក្កយបត្រ បន្ទាប់ពីវេរលុយរួច</p>
+                <label id="upload-label" for="receipt-upload" style="background: #1a1a1a; border: 1px dashed #555; padding: 15px; border-radius: 8px; display: block; text-align: center; cursor: pointer; font-size: 13px; font-weight: bold; color: white; margin: 0; transition: 0.2s;">
+                    📸 ចុចទីនេះដើម្បី Upload វិក្កយបត្រ
+                    <input type="file" id="receipt-upload" accept="image/*" style="display: none;" onchange="window.handleReceiptUpload(event)">
+                </label>
+                
+                <div id="receipt-action-area" style="display: none; align-items: center; gap: 12px; width: 100%;">
+                    <div style="position: relative; flex-shrink: 0;">
+                        <img id="receipt-img" src="" style="width: 48px; height: 48px; border-radius: 6px; border: 1px solid #4caf50; object-fit: cover; display: block;">
+                        <div onclick="window.removeReceipt()" style="position: absolute; top: -6px; right: -6px; background: #ff4444; color: white; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">✕</div>
+                    </div>
+                    <button id="btn-manual-confirm" onclick="window.confirmManualPayment()" style="background: #4caf50; color: white; border: none; padding: 14px 10px; border-radius: 8px; font-size: 14px; font-weight: 900; flex-grow: 1; cursor: pointer; text-transform: uppercase; transition: 0.3s; box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);">
+                        ✅ បញ្ជាក់ការទូទាត់
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // មុខងារបង្ហាប់រូបភាព ពេលអតិថិជន Upload
         window.handleReceiptUpload = (event) => {
             const file = event.target.files[0];
             if (file) {
@@ -126,7 +122,6 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
                         
                         const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
                         
-                        // បង្ហាញរូបភាពតូចនៅខាងឆ្វេងប៊ូតុងភ្លាមៗ និងលាក់ប្រអប់ Upload ការពារដាច់អេក្រង់
                         document.getElementById('upload-label').style.display = 'none';
                         document.getElementById('receipt-action-area').style.display = 'flex';
                         document.getElementById('receipt-img').src = compressedBase64;
@@ -140,7 +135,6 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
             }
         };
 
-        // មុខងារចុចសញ្ញា X ដើម្បីលុបរូបភាពចេញវិញ និងប្តូររូបថ្មី
         window.removeReceipt = () => {
             document.getElementById('upload-label').style.display = 'block';
             document.getElementById('receipt-action-area').style.display = 'none';
@@ -149,15 +143,18 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
         };
 
         window.confirmManualPayment = () => {
+            if(!orderData.receiptImage) {
+                alert("សូម Upload រូបភាពវិក្កយបត្រជាមុនសិន!");
+                return;
+            }
             clearInterval(timerInterval);
-            statusEl.innerHTML = `<span style="color:#4caf50; font-weight:bold;">កំពុងដំណើរការវិក្កយបត្រ...</span>`;
+            statusEl.innerHTML = `<span style="color:#4caf50; font-weight:bold;">កំពុងបញ្ជូនវិក្កយបត្រ...</span>`;
             if(typeof window.saveOrderToFirebase === 'function') window.saveOrderToFirebase(orderData); 
         };
 
-        // រៀបចំម៉ោងរាប់ថយក្រោយ ១០ នាទី (600 វិនាទី)
+        // រៀបចំម៉ោងរាប់ថយក្រោយ ១០ នាទី
         let timeLeft = 600; 
         if(timerInterval) clearInterval(timerInterval);
-        if(pollingInterval) clearInterval(pollingInterval);
         
         timerText.innerText = "10:00";
         
@@ -168,52 +165,11 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
             timerText.innerText = `${m}:${s}`;
             if(timeLeft <= 0) {
                 clearInterval(timerInterval);
-                clearInterval(pollingInterval);
                 statusEl.innerHTML = `❌ <span style="color:#ff4444;">ផុតកំណត់ម៉ោងទូទាត់! សូមបិទផ្ទាំងនេះរួចចុចទិញម្តងទៀត។</span>`;
                 qrContainer.style.opacity = "0.2"; 
+                document.getElementById('upload-label').style.display = 'none';
             }
         }, 1000);
-
-        // យន្តការឆែកស្ថានភាពស្វ័យប្រវត្តិ
-        pollingInterval = setInterval(async () => {
-            const apiResult = await checkTransactionStatus(md5Hash);
-            
-            if (apiResult && !apiResult.isError && apiResult.responseCode === 0) { 
-                clearInterval(pollingInterval); 
-                clearInterval(timerInterval);
-                statusEl.innerHTML = `✅ <span style="color:#4caf50; font-weight:bold;">ការទូទាត់ទទួលបានជោគជ័យ!</span>`;
-                orderData.status = "Paid via KHQR (Auto)";
-                if(typeof window.saveOrderToFirebase === 'function') window.saveOrderToFirebase(orderData); 
-            } 
-            else if (apiResult && (apiResult.isError || apiResult.responseCode === 1)) {
-                clearInterval(pollingInterval); // ឈប់ឆែកអូតូ លោតផ្ទាំង Manual ភ្លាម
-                
-                statusEl.innerHTML = `
-                    <div style="width: 100%; margin-top: 5px; background: #0a0a0a; padding: 12px; border-radius: 12px; border: 1px solid #222;">
-                        
-                        <label id="upload-label" for="receipt-upload" style="background: #1a1a1a; border: 1px dashed #555; padding: 15px; border-radius: 8px; display: block; text-align: center; cursor: pointer; font-size: 13px; font-weight: bold; color: white; margin: 0;">
-                            📸 ចុចទីនេះដើម្បី Upload វិក្កយបត្រ
-                            <input type="file" id="receipt-upload" accept="image/*" style="display: none;" onchange="window.handleReceiptUpload(event)">
-                        </label>
-                        
-                        <div id="receipt-action-area" style="display: none; align-items: center; gap: 12px; width: 100%;">
-                            
-                            <div style="position: relative; flex-shrink: 0;">
-                                <img id="receipt-img" src="" style="width: 48px; height: 48px; border-radius: 6px; border: 1px solid #4caf50; object-fit: cover; display: block;">
-                                <div onclick="window.removeReceipt()" style="position: absolute; top: -6px; right: -6px; background: #ff4444; color: white; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">✕</div>
-                            </div>
-                            
-                            <button id="btn-manual-confirm" onclick="window.confirmManualPayment()" style="background: #4caf50; color: white; border: none; padding: 14px 10px; border-radius: 8px; font-size: 14px; font-weight: 900; flex-grow: 1; cursor: pointer; text-transform: uppercase; transition: 0.3s; box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);">
-                                ✅ បញ្ជាក់ការទូទាត់
-                            </button>
-                        </div>
-                    </div>
-                `;
-            } 
-            else {
-                statusEl.innerHTML = `<div class="spinner"></div> <span style="color:var(--text-muted);">កំពុងរង់ចាំការទូទាត់អូតូ...</span>`;
-            }
-        }, 5000); 
 
     } catch (error) {
         console.error("Error Builder:", error);
@@ -222,7 +178,6 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
 };
 
 window.cancelKHQR = () => {
-    if(pollingInterval) clearInterval(pollingInterval);
     if(timerInterval) clearInterval(timerInterval);
     const modalEl = document.getElementById('khqr-modal');
     if(modalEl) modalEl.classList.remove('active');
