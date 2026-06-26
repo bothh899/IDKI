@@ -63,7 +63,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 .hero { position: relative; width: 100%; background: #000; overflow: hidden; }
-        .hero-slider { display: flex; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.hero-slider { display: flex; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: none; aspect-ratio: var(--banner-ratio-pc, 16/9); }
         .hero-slider::-webkit-scrollbar { display: none; }
         .hero-slide { flex: 0 0 100%; width: 100%; object-fit: cover; scroll-snap-align: start; opacity: 0.85; }
         
@@ -263,8 +263,9 @@
         .btn-phone:hover { border-color: #fff; background: rgba(255,255,255,0.05); }
 
         @media (max-width: 992px) { .product-grid { grid-template-columns: repeat(2, 1fr); } .detail-container { grid-template-columns: 1fr; } }
-        @media (max-width: 600px) {
-            .navbar { padding: 15px 20px; } .nav-links { display: none; } 
+@media (max-width: 600px) {
+            .hero-slider { aspect-ratio: var(--banner-ratio-mobile, 1/1); }
+            .navbar { padding: 15px 20px; } .nav-links { display: none; }
             .new-arrivals { padding: 25px 20px 40px 20px; }
             .section-header { margin-bottom: 15px; padding-bottom: 8px;}
             .product-grid { gap: 15px; } .product-image-container { height: 250px; }
@@ -635,8 +636,13 @@ onSnapshot(doc(db, "settings", "store_config"), (docSnap) => {
                 deliveryFee = data.deliveryFee || 0;
 
 // 🔴 ទាញយករូប Cover មកបង្ហាញ 🔴
+             // 🔴 ទាញយករូប Cover និងទំហំ (Aspect Ratio) មកបង្ហាញ 🔴
                 if(data.heroBanners !== undefined) {
                     if(typeof window.renderDynamicBanners === 'function') {
+                        // កំណត់ទំហំដែល Admin បានរើសបញ្ជូនទៅកាន់ CSS
+                        document.documentElement.style.setProperty('--banner-ratio-pc', data.bannerRatioDesktop || '16/9');
+                        document.documentElement.style.setProperty('--banner-ratio-mobile', data.bannerRatioMobile || '1/1');
+                        
                         window.renderDynamicBanners(data.heroBanners);
                     }
                 } else {
