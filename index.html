@@ -1665,6 +1665,7 @@ let extra = `
         };
 
 // 🔴 អនុគមន៍សម្រាប់ Save Order (Update ពិសេសមាន Telegram Alert ឆ្លងកាត់ Worker) 🔴
+       // 🔴 អនុគមន៍សម្រាប់ Save Order (Update ពិសេសមាន Telegram Alert ឆ្លងកាត់ Worker) 🔴
         window.saveOrderToFirebase = async (orderData) => {
             try {
                 // 1. Upload រូបវិក្កយបត្រទៅ Cloudflare R2
@@ -1692,9 +1693,13 @@ let extra = `
                     localStorage.setItem('idk_guest_orders', JSON.stringify(guestOrders));
                 }
 
+                // 🔴 ការពារ Error: កំណត់តម្លៃលំនាំដើម បើវាមិនមានតម្លៃ (Undefined) 🔴
+                const safeDeliveryFee = orderData.deliveryFee !== undefined ? orderData.deliveryFee : (typeof deliveryFee !== 'undefined' ? deliveryFee : 0);
+                const safeDiscountAmount = orderData.discountAmount || 0;
+                const safeTotal = orderData.total || 0;
+
                 // 🔴 4. បាញ់សារ (Alert) ចូល Telegram Group តាមរយៈ WORKER 🔴
                 try {
-                    // ក. រៀបចំអត្ថបទ (Text) ទាញចេញពី orderData ឲ្យស្អាតមាន Emoji
                     let itemsText = orderData.items.map(i => `▫️ ${i.title} (Size: ${i.size}) <b>x${i.qty}</b>`).join('\n');
                     
                     let tgMessage = `🚨 <b>ការកុម្ម៉ង់ថ្មី (New Order)</b> 🚨\n\n` +
@@ -1704,23 +1709,24 @@ let extra = `
                                   `📍 <b>ទីតាំង:</b> ${orderData.customer.address}\n` +
                                   `📝 <b>ចំណាំ:</b> ${orderData.customer.note || 'គ្មាន'}\n\n` +
                                   `🛍️ <b>ទំនិញដែលទិញ:</b>\n${itemsText}\n\n` +
-                                  `🚚 <b>សេវាដឹក:</b> $${orderData.deliveryFee.toFixed(2)}\n` +
-                                  (orderData.promoCodeUsed ? `🎟️ <b>Promo (${orderData.promoCodeUsed}):</b> -$${orderData.discountAmount.toFixed(2)}\n` : '') +
-                                  `💰 <b>សរុប:</b> <b>$${orderData.total.toFixed(2)}</b>\n` +
+                                  `🚚 <b>សេវាដឹក:</b> $${safeDeliveryFee.toFixed(2)}\n` +
+                                  (orderData.promoCodeUsed ? `🎟️ <b>Promo (${orderData.promoCodeUsed}):</b> -$${safeDiscountAmount.toFixed(2)}\n` : '') +
+                                  `💰 <b>សរុប:</b> <b>$${safeTotal.toFixed(2)}</b>\n` +
                                   `✅ <b>ស្ថានភាព:</b> ${orderData.status}`;
 
-                    // ខ. បើមានរូបវិក្កយបត្រ (Receipt) ដាក់ជា Link បន្ថែមពីក្រោមអត្ថបទ
                     if (orderData.receiptImage && orderData.receiptImage.startsWith('http')) {
                         tgMessage += `\n\n📸 <b>វិក្កយបត្រ (Receipt Image):</b> <a href="${orderData.receiptImage}">ចុចមើលរូបភាពទីនេះ</a>`;
                     }
 
-                    // គ. បាញ់អត្ថបទទៅកាន់ Worker Backend របស់អ្នក
                     const workerURL = "https://idk-backend.vannvirakboth372.workers.dev";
 
                     fetch(workerURL, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ text: tgMessage })
+                        body: JSON.stringify({ 
+                            action: "send_telegram", // 🔴 បានបន្ថែមចំណុចនេះ ទើប Worker ដឹងថាត្រូវបាញ់ចូល Telegram
+                            text: tgMessage 
+                        })
                     })
                     .then(res => res.json())
                     .then(data => console.log("Telegram alert sent through Worker successfully!"))
@@ -1767,11 +1773,11 @@ let extra = `
                         </div>
                         <div style="display: flex; justify-content: space-between; font-size: 13px; color: #aaa; margin-bottom: 5px;">
                             <span>Delivery Fee:</span>
-                            <span>$${orderData.deliveryFee.toFixed(2)}</span>
+                            <span>$${safeDeliveryFee.toFixed(2)}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 900; color: #4caf50; margin-top: 10px; border-top: 1px solid #333; padding-top: 10px;">
                             <span>TOTAL PAID:</span>
-                            <span>$${orderData.total.toFixed(2)}</span>
+                            <span>$${safeTotal.toFixed(2)}</span>
                         </div>
                     </div>
                 `;
@@ -1801,9 +1807,10 @@ let extra = `
 
             } catch (error) { 
                 console.error("Error saving order:", error); 
-                window.showAlert("Error", "Payment successful, but there was an error saving the receipt. Please contact support.", "error");
+                window.showUIModal('Error ❌', 'មានបញ្ហាក្នុងការរក្សាទុកវិក្កយបត្រ។ សូមទាក់ទងមកកាន់យើងខ្ញុំ!', 'បិទ', window.closeUIModal);
             }
         };
+        
 
         window.processPurchase = async () => {
             if(cartItems.length === 0) return window.showUIModal('Error', 'Your cart is empty!', 'OK', window.closeUIModal);
