@@ -1,5 +1,5 @@
 // ==========================================
-// KHQR MODULE (MANUAL UPLOAD ONLY) - BULLETPROOF V8
+// KHQR MODULE (MANUAL UPLOAD ONLY) - BULLETPROOF V9
 // ==========================================
 
 let timerInterval;
@@ -30,7 +30,6 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
     modalEl.classList.add('active');
 
     try {
-        // 🔴 ទាញយក Library ផ្ទាល់យ៉ាងលឿនពី JSDelivr ធានាថាដើរ ១០០% ទាំងលើទូរស័ព្ទ និងកុំព្យូទ័រ
         const tsKhqr = await import('https://cdn.jsdelivr.net/npm/ts-khqr@2.2.3/+esm');
         const { KHQR, CURRENCY, TAG, COUNTRY } = tsKhqr;
 
@@ -38,8 +37,8 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
 
         const qrData = {
             tag: TAG.INDIVIDUAL,
-            accountID: 'virakboth_vann@bkrt', // 🔴 លេខគណនីបាគង
-            merchantName: 'VIRAKBOTH VANN',   // 🔴 ឈ្មោះ
+            accountID: 'virakboth_vann@bkrt', // លេខគណនី
+            merchantName: 'VIRAKBOTH VANN',   // ឈ្មោះ
             merchantCity: 'Phnom Penh',
             currency: CURRENCY.KHR, 
             amount: amountKHR, 
@@ -47,7 +46,9 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
             merchantCategoryCode: '5999',
             billNumber: uniqueBillNumber, 
             terminalId: "T001",
-            storeId: "IDKSHOP"
+            storeId: "IDKSHOP",
+            // 🔴 នេះជាបន្ទាត់ដែលខ្វះកាលពីមុន ដែលធ្វើឱ្យវាលោត Error ក្រហម 🔴
+            expirationTimestamp: Date.now() + 10 * 60 * 1000 
         };
 
         const result = KHQR.generate(qrData);
