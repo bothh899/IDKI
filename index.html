@@ -265,6 +265,14 @@
         .back-floating-btn { position: fixed; top: 90px; left: 20px; width: 40px; height: 40px; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; z-index: 1000; font-size: 18px; text-decoration: none; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .back-floating-btn:hover { background: rgba(0, 0, 0, 0.9); transform: scale(1.1); color: white; }
 
+/* Promo Code Styles */
+        .promo-input-wrap { display: flex; gap: 10px; margin-top: 15px; border-top: 1px dashed #333; padding-top: 15px; }
+        .promo-input { flex-grow: 1; padding: 12px 15px; background: transparent; border: 1px solid #333; color: white; border-radius: 4px; font-size: 13px; outline: none; margin-bottom: 0 !important; }
+        .promo-input:focus { border-color: white; }
+        .btn-apply-promo { background: white; color: black; border: none; padding: 0 20px; border-radius: 4px; font-weight: 800; font-size: 12px; text-transform: uppercase; cursor: pointer; transition: 0.2s;}
+        .btn-apply-promo:hover { background: #ccc; }
+        .promo-discount-row { display: flex; justify-content: space-between; font-size: 14px; color: #4caf50; margin-top: 10px; font-weight: bold;}
+
 @media (max-width: 992px) { .product-grid { grid-template-columns: repeat(2, 1fr); } .detail-container { grid-template-columns: 1fr; gap: 15px; } }@media (max-width: 600px) {
             .hero-slider { aspect-ratio: var(--banner-ratio-mobile, 1/1); }
             .navbar { padding: 15px 20px; } .nav-links { display: none; }
@@ -480,10 +488,18 @@
         <div class="checkout-page-wrapper">
             <div class="checkout-container">
                 <h2 class="checkout-header"><span>💲</span> Checkout</h2>
-                <div class="summary-box">
+              <div class="summary-box">
                     <h3 class="summary-header">Summary</h3>
                     <div class="checkout-item-row" id="checkout-product-block" style="display: none;"></div>
                     <div class="s-item"><span>Delivery fee</span><span id="checkout-delivery-fee">$0.00</span></div>
+                    <div id="checkout-discount-row" class="promo-discount-row" style="display: none;"><span>Discount</span><span id="checkout-discount-amount">-$0.00</span></div>
+                    
+                    <div class="promo-input-wrap">
+                        <input type="text" id="promo-code-input" class="promo-input" placeholder="Promo code (Optional)">
+                        <button class="btn-apply-promo" onclick="window.applyPromoCode()">Apply</button>
+                    </div>
+                    <div id="promo-msg" style="font-size: 12px; margin-top: 8px; font-weight: bold;"></div>
+
                     <div class="s-total"><span>Total:</span><span id="checkout-total">$0.00</span></div>
                 </div>
     
@@ -736,17 +752,29 @@ onSnapshot(doc(db, "settings", "store_config"), (docSnap) => {
         }
 
 
+      const getLocalFavs = () => JSON.parse(localStorage.getItem('idk_guest_favs') || '[]');
+        
         onAuthStateChanged(auth, async (user) => {
             currentCustomer = user;
             if(user) {
                 document.getElementById('auth-status-dot').style.display = 'block';
                 try {
                     const favDoc = await getDoc(doc(db, "favorites", user.uid));
-                    if (favDoc.exists()) { userFavorites = favDoc.data().items || []; } else { userFavorites = []; }
+                    let favsFromDB = favDoc.exists() ? (favDoc.data().items || []) : [];
+                    let localFavs = getLocalFavs();
+
+                    // បើមានចុចបេះដូងទុកពេលជា Guest យកវាទៅបញ្ជូលក្នុង DB រួចលុបចោលពី Local
+                    if (localFavs.length > 0) {
+                        userFavorites = [...new Set([...favsFromDB, ...localFavs])]; // Merge មិនឲ្យជាន់គ្នា
+                        await setDoc(doc(db, "favorites", user.uid), { items: userFavorites }, { merge: true });
+                        localStorage.removeItem('idk_guest_favs'); 
+                    } else {
+                        userFavorites = favsFromDB;
+                    }
                 } catch (e) { console.error(e); }
             } else {
                 document.getElementById('auth-status-dot').style.display = 'none';
-                userFavorites = []; 
+                userFavorites = getLocalFavs(); // ពេលអត់ Login ប្រើ Data ពី Local វិញ
             }
             if(productsDB.length > 0) {
                 window.renderHomeGrid();
@@ -861,31 +889,43 @@ onSnapshot(doc(db, "settings", "store_config"), (docSnap) => {
         
         window.loadMoreDetail = () => { detailDisplayCount += 10; window.updateRelatedGrid(); }
 
-        window.toggleFavorite = async (event, productId, element) => {
+      window.toggleFavorite = async (event, productId, element) => {
             event.stopPropagation(); 
-            if (!currentCustomer) { window.showUIModal('Favorites 🤍', 'Please sign in to save items you love.', null, null, '<button class="ui-modal-btn" onclick="window.showLoginUI()">Log In</button><button class="ui-modal-btn outline" onclick="window.closeUIModal()">Cancel</button>'); return; }
             const index = userFavorites.indexOf(productId);
-            if (index > -1) { userFavorites.splice(index, 1); element.classList.remove('active'); } else { userFavorites.push(productId); element.classList.add('active'); }
-            try { await setDoc(doc(db, "favorites", currentCustomer.uid), { items: userFavorites }, { merge: true }); } catch (error) { console.error(error); }
+            if (index > -1) { 
+                userFavorites.splice(index, 1); 
+                element.classList.remove('active'); 
+            } else { 
+                userFavorites.push(productId); 
+                element.classList.add('active'); 
+            }
+
+            if (!currentCustomer) {
+                localStorage.setItem('idk_guest_favs', JSON.stringify(userFavorites)); // Save local
+            } else {
+                try { await setDoc(doc(db, "favorites", currentCustomer.uid), { items: userFavorites }, { merge: true }); } catch (error) { console.error(error); }
+            }
         }
 
         window.handleFavoriteNav = (event) => {
             event.preventDefault();
-            if(!currentCustomer) { window.showUIModal('Favorites 🤍', 'Your wishlist is currently empty.<br><br>Sign in to save items you love.', null, null, '<button class="ui-modal-btn" onclick="window.showLoginUI()">Log In</button>');
+            let favListToCheck = currentCustomer ? userFavorites : getLocalFavs();
+
+            if(favListToCheck.length === 0) { 
+                window.showUIModal('Favorites 🤍', 'Your wishlist is currently empty.', 'Start Browsing', window.closeUIModal);
             } else {
-                if(userFavorites.length === 0) { window.showUIModal('Favorites 🤍', 'Your wishlist is currently empty.', 'Start Browsing', window.closeUIModal);
-                } else {
-                    let listHtml = `<div class="fav-vertical-list">`;
-                    userFavorites.forEach(id => {
-                        let p = productsDB.find(x => x.id === id);
-                        if(p) { 
-                            const dInfo = window.getDiscountInfo(p.id, p.price);
-                            listHtml += `<div class="fav-list-item" onclick="window.closeUIModal(); window.openProduct('${p.id}')"><img src="${p.imgUrl}" class="fav-list-img"><div class="fav-list-info"><span class="fav-list-title">${p.title}</span><span class="fav-list-price">$${dInfo.price.toFixed(2)}</span></div></div>`; 
-                        }
-                    });
-                    listHtml += `</div>`;
-                    window.showUIModal(`Favorites 🤍`, `You have saved <b>${userFavorites.length}</b> item(s).`, 'Close', window.closeUIModal, listHtml);
-                }
+                let listHtml = `<div class="fav-vertical-list">`;
+                favListToCheck.forEach(id => {
+                    let p = productsDB.find(x => x.id === id);
+                    if(p) { 
+                        const dInfo = window.getDiscountInfo(p.id, p.price);
+                        listHtml += `<div class="fav-list-item" onclick="window.closeUIModal(); window.openProduct('${p.id}')"><img src="${p.imgUrl}" class="fav-list-img"><div class="fav-list-info"><span class="fav-list-title">${p.title}</span><span class="fav-list-price">$${dInfo.price.toFixed(2)}</span></div></div>`; 
+                    }
+                });
+                listHtml += `</div>`;
+                
+                let extraBtn = !currentCustomer ? '<button class="ui-modal-btn" onclick="window.showLoginUI()" style="margin-top: 15px;">Log In to Save Permanently</button>' : '';
+                window.showUIModal(`Favorites 🤍`, `You have saved <b>${favListToCheck.length}</b> item(s).`, 'Close', window.closeUIModal, listHtml + extraBtn);
             }
         }
 
@@ -1397,9 +1437,49 @@ let extra = `
         window.openFullscreen = (src) => { document.getElementById('fs-img').src = src; document.getElementById('fs-modal').classList.add('active'); document.body.style.overflow = 'hidden'; }
         window.closeFullscreen = (event) => { if(event) event.preventDefault(); document.getElementById('fs-modal').classList.remove('active'); document.body.style.overflow = 'auto'; }
 
+   let appliedPromo = null;
+        let promoDiscountAmount = 0;
+
+        // មុខងារឆែក Promo Code ក្នុង Firebase
+        window.applyPromoCode = async () => {
+            const input = document.getElementById('promo-code-input').value.trim().toUpperCase();
+            const msg = document.getElementById('promo-msg');
+            if(!input) return;
+
+            msg.style.color = "var(--text-muted)"; msg.innerText = "Checking...";
+            try {
+                const q = query(collection(db, "promo_codes"), where("code", "==", input));
+                const snap = await getDocs(q);
+
+                if(snap.empty) { msg.style.color = "#ff4444"; msg.innerText = "កូដមិនត្រឹមត្រូវ!"; return; }
+
+                let promoData = null;
+                snap.forEach(doc => promoData = {id: doc.id, ...doc.data()});
+
+                if(!promoData.active) { msg.style.color = "#ff4444"; msg.innerText = "កូដនេះត្រូវបានបិទ!"; return; }
+                if(promoData.expiryDate && Date.now() > new Date(promoData.expiryDate).getTime()) { 
+                    msg.style.color = "#ff4444"; msg.innerText = "កូដនេះផុតកំណត់ហើយ!"; return; 
+                }
+
+                appliedPromo = promoData;
+                msg.style.color = "#4caf50";
+                msg.innerHTML = `✅ ជោគជ័យ! បញ្ចុះតម្លៃ ${promoData.type === 'percent' ? promoData.value + '%' : '$' + promoData.value} <span style="color:#ff4444; cursor:pointer; margin-left:10px; text-decoration:underline;" onclick="window.removePromo()">Remove</span>`;
+                window.updateCheckoutUI();
+
+            } catch(e) { console.error(e); msg.style.color = "#ff4444"; msg.innerText = "Error checking code."; }
+        }
+
+        window.removePromo = () => {
+            appliedPromo = null; promoDiscountAmount = 0;
+            document.getElementById('promo-code-input').value = "";
+            document.getElementById('promo-msg').innerText = "";
+            window.updateCheckoutUI();
+        }
+
         window.updateCheckoutUI = () => {
             if(cartItems.length === 0) { document.getElementById('checkout-total').innerText = "$0.00"; document.getElementById('checkout-product-block').style.display = 'none'; return; }
             let checkoutItemsHtml = ''; let subtotal = 0;
+            
             cartItems.forEach((item, index) => {
                 const dInfo = window.getDiscountInfo(item.id, item.price);
                 const activePrice = dInfo.price;
@@ -1420,8 +1500,7 @@ let extra = `
                             <select class="modal-size-select" style="padding: 6px 10px; font-size: 13px; border-color: #333; background: #0a0a0a; border-radius: 6px; cursor: pointer;" onchange="window.updateIndividualSize(${index}, ${k}, this.value)">
                                 ${options}
                             </select>
-                        </div>
-                    `;
+                        </div>`;
                 }
 
                 checkoutItemsHtml += `
@@ -1436,7 +1515,6 @@ let extra = `
                                 <span class="checkout-price-wrap" style="align-items: flex-start;">${priceDisplay}</span>
                             </div>
                         </div>
-                        
                         <div style="background: #151515; border: 1px solid #2a2a2a; border-radius: 8px; padding: 15px; margin-top: 15px;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; border-bottom: 1px dashed #333; padding-bottom: 12px;">
                                 <span style="font-size: 13px; color: #ccc;">ចំនួនអាវ (QTY)</span>
@@ -1452,11 +1530,88 @@ let extra = `
                         </div>
                     </div>`;
             });
+            
+            // គណនាការបញ្ចុះតម្លៃពី Promo
+            promoDiscountAmount = 0;
+            if(appliedPromo) {
+                if(appliedPromo.type === 'percent') { promoDiscountAmount = subtotal * (appliedPromo.value / 100); }
+                else if(appliedPromo.type === 'fixed') { promoDiscountAmount = appliedPromo.value; }
+                if(promoDiscountAmount > subtotal) promoDiscountAmount = subtotal; // កុំឲ្យបញ្ចុះលើសលុយដើម
+            }
+
+            let finalTotal = subtotal - promoDiscountAmount + deliveryFee;
+
             document.getElementById('checkout-product-block').style.display = 'block'; 
             document.getElementById('checkout-product-block').innerHTML = checkoutItemsHtml; 
             document.getElementById('checkout-delivery-fee').innerText = "$" + deliveryFee.toFixed(2);
-            document.getElementById('checkout-total').innerText = "$" + (subtotal + deliveryFee).toFixed(2);
+            
+            const discountRow = document.getElementById('checkout-discount-row');
+            if(promoDiscountAmount > 0) {
+                discountRow.style.display = 'flex';
+                document.getElementById('checkout-discount-amount').innerText = "-$" + promoDiscountAmount.toFixed(2);
+            } else {
+                discountRow.style.display = 'none';
+            }
+
+            document.getElementById('checkout-total').innerText = "$" + finalTotal.toFixed(2);
         }
+
+        window.processPurchase = async () => {
+            if(cartItems.length === 0) return window.showUIModal('Error', 'Your cart is empty!', 'OK', window.closeUIModal);
+            
+            let name = document.getElementById('buyer-name').value; 
+            let phone = document.getElementById('buyer-phone').value; 
+            let address = document.getElementById('buyer-address').value; 
+            let coords = document.getElementById('buyer-coords').value;
+            let note = document.getElementById('buyer-note').value;
+            
+            if(!name || !phone || !address) return window.showUIModal('Missing Info', 'សូមបំពេញឈ្មោះ លេខទូរស័ព្ទ និងអាសយដ្ឋាន!', 'OK', window.closeUIModal);
+            
+            let finalAddress = address;
+            if(coords) finalAddress += ` | Maps: https://www.google.com/maps?q=${coords}`;
+            let subtotal = 0;
+            let finalItems = [];
+            
+            cartItems.forEach(item => {
+                const dInfo = window.getDiscountInfo(item.id, item.price);
+                const activePrice = dInfo.price;
+                subtotal += activePrice * item.qty;
+                
+                let sizeCounts = {};
+                item.selectedSizes.forEach(s => { sizeCounts[s] = (sizeCounts[s] || 0) + 1; });
+                Object.keys(sizeCounts).forEach(s => { finalItems.push({ title: item.title, size: s, qty: sizeCounts[s], price: activePrice }); });
+            });
+
+            // ការគណនាមាន Promo 
+            let finalPromoAmount = 0;
+            if(appliedPromo) {
+                if(appliedPromo.type === 'percent') { finalPromoAmount = subtotal * (appliedPromo.value / 100); }
+                else if(appliedPromo.type === 'fixed') { finalPromoAmount = appliedPromo.value; }
+                if(finalPromoAmount > subtotal) finalPromoAmount = subtotal;
+            }
+            let finalPayAmount = subtotal - finalPromoAmount + deliveryFee;
+
+            const orderID = "ORD-" + Math.floor(1000 + Math.random() * 9000);
+            const orderData = { 
+                orderId: orderID, 
+                date: new Date().toLocaleString(), 
+                timestamp: Date.now(), 
+                status: "Pending", 
+                total: finalPayAmount, 
+                subtotal: subtotal, // លុយដើម
+                deliveryFee: deliveryFee,
+                promoCodeUsed: appliedPromo ? appliedPromo.code : null, // រក្សាទុកកូដបញ្ចុះតម្លៃ
+                discountAmount: finalPromoAmount,
+                customer: { name, phone, address: finalAddress, note, email: currentCustomer ? (currentCustomer.email || currentCustomer.phoneNumber || "Guest") : "Guest" }, 
+                items: finalItems 
+            };
+
+            if(typeof window.startKHQRPayment === 'function') {
+                window.startKHQRPayment(finalPayAmount, orderData);
+            } else {
+                console.error("រកមិនឃើញ File khqr.js ទេ!"); alert("ប្រព័ន្ធទូទាត់កំពុងមានបញ្ហា សូមព្យាយាមម្តងទៀតពេលក្រោយ។");
+            }
+        };
 
         window.getLocation = (e) => {
             e.preventDefault();
@@ -1520,9 +1675,10 @@ let extra = `
                                   `📞 <b>ទូរស័ព្ទ:</b> <code>${orderData.customer.phone}</code>\n` +
                                   `📍 <b>ទីតាំង:</b> ${orderData.customer.address}\n` +
                                   `📝 <b>ចំណាំ:</b> ${orderData.customer.note || 'គ្មាន'}\n\n` +
-                                  `🛍️ <b>ទំនិញដែលទិញ:</b>\n${itemsText}\n\n` +
-                                  `🚚 <b>សេវាដឹក:</b> $${deliveryFee.toFixed(2)}\n` +
-                                  `💰 <b>សរុប:</b> <b>$${orderData.total.toFixed(2)}</b>\n` +
+                                `🛍️ <b>ទំនិញដែលទិញ:</b>\n${itemsText}\n\n` +
+        `🚚 <b>សេវាដឹក:</b> $${orderData.deliveryFee.toFixed(2)}\n` +
+        (orderData.promoCodeUsed ? `🎟️ <b>Promo (${orderData.promoCodeUsed}):</b> -$${orderData.discountAmount.toFixed(2)}\n` : '') +
+        `💰 <b>សរុប:</b> <b>$${orderData.total.toFixed(2)}</b>\n` +
                                   `✅ <b>ស្ថានភាព:</b> ${orderData.status}`;
 
 // 🔴 បន្ថែមប៊ូតុង (Inline Keyboard) ពីក្រោមសារ Telegram 🔴
