@@ -1,19 +1,21 @@
 // ==========================================
-// KHQR MODULE (SMART HYBRID: AUTO + MANUAL UPLOAD FALLBACK) - REFACTORED TO USE WORKER
+// KHQR MODULE (SMART HYBRID: AUTO + MANUAL UPLOAD FALLBACK) - UPDATED V6
 // ==========================================
-
-const WORKER_URL = "https://idk-backend.vannvirakboth372.workers.dev"; // 🔴 ដូរទៅកាន់ Worker URL របស់អ្នក 🔴
 
 let pollingInterval;
 let timerInterval;
 
-// អនុគមន៍ហៅទៅកាន់ Worker ដើម្បីឆែក Status (ជំនួសអោយការហៅផ្ទាល់ទៅ 52.220.209.105)
+// 🔴 អនុគមន៍ហៅទៅកាន់ Cloudflare Worker របស់អ្នក 🔴
 async function checkTransactionStatus(md5Hash) {
     try {
-        const response = await fetch(WORKER_URL, {
+        const targetUrl = `https://idk-backend.vannvirakboth372.workers.dev`;
+        const response = await fetch(targetUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: "check_bakong", md5Hash: md5Hash })
+            body: JSON.stringify({ 
+                action: "check_bakong", // ប្រាប់ Worker ថាយើងចង់ឆែកការទូទាត់
+                md5Hash: md5Hash 
+            })
         });
         
         if (!response.ok) return { isError: true, status: response.status }; 
@@ -49,23 +51,32 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
     modalEl.classList.add('active');
 
     try {
+        // 🔴 ប្រើប្រាស់ BakongKHQR ពី index.html ដោយផ្ទាល់ (លែង Error Module ទៀតហើយ) 🔴
+        if (typeof BakongKHQR === 'undefined') {
+            throw new Error("ប្រព័ន្ធមិនទាន់ស្គាល់ KHQR ទេ។ សូម Refresh វេបសាយម្តងទៀត!");
+        }
+
         let uniqueBillNumber = "ORD" + Math.floor(100000 + Math.random() * 900000).toString();
 
-        // 🔴 សុំអោយ Worker បង្កើត QR String ជំនួស Frontend 🔴
-        const generateResponse = await fetch(WORKER_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                action: "generate_khqr", 
-                amountKHR: amountKHR, 
-                uniqueBillNumber: uniqueBillNumber 
-            })
-        });
+        const qrData = {
+            tag: "1", // 1 សម្រាប់ Account ធម្មតា, 2 សម្រាប់ Merchant
+            accountID: 'virakboth_vann@bkrt', 
+            merchantName: 'VIRAKBOTH VANN',
+            merchantCity: 'Phnom Penh',
+            currency: "KHM", // KHM ប្រើសម្រាប់ប្រាក់រៀល
+            amount: amountKHR.toString(), 
+            countryCode: "KH",
+            merchantCategoryCode: '5999',
+            billNumber: uniqueBillNumber, 
+            terminalId: "T001",
+            storeId: "IDKSHOP"
+        };
 
-        const genData = await generateResponse.json();
-        if(!genData.success) throw new Error(genData.error || "បរាជ័យក្នុងការបង្កើត QR Code");
+        const result = BakongKHQR.generateMerchant(qrData);
 
-        let dynamicKHQRString = genData.qrString;
+        if (!result || !result.data) throw new Error("ការបង្កើតកូដ KHQR បរាជ័យ!");
+
+        let dynamicKHQRString = result.data.qrCode || result.data;
 
         qrContainer.style.position = "relative";
         new QRCode(qrContainer, {
@@ -75,6 +86,7 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
             correctLevel: QRCode.CorrectLevel.M
         });
         
+        // 🔴 ប្រើប្រាស់ DOM Method ដើម្បីការពារកុំឱ្យខូចផ្ទាំង Canvas របស់ QR Code 🔴
         const centerLogo = document.createElement('img');
         centerLogo.src = 'logobakong.png';
         centerLogo.style.position = 'absolute';
@@ -88,12 +100,14 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
         centerLogo.style.padding = '4px';
         centerLogo.style.borderRadius = '8px';
         
+        // ទុកពេលឱ្យវាគូរ QR រួចរាល់សិន ទើបបន្ថែម Logo ពីលើ
         setTimeout(() => {
             qrContainer.appendChild(centerLogo);
         }, 50);
 
         const md5Hash = md5(dynamicKHQRString);
         
+        // មុខងារសម្រាប់ឱ្យភ្ញៀវ Upload រូបភាពវិក្កយបត្រ (Plan B)
         window.handleReceiptUpload = (event) => {
             const file = event.target.files[0];
             if (file) {
@@ -112,6 +126,7 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
                         
                         const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
                         
+                        // បង្ហាញរូបភាពតូចនៅខាងឆ្វេងប៊ូតុងភ្លាមៗ និងលាក់ប្រអប់ Upload ការពារដាច់អេក្រង់
                         document.getElementById('upload-label').style.display = 'none';
                         document.getElementById('receipt-action-area').style.display = 'flex';
                         document.getElementById('receipt-img').src = compressedBase64;
@@ -125,6 +140,7 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
             }
         };
 
+        // មុខងារចុចសញ្ញា X ដើម្បីលុបរូបភាពចេញវិញ និងប្តូររូបថ្មី
         window.removeReceipt = () => {
             document.getElementById('upload-label').style.display = 'block';
             document.getElementById('receipt-action-area').style.display = 'none';
@@ -138,6 +154,7 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
             if(typeof window.saveOrderToFirebase === 'function') window.saveOrderToFirebase(orderData); 
         };
 
+        // រៀបចំម៉ោងរាប់ថយក្រោយ ១០ នាទី (600 វិនាទី)
         let timeLeft = 600; 
         if(timerInterval) clearInterval(timerInterval);
         if(pollingInterval) clearInterval(pollingInterval);
@@ -152,11 +169,12 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
             if(timeLeft <= 0) {
                 clearInterval(timerInterval);
                 clearInterval(pollingInterval);
-                statusEl.innerHTML = `❌ <span style="color:#ff4444;">ផុតកំណត់ម៉ោងទូទាត់! សូមបិទផ្ទាំងនេះរួចចុចទិញម្តងទៀត。</span>`;
+                statusEl.innerHTML = `❌ <span style="color:#ff4444;">ផុតកំណត់ម៉ោងទូទាត់! សូមបិទផ្ទាំងនេះរួចចុចទិញម្តងទៀត។</span>`;
                 qrContainer.style.opacity = "0.2"; 
             }
         }, 1000);
 
+        // យន្តការឆែកស្ថានភាពស្វ័យប្រវត្តិ
         pollingInterval = setInterval(async () => {
             const apiResult = await checkTransactionStatus(md5Hash);
             
@@ -168,7 +186,7 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
                 if(typeof window.saveOrderToFirebase === 'function') window.saveOrderToFirebase(orderData); 
             } 
             else if (apiResult && (apiResult.isError || apiResult.responseCode === 1)) {
-                clearInterval(pollingInterval); 
+                clearInterval(pollingInterval); // ឈប់ឆែកអូតូ លោតផ្ទាំង Manual ភ្លាម
                 
                 statusEl.innerHTML = `
                     <div style="width: 100%; margin-top: 5px; background: #0a0a0a; padding: 12px; border-radius: 12px; border: 1px solid #222;">
