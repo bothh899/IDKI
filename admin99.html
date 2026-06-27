@@ -234,11 +234,14 @@
   <div id="dashboard-view">
     <nav class="nav">
       <div class="nav-brand"><span>?</span> idk. <small style="color:var(--gray); font-size:12px; margin-left:5px; font-weight:600;">ADMIN</small></div>
-      <div class="nav-menu">
+  <div class="nav-menu">
         <div class="nav-link active" onclick="window.switchPanel('dashboard', this)">📊 Overview</div>
         <div class="nav-link" onclick="window.switchPanel('products', this)">📦 Inventory</div>
         <div class="nav-link" onclick="window.switchPanel('orders', this)">🛍️ Orders</div>        
         <div class="nav-link" onclick="window.switchPanel('users', this)">👥 Customers</div>
+        
+        <div class="nav-link" onclick="window.open('https://analytics.google.com/analytics/web/?authuser=1#/a399049358p542877352/reports/intelligenthome?params=_u..nav%3Dmaui', '_blank')">📈 Analytics</div>
+        
         <div class="nav-link" onclick="window.switchPanel('settings', this)">⚙️ Settings</div>
       </div>
       <div class="btn-logout" onclick="window.logout()">Logout</div>

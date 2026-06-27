@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>IDK</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Kantumruy+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">    <script src="https://unpkg.com/khqr-sdk/khqr.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Kantumruy+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">   
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -576,9 +576,10 @@
 
 <script src="khqr.js?v=8"></script>
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, getDoc, setDoc, onSnapshot, query, where, increment, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-        import { RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, getDoc, setDoc, onSnapshot, query, where, increment, limit, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, sendPasswordResetEmail, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { S3Client, PutObjectCommand } from "https://cdn.jsdelivr.net/npm/@aws-sdk/client-s3/+esm";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCcyKbP1X1E3BUnuMmZiB9ycg0sanFs4jg",
@@ -590,41 +591,29 @@ import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, g
             measurementId: "G-WLNBCYT2MR"
         };
 
-   const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+  const app = initializeApp(firebaseConfig);
+   const db = getFirestore(app);
 
 
-  // ==============================================
-    // 🔴 ប្រព័ន្ធរាប់អ្នកចូលមើល (Analytics & Live Presence)
+
+   const auth = getAuth(app);
+
+ 
+// ==============================================
+    // 🔴 ប្រព័ន្ធរាប់អ្នកចូលមើល (Analytics)
     // ==============================================
     
-    // ១. រាប់ចំនួនសរុប (រាប់តែម្តងទេក្នុងមួយម៉ាស៊ីនទូរស័ព្ទ)
+    // ១. រាប់ចំនួនសរុប (រាប់តែម្តងទេក្នុងមួយម៉ាស៊ីនទូរស័ព្ទ មិនស៊ី Limit ទេ)
     if (!localStorage.getItem('idk_visited_counted_v2')) {
         localStorage.setItem('idk_visited_counted_v2', 'true');
         setDoc(doc(db, "analytics", "traffic"), { 
             totalVisits: increment(1) 
         }, { merge: true }).catch(e => console.error(e));
     }
+    
+    // 🔴 មុខងារ Live Presence (ចំណុចទី ២) ត្រូវបានបិទចោលដើម្បីសន្សំ Database Limit 🔴
+  // ==============================================
 
-    // ២. ប្រព័ន្ធរាប់អ្នកកំពុង Active (Live Now)
-    const sessionId = sessionStorage.getItem('idk_session_id') || 'sess_' + Math.random().toString(36).substr(2, 9);
-    sessionStorage.setItem('idk_session_id', sessionId);
-
-    const updatePresence = () => {
-        setDoc(doc(db, "live_visitors", sessionId), {
-            last_active: Date.now()
-        }, { merge: true }).catch(e => console.log(e));
-    };
-
-    updatePresence(); // ធ្វើបច្ចុប្បន្នភាពភ្លាមៗពេលចូលវេបសាយ
-    setInterval(updatePresence, 30000); // ធ្វើបច្ចុប្បន្នភាពរៀងរាល់ ៣០ វិនាទី
-
-    // លុបទិន្នន័យចោលវិញពេលភ្ញៀវបិទវេបសាយ (បិទ Tab)
-    window.addEventListener('beforeunload', () => {
-        deleteDoc(doc(db, "live_visitors", sessionId)).catch(e => console.log(e));
-    });
-    // ==============================================
 
         const R2_ACCESS_KEY = "0b1d9091cf7006115464cd341f490a00";
         const R2_SECRET_KEY = "c1da863f908f26c15bd6e9e48fc83bc0bc742b6b518a5f361557e732980eed19";
@@ -648,10 +637,7 @@ import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, g
             return `${R2_PUBLIC_URL}/${cleanFileName}`;
         }
 
-        enableIndexedDbPersistence(db).catch((err) => {
-            if (err.code == 'failed-precondition') { console.warn("Multiple tabs open, persistence disabled."); } 
-            else if (err.code == 'unimplemented') { console.warn("Browser does not support offline persistence."); }
-        });
+
 
         let productsDB = []; 
         let cartCount = 0;
@@ -696,7 +682,7 @@ import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, g
             document.getElementById('promo-modal').classList.remove('active');
             if(promoTimeout) clearTimeout(promoTimeout);
         };
-onSnapshot(doc(db, "settings", "store_config"), (docSnap) => {
+            onSnapshot(doc(db, "settings", "store_config"), (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 
@@ -1611,7 +1597,7 @@ window.getCartModalHtml = () => {
             if(!name || !phone || !address) return window.showUIModal('Missing Info', 'សូមបំពេញឈ្មោះ លេខទូរស័ព្ទ និងអាសយដ្ឋានឲ្យបានគ្រប់គ្រាន់!', 'OK', window.closeUIModal);
             
             let finalAddress = address;
-            if(coords) finalAddress += ` | Maps: https://www.google.com/maps?q=${coords}`;
+if(coords) finalAddress += ` | Maps: https://maps.google.com/?q=$${coords}`;
             let subtotal = 0;
             let finalItems = [];
             
@@ -1675,7 +1661,7 @@ window.getCartModalHtml = () => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
                     coordInput.value = `${lat},${lng}`;
-                    status.innerHTML = `✅ ចាប់ទីតាំងបានជោគជ័យ! <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" style="color: #4caf50; text-decoration: underline;">View Map</a>`;                }, () => {
+status.innerHTML = `✅ ចាប់ទីតាំងបានជោគជ័យ! <a href="https://maps.google.com/?q=${lat},${lng}" target="_blank" style="color: #4caf50; text-decoration: underline;">View Map</a>`;
                     status.innerText = "មិនអាចចាប់ទីតាំងបានទេ សូមពិនិត្យមើល Permission";
                     status.style.color = "#ff4a4a";
                 });
