@@ -339,6 +339,64 @@
         .history-item { display: flex; justify-content: space-between; font-size: 13px; color: #ccc; margin-bottom: 8px; }
         .history-total { display: flex; justify-content: space-between; font-weight: 900; color: white; margin-top: 12px; border-top: 1px dashed #333; padding-top: 12px; font-size: 15px;}
 
+/* 🔴 CSS សម្រាប់ប៊ូតុងជាប់កន្ទុយអក្សរ (ម៉ូតថ្មី ស្អាតជាងមុន) 🔴 */
+        .btn-detail-size-inline { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 5px; 
+            background: #1a1a1a; 
+            color: #ccc; 
+            font-size: 12px; 
+            font-weight: 600; 
+            text-decoration: none; /* លុបបន្ទាត់ពីក្រោមចោល */
+            padding: 4px 10px; 
+            border-radius: 20px; /* ធ្វើឲ្យគែមមូល */
+            border: 1px solid #333; 
+            margin-left: 8px; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            vertical-align: middle; /* តម្រឹមឲ្យស្មើជាមួយអក្សរ */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        /* ពណ៌ពេលយក Mouse ទៅដាក់ពីលើ (Hover) */
+        .btn-detail-size-inline:hover { 
+            background: #fff; 
+            color: #000; 
+            border-color: #fff; 
+            transform: translateY(-2px); /* ងើបឡើងលើបន្តិចពេល Hover */
+            box-shadow: 0 4px 10px rgba(255,255,255,0.2);
+        }
+        
+        /* ... រក្សាកូដ size-chart-container និងតារាង size-table នៅដដែល ... */        
+.size-chart-container { 
+            display: none; 
+            margin-top: -15px; /* 🔴 កូដបន្ថែម៖ ទាញតារាងឡើងលើបន្តិច ដើម្បីកាត់បន្ថយគម្លាត */
+            margin-bottom: 25px; 
+            transition: 0.3s; 
+            animation: fadeIn 0.4s ease; 
+        }      
+        
+        
+        .size-chart-container.show { display: block; }
+        
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.size-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            text-align: center; 
+            font-size: 13px; 
+            background: #151515; 
+            border-radius: 6px; 
+            overflow: hidden; 
+            border: 1px solid #333; 
+            margin-top: 0px; /* 🔴 ដូរពី 10px មក 0px វិញដើម្បីកុំឲ្យរុញចុះក្រោម */
+        }        .size-table th { background: #000; color: #fff; padding: 12px; font-weight: 800; border-bottom: 1px solid #333; font-size: 12px; text-transform: uppercase; white-space: nowrap; }
+        .size-table td { padding: 12px; color: #ccc; border-bottom: 1px solid #222; white-space: nowrap; }
+        .size-table tr:last-child td { border-bottom: none; }
+
+        
+        
         }
     </style>
 </head>
@@ -485,11 +543,49 @@
                         <div id="detail-price" class="d-price">$0</div>
                     </div>
                     
-                    <div class="detail-desc-box" id="detail-desc"></div>
+<div class="detail-desc-box" id="detail-desc"></div>
+
+                   <div class="detail-desc-box" id="detail-desc"></div>
+                    
+                    <div id="size-chart-container" class="size-chart-container">
+                        <div class="table-responsive">
+                            <table class="size-table">
+                                <thead>
+                                    <tr>
+                                        <th>SIZE</th>
+                                        <th>HEIGHT (cm)</th>
+                                        <th>WEIGHT (kg)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>S</td>
+                                        <td>145-155</td>
+                                        <td>35-50 Kg</td>
+                                    </tr>
+                                    <tr>
+                                        <td>M</td>
+                                        <td>155-175</td>
+                                        <td>45-60 Kg</td>
+                                    </tr>
+                                    <tr>
+                                        <td>L</td>
+                                        <td>170-185</td>
+                                        <td>55-85 Kg</td>
+                                    </tr>
+                                    <tr>
+                                        <td>XL</td>
+                                        <td>Coming...</td>
+                                        <td>Coming...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
                     <div class="detail-action-row">
                         <button id="detail-add-btn" class="btn-add" onclick="window.toggleDetailCart(event)">👜 ADD TO BAG</button>
-                        <button class="btn-checkout" onclick="window.goToCheckout(event)">💲 CHECKOUT</button>
+                                                <button class="btn-checkout" onclick="window.goToCheckout(event)">💲 CHECKOUT</button>
                     </div>
                 </div>
             </div>
@@ -854,16 +950,26 @@ import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, g
         window.closeSearch = () => { document.getElementById('search-overlay').classList.remove('active'); document.getElementById('search-input-field').value = ''; }
         window.setSearchTerm = (term) => { document.getElementById('search-input-field').value = term; window.liveSearch(term); }
 
-        window.liveSearch = (term) => { 
-            term = term.toLowerCase().trim(); 
-            const suggestionsDiv = document.getElementById('search-suggestions');
-            const resultsGrid = document.getElementById('search-results-grid');
+  // បង្កើតអថេរមួយទុកចាំឃាត់ល្បឿន
+        let searchTimeout;
 
-            if (!term) { suggestionsDiv.style.display = 'block'; resultsGrid.innerHTML = ''; return; } 
-            suggestionsDiv.style.display = 'none';
-            let sourceDB = allProductsDB.length > 0 ? allProductsDB : productsDB;
-            const filtered = sourceDB.filter(p => p.title.toLowerCase().includes(term) || p.description.toLowerCase().includes(term)); 
-            window.renderGrid(filtered, 'search-results-grid'); 
+        window.liveSearch = (term) => { 
+            // មុននឹងស្វែងរក ត្រូវលុបការស្វែងរកចាស់ដែលមិនទាន់ដល់ម៉ោងចោលសិន
+            clearTimeout(searchTimeout);
+            
+            // កំណត់ឲ្យវាស្វែងរក ក្រោយពេលភ្ញៀវឈប់វាយអក្សររយៈពេល ០.៣ វិនាទី (300ms)
+            searchTimeout = setTimeout(() => {
+                term = term.toLowerCase().trim(); 
+                const suggestionsDiv = document.getElementById('search-suggestions');
+                const resultsGrid = document.getElementById('search-results-grid');
+
+                if (!term) { suggestionsDiv.style.display = 'block'; resultsGrid.innerHTML = ''; return; } 
+                
+                suggestionsDiv.style.display = 'none';
+                let sourceDB = allProductsDB.length > 0 ? allProductsDB : productsDB;
+                const filtered = sourceDB.filter(p => p.title.toLowerCase().includes(term) || p.description.toLowerCase().includes(term)); 
+                window.renderGrid(filtered, 'search-results-grid'); 
+            }, 300);
         }
 
 window.generateGridHtml = (productsToRender) => {
@@ -1500,13 +1606,30 @@ window.getCartModalHtml = () => {
             }
         }
 
-        window.openProduct = (id) => {
+window.openProduct = (id) => {
             const p = productsDB.find(x => x.id === id); if (!p) return;
-currentItem = { id: p.id, title: p.title, price: Number(p.price), sizes: p.sizes, size: p.sizes[0], qty: 1, imgUrl: p.imgUrl, isOutOfStock: p.isOutOfStock || false };            
+            currentItem = { id: p.id, title: p.title, price: Number(p.price), sizes: p.sizes, size: p.sizes[0], qty: 1, imgUrl: p.imgUrl, isOutOfStock: p.isOutOfStock || false };            
             document.getElementById('detail-title').innerText = currentItem.title; 
             window.updateDetailPrice();
-            document.getElementById('detail-desc').innerText = p.description;
             
+            // 🔴 កូដថ្មី៖ បម្លែង Enter (\n) ទៅជា <br> រួចតភ្ជាប់ប៊ូតុងនៅចុងកន្ទុយអត្ថបទ
+            let formattedDesc = p.description ? p.description.replace(/\n/g, '<br>') : "";
+            let btnHtml = ' <span id="btn-toggle-size" class="btn-detail-size-inline" onclick="window.toggleSizeChart()">📏 Detail Size</span>';
+            document.getElementById('detail-desc').innerHTML = formattedDesc + btnHtml;
+            
+            // Reset Size Chart ឲ្យបិទរាល់ពេលបើកទំនិញថ្មី
+            const sizeContainer = document.getElementById('size-chart-container');
+            if (sizeContainer) sizeContainer.classList.remove('show');
+            
+            // ... (រក្សាកូដចាស់ៗបន្ទាប់ពីនេះទុកដដែល)
+
+            // 🔴 កូដថ្មី៖ Reset ប៊ូតុង Detail Size ឲ្យលាក់វិញរាល់ពេលបើកទំនិញថ្មី
+            const sizeBtn = document.getElementById('btn-toggle-size');
+            if (sizeContainer && sizeBtn) {
+                sizeContainer.classList.remove('show');
+                sizeBtn.innerHTML = '📏 Detail Size';
+            }
+
             currentImageArray = p.imagesArray && p.imagesArray.length > 0 ? p.imagesArray : [currentItem.imgUrl]; 
             currentImageIndex = 0; 
             document.getElementById('detail-main-img').src = currentImageArray[0]; 
@@ -2080,6 +2203,20 @@ window.renderDynamicBanners = (banners, intervalSec) => {
             window.prevImage(); 
             document.getElementById('fs-img').src = currentImageArray[currentImageIndex]; 
         }
+
+// 🔴 កូដថ្មី៖ មុខងារសម្រាប់ចុចលាត ឬលាក់ Size Chart
+    window.toggleSizeChart = () => {
+            const container = document.getElementById('size-chart-container');
+            const btn = document.getElementById('btn-toggle-size');
+            
+            if (container.classList.contains('show')) {
+                container.classList.remove('show');
+                btn.innerHTML = '📏 Detail Size';
+            } else {
+                container.classList.add('show');
+                btn.innerHTML = '⌃ Hide Less';
+            }
+        };
 
     </script>
 </body>
