@@ -91,10 +91,15 @@
         .product-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; }
         .product-card { background-color: #0f0f0f; border: 1px solid #151515; overflow: hidden; display: flex; flex-direction: column; position: relative; border-radius: 4px; transition: border-color 0.3s;}
         .product-card:hover { border-color: #333; }
-        .product-image-container { width: 100%; height: 450px; overflow: hidden; position: relative; cursor: pointer;}
+.product-image-container { width: 100%; height: 450px; overflow: hidden; position: relative; cursor: pointer;}
         .product-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
         .product-card:hover img { transform: scale(1.05); }
         
+        /* 🔴 ម៉ូតសម្រាប់អក្សរ Out of stock ប្រឆិត 🔴 */
+        .sold-out-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-35deg); background: rgba(239, 68, 68, 0.95); color: white; padding: 10px 40px; font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; z-index: 15; box-shadow: 0 10px 20px rgba(0,0,0,0.6); pointer-events: none; border: 2px solid rgba(255,255,255,0.2); backdrop-filter: blur(2px); white-space: nowrap; }
+        /* ធ្វើឲ្យរូបរាងស្រអាប់ និងសខ្មៅ ពេលអស់ស្តុក */
+        .out-of-stock-img { opacity: 0.5; filter: grayscale(100%); }
+
         .product-info-wrap { padding: 15px; display: flex; flex-direction: column; gap: 15px; background-color: var(--bg-color); }
         .product-header { display: flex; justify-content: space-between; align-items: center; }
         .product-title { font-size: 13px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%;}
@@ -844,10 +849,10 @@ import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, g
             window.renderGrid(filtered, 'search-results-grid'); 
         }
 
-        window.generateGridHtml = (productsToRender) => {
+window.generateGridHtml = (productsToRender) => {
             if(productsToRender.length === 0) return '<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: var(--text-muted);">No items found.</div>';
             return productsToRender.map(p => {
-const isAdded = cartItems.some(item => item.id === p.id);
+                const isAdded = cartItems.some(item => item.id === p.id);
                 const isOut = p.isOutOfStock === true; // ឆែកមើលថា Admin បិទស្តុកអត់
                 
                 let btnText = isAdded ? "✅ ADDED TO BAG" : "👜 ADD TO BAG";
@@ -860,7 +865,12 @@ const isAdded = cartItems.some(item => item.id === p.id);
                 let btnStyle = isOut ? "background: #333; color: #888; cursor: not-allowed;" : "";
                 
                 const dInfo = window.getDiscountInfo(p.id, p.price);
-                                const badgeHtml = dInfo.isDiscounted ? `<div class="discount-badge">-${dInfo.percent}% OFF</div>` : '';
+                const badgeHtml = dInfo.isDiscounted ? `<div class="discount-badge">-${dInfo.percent}% OFF</div>` : '';
+                
+                // 🔴 បង្កើត HTML សម្រាប់បដា និងកែប្រែរូបរាងរូបភាព 🔴
+                const outOfStockBanner = isOut ? `<div class="sold-out-overlay">OUT OF STOCK</div>` : '';
+                const imgClass = isOut ? 'out-of-stock-img' : '';
+
                 const priceHtml = dInfo.isDiscounted 
                     ? `<div class="price-wrap"><span class="product-price" style="color:#ff4444;">$${dInfo.price.toFixed(2)}</span><span class="original-price">$${p.price.toFixed(2)}</span></div>`
                     : `<span class="product-price">$${p.price.toFixed(2)}</span>`;
@@ -869,7 +879,8 @@ const isAdded = cartItems.some(item => item.id === p.id);
                     <div class="product-card">
                         <div class="product-image-container" onclick="window.closeSearch(); window.openProduct('${p.id}')">
                             ${badgeHtml}
-                            <img src="${p.imgUrl}">
+                            ${outOfStockBanner}
+                            <img src="${p.imgUrl}" class="${imgClass}">
                             <div class="fav-btn ${userFavorites.includes(p.id) ? 'active' : ''}" onclick="window.toggleFavorite(event, '${p.id}', this)">
                                 <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                             </div>
@@ -880,7 +891,7 @@ const isAdded = cartItems.some(item => item.id === p.id);
                                 ${priceHtml}
                             </div>
                             <div class="product-actions">
-<button class="${btnClass}" style="${btnStyle}" onclick="${actionClick}">${btnText}</button>
+                                <button class="${btnClass}" style="${btnStyle}" onclick="${actionClick}">${btnText}</button>
                                 <button class="p-btn btn-view" onclick="window.closeSearch(); window.openProduct('${p.id}')">👁️ VIEW ITEM</button>
                             </div>
                         </div>
@@ -888,7 +899,6 @@ const isAdded = cartItems.some(item => item.id === p.id);
                 `;
             }).join('');
         };
-
         window.renderGrid = (productsToRender, containerId) => {
             const grid = document.getElementById(containerId);
             if(!grid) return;
@@ -1448,8 +1458,7 @@ window.getCartModalHtml = () => {
 
         window.openProduct = (id) => {
             const p = productsDB.find(x => x.id === id); if (!p) return;
-            currentItem = { id: p.id, title: p.title, price: Number(p.price), sizes: p.sizes, size: p.sizes[0], qty: 1, imgUrl: p.imgUrl }; 
-            
+currentItem = { id: p.id, title: p.title, price: Number(p.price), sizes: p.sizes, size: p.sizes[0], qty: 1, imgUrl: p.imgUrl, isOutOfStock: p.isOutOfStock || false };            
             document.getElementById('detail-title').innerText = currentItem.title; 
             window.updateDetailPrice();
             document.getElementById('detail-desc').innerText = p.description;
@@ -1909,7 +1918,7 @@ function listenToProducts() {
                     let coverImg = (data.images && data.images.length > 0) ? data.images[0] : (data.img || 'https://via.placeholder.com/300'); 
                     let allImages = data.images || [coverImg]; 
                     // 🔴 ថែម orderIndex ទាញពី Firebase 🔴
-                    tempProducts.push({ id: doc.id, title: data.title, price: data.price, description: data.description || "Premium item.", sizes: finalSizes, imgUrl: coverImg, imagesArray: allImages, orderIndex: data.orderIndex || 0 });
+tempProducts.push({ id: doc.id, title: data.title, price: data.price, description: data.description || "Premium item.", sizes: finalSizes, imgUrl: coverImg, imagesArray: allImages, orderIndex: data.orderIndex || 0, isOutOfStock: data.isOutOfStock || false });
                 });
                 
                 // 🔴 តម្រៀបទំនិញតាមលំដាប់ OrderIndex ដែល Admin បានកំណត់ 🔴
