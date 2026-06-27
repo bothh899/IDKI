@@ -248,7 +248,7 @@
       
       <div id="panel-dashboard" class="panel active">
         <h2 style="font-size: 24px; text-transform: uppercase; margin-bottom: 25px; letter-spacing: -0.5px;">Store Overview</h2>
-        <div class="stat-grid">
+<div class="stat-grid">
             <div class="stat-card">
                 <span class="stat-title">Total Revenue</span>
                 <span class="stat-value" id="dash-revenue">$0.00</span>
@@ -264,6 +264,14 @@
             <div class="stat-card">
                 <span class="stat-title">Total Products</span>
                 <span class="stat-value" id="dash-products">0</span>
+            </div>
+  <div class="stat-card" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3);">
+                <span class="stat-title" style="color: var(--success);">🟢 Live Now</span>
+                <span class="stat-value" id="dash-live" style="color: var(--success);">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-title">Total Visitors</span>
+                <span class="stat-value" id="dash-visitors">0</span>
             </div>
         </div>
       </div>
@@ -850,6 +858,19 @@
         const count = document.querySelectorAll('.disc-item-chk:checked').length;
         document.getElementById('disc-selected-count').innerText = `${count} items selected`;
     };
+
+   // 🔴 1. ទាញយកចំនួនអ្នកចូលមើលសរុប (Total)
+    onSnapshot(doc(db, "analytics", "traffic"), (docSnap) => {
+        if (docSnap.exists()) {
+            document.getElementById('dash-visitors').innerText = docSnap.data().totalVisits || 0;
+        }
+    });
+
+    // 🔴 2. ទាញយកចំនួនអ្នកកំពុងមើលផ្ទាល់ (Live Now ក្នុងរយៈពេល ១ នាទីចុងក្រោយ)
+    const liveQuery = query(collection(db, "live_visitors"), where("last_active", ">", Date.now() - 60000));
+    onSnapshot(liveQuery, (snap) => {
+        document.getElementById('dash-live').innerText = snap.size;
+    });
 
     // 🔴 Real-time Settings Listener 🔴
     window.listenSettings = () => {

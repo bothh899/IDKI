@@ -577,8 +577,7 @@
 <script src="khqr.js?v=8"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, doc, getDoc, setDoc, onSnapshot, enableIndexedDbPersistence, query, limit, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";     
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";        import { S3Client, PutObjectCommand } from "https://cdn.jsdelivr.net/npm/@aws-sdk/client-s3/+esm";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, getDoc, setDoc, onSnapshot, query, where, increment } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";        import { S3Client, PutObjectCommand } from "https://cdn.jsdelivr.net/npm/@aws-sdk/client-s3/+esm";
         import { RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -591,9 +590,41 @@
             measurementId: "G-WLNBCYT2MR"
         };
 
-const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+   const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+
+  // ==============================================
+    // 🔴 ប្រព័ន្ធរាប់អ្នកចូលមើល (Analytics & Live Presence)
+    // ==============================================
+    
+    // ១. រាប់ចំនួនសរុប (រាប់តែម្តងទេក្នុងមួយម៉ាស៊ីនទូរស័ព្ទ)
+    if (!localStorage.getItem('idk_visited_counted_v2')) {
+        localStorage.setItem('idk_visited_counted_v2', 'true');
+        setDoc(doc(db, "analytics", "traffic"), { 
+            totalVisits: increment(1) 
+        }, { merge: true }).catch(e => console.error(e));
+    }
+
+    // ២. ប្រព័ន្ធរាប់អ្នកកំពុង Active (Live Now)
+    const sessionId = sessionStorage.getItem('idk_session_id') || 'sess_' + Math.random().toString(36).substr(2, 9);
+    sessionStorage.setItem('idk_session_id', sessionId);
+
+    const updatePresence = () => {
+        setDoc(doc(db, "live_visitors", sessionId), {
+            last_active: Date.now()
+        }, { merge: true }).catch(e => console.log(e));
+    };
+
+    updatePresence(); // ធ្វើបច្ចុប្បន្នភាពភ្លាមៗពេលចូលវេបសាយ
+    setInterval(updatePresence, 30000); // ធ្វើបច្ចុប្បន្នភាពរៀងរាល់ ៣០ វិនាទី
+
+    // លុបទិន្នន័យចោលវិញពេលភ្ញៀវបិទវេបសាយ (បិទ Tab)
+    window.addEventListener('beforeunload', () => {
+        deleteDoc(doc(db, "live_visitors", sessionId)).catch(e => console.log(e));
+    });
+    // ==============================================
 
         const R2_ACCESS_KEY = "0b1d9091cf7006115464cd341f490a00";
         const R2_SECRET_KEY = "c1da863f908f26c15bd6e9e48fc83bc0bc742b6b518a5f361557e732980eed19";
@@ -1171,7 +1202,7 @@ let extra = `
             }
         }
 
-        window.getCartModalHtml = () => {
+window.getCartModalHtml = () => {
             if(cartItems.length === 0) return '';
             let listHtml = `<div class="modal-cart-wrapper">`;
             cartItems.forEach((item, index) => {
@@ -1188,26 +1219,12 @@ let extra = `
                     let currentSize = item.selectedSizes[k];
                     let options = item.sizes.map(s => `<option value="${s}" ${s === currentSize ? 'selected' : ''}>Size ${s}</option>`).join('');
                     sizeSelectorsHtml += `
-       <div style="display: flex; justify-content: space-between; align-items: center;">
-            <p style="font-weight: bold; margin: 0;">សរុប (រួមទាំងសេវាដឹក)៖</p>
-            <p style="color: var(--success); font-weight: bold; margin: 0;">$${o.total.toFixed(2)}</p>
-        </div>
-        
-        <hr style="border: 0; border-top: 1px dashed #333; margin: 15px 0;">
-        
-        <div style="background: #1a1a1a; padding: 12px; border-radius: 6px; font-size: 12px; color: #bbb; margin-bottom: 12px;">
-            <div style="margin-bottom: 5px;"><b style="color: white;">ឈ្មោះ៖</b> ${o.customer ? o.customer.name : 'មិនមាន'}</div>
-            <div style="margin-bottom: 5px;"><b style="color: white;">ទូរស័ព្ទ៖</b> ${o.customer ? o.customer.phone : 'មិនមាន'}</div>
-            <div><b style="color: white;">ទីតាំង៖</b> ${o.customer ? (o.customer.address || o.customer.location || 'មិនមានបញ្ជាក់') : 'មិនមាន'}</div>
-        </div>
-
-        <div style="background: rgba(255, 193, 7, 0.08); border-left: 3px solid #ffc107; padding: 10px; border-radius: 4px;">
-            <p style="margin: 0; font-size: 11px; color: #ffca28; line-height: 1.5;">
-                💡 <b>ចង់កែព័ត៌មាន៖</b> សុំទំនាក់ទំនងតាម Telegram <a href="https://t.me/+85581338882" target="_blank" style="color: #4caf50; text-decoration: none; font-weight: bold; letter-spacing: 0.5px;">+855 (81 338 882)</a>
-            </p>
-        </div>
-
-    </div> `;
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <span style="font-size: 13px; color: #aaa;">Size អាវទី ${k + 1}:</span>
+                            <select class="modal-size-select" style="padding: 6px 10px; font-size: 13px; border-color: #333; background: #0a0a0a; border-radius: 6px; cursor: pointer;" onchange="window.updateIndividualSize(${index}, ${k}, this.value)">
+                                ${options}
+                            </select>
+                        </div>`;
                 }
 
                 listHtml += `
