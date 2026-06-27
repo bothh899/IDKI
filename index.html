@@ -1601,7 +1601,7 @@ window.getCartModalHtml = () => {
             if(!name || !phone || !address) return window.showUIModal('Missing Info', 'សូមបំពេញឈ្មោះ លេខទូរស័ព្ទ និងអាសយដ្ឋានឲ្យបានគ្រប់គ្រាន់!', 'OK', window.closeUIModal);
             
             let finalAddress = address;
-if(coords) finalAddress += ` | Maps: https://maps.google.com/?q=$${coords}`;
+if(coords) finalAddress += ` | Maps: https://www.google.com/maps?q=${coords}`;
             let subtotal = 0;
             let finalItems = [];
             
@@ -1665,7 +1665,7 @@ if(coords) finalAddress += ` | Maps: https://maps.google.com/?q=$${coords}`;
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
                     coordInput.value = `${lat},${lng}`;
-status.innerHTML = `✅ ចាប់ទីតាំងបានជោគជ័យ! <a href="https://maps.google.com/?q=${lat},${lng}" target="_blank" style="color: #4caf50; text-decoration: underline;">View Map</a>`;
+status.innerHTML = `✅ ចាប់ទីតាំងបានជោគជ័យ! <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" style="color: #4caf50; text-decoration: underline;">View Map</a>`;
                     status.innerText = "មិនអាចចាប់ទីតាំងបានទេ សូមពិនិត្យមើល Permission";
                     status.style.color = "#ff4a4a";
                 });
