@@ -294,10 +294,10 @@
             <div class="add-form">
                 <div class="form-title" style="margin-bottom: 20px;">Homepage Cover Banners</div>
                 
-                <div class="form-grid" style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px dashed var(--border);">
+<div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px dashed var(--border);">
                     <div class="form-group">
                         <label class="form-label">ទំហំសម្រាប់ កុំព្យូទ័រ (PC Aspect Ratio)</label>
-                        <select id="cfg-banner-ratio-pc" class="input-clean" onchange="window.saveBannerRatio()">
+                        <select id="cfg-banner-ratio-pc" class="input-clean" onchange="window.saveBannerSettings()">
                             <option value="21/9">21:9 (Ultra Wide - ខ្លីផ្ដេក)</option>
                             <option value="16/9" selected>16:9 (Widescreen - ស្តង់ដារ)</option>
                             <option value="4/3">4:3 (Classic TV)</option>
@@ -305,12 +305,16 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">ទំហំសម្រាប់ ទូរស័ព្ទ (Mobile Aspect Ratio)</label>
-                        <select id="cfg-banner-ratio-mobile" class="input-clean" onchange="window.saveBannerRatio()">
+                        <select id="cfg-banner-ratio-mobile" class="input-clean" onchange="window.saveBannerSettings()">
                             <option value="16/9">16:9 (Widescreen - ខ្លី)</option>
                             <option value="1/1" selected>1:1 (Square - ការ៉េ)</option>
                             <option value="4/5">4:5 (Portrait - បន្តិច)</option>
                             <option value="9/16">9:16 (Full Vertical - បញ្ឈរវែង)</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ល្បឿនលោតអូតូ (វិនាទី)</label>
+                        <input type="number" id="cfg-banner-interval" class="input-clean" value="3" placeholder="ឧទាហរណ៍: 3" onchange="window.saveBannerSettings()">
                     </div>
                 </div>
 
@@ -485,7 +489,6 @@
                                 <input type="number" id="cfg-promo-custom-hours" class="input-clean" style="margin-bottom: 0; padding: 6px 12px; width: 130px; font-size: 12px; height: 34px;" placeholder="ចំនួនម៉ោង (ឧ. 24)">
                                 <button type="button" class="btn-text" style="font-size: 11px; padding: 0 15px; background: rgba(76, 175, 80, 0.1); color: #4caf50; border: 1px solid rgba(76, 175, 80, 0.2); height: 34px; display: flex; align-items: center; font-weight: 800;" onclick="window.applyCustomHours()">Set</button>
                             </div>
-
                             <span style="font-size: 11px; color: var(--gray);">Leave blank if never expires</span>
                         </div>
                         
@@ -513,8 +516,7 @@
         </div>
 
       </div>
-
-      <div id="panel-products" class="panel">
+<div id="panel-products" class="panel">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
           <h2 style="font-size: 24px; text-transform: uppercase; letter-spacing: -0.5px;">Inventory</h2>
           <div style="display: flex; gap: 10px;">
@@ -710,6 +712,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, getDoc, setDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
     import { S3Client, PutObjectCommand } from "https://cdn.jsdelivr.net/npm/@aws-sdk/client-s3/+esm";
+    import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCcyKbP1X1E3BUnuMmZiB9ycg0sanFs4jg",
@@ -723,6 +726,7 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app); 
 
     const R2_ACCESS_KEY = "0b1d9091cf7006115464cd341f490a00";
     const R2_SECRET_KEY = "c1da863f908f26c15bd6e9e48fc83bc0bc742b6b518a5f361557e732980eed19";
@@ -785,16 +789,11 @@
         }
     };
 
-// ត្រូវប្រាកដថាបាន Import `signInWithEmailAndPassword` រួចរាល់នៅផ្នែកខាងលើ
-    import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    const auth = getAuth(app); // ប្រកាស Auth ប្រសិនបើមិនទាន់មាន
-
     window.attemptLogin = async () => {
       const e = document.getElementById('email').value; 
       const p = document.getElementById('password').value;
       
       try {
-        // 🔴 Login ចូល Firebase ផ្ទាល់តែម្តង
         await signInWithEmailAndPassword(auth, e, p);
         
         sessionStorage.setItem('idkAdminLoggedIn', 'true');
@@ -811,9 +810,14 @@
     };
 
     window.logout = async () => { 
-        await signOut(auth); // 🔴 Sign Out ពី Firebase វិញ
+        await signOut(auth); 
         sessionStorage.removeItem('idkAdminLoggedIn'); 
         location.reload(); 
+    };
+
+    window.switchPanel = (panelId, element) => {
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active')); element.classList.add('active');
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); document.getElementById('panel-' + panelId).classList.add('active');
     };
 
     window.switchSettingTab = (secId, element) => {
@@ -859,10 +863,11 @@
                     currentConfig.heroBanners = ['Cover.png', 'Cover2.png'];
                 }
 
-                if (currentConfig.bannerRatioDesktop) document.getElementById('cfg-banner-ratio-pc').value = currentConfig.bannerRatioDesktop;
+if (currentConfig.bannerRatioDesktop) document.getElementById('cfg-banner-ratio-pc').value = currentConfig.bannerRatioDesktop;
                 if (currentConfig.bannerRatioMobile) document.getElementById('cfg-banner-ratio-mobile').value = currentConfig.bannerRatioMobile;
+                if (currentConfig.bannerInterval) document.getElementById('cfg-banner-interval').value = currentConfig.bannerInterval;
 
-                window.renderDiscountsTable(); 
+                window.renderDiscountsTable();
                 window.renderAnnouncementsTable(); 
                 window.renderBanners();
 
@@ -946,22 +951,25 @@
     };
     
     // 🔴 អនុគមន៍រក្សាទុកទំហំ Banner 🔴
-    window.saveBannerRatio = async () => {
+// 🔴 អនុគមន៍រក្សាទុកការកំណត់ Banner (ទំហំ និង ល្បឿន) 🔴
+    window.saveBannerSettings = async () => {
         const pcRatio = document.getElementById('cfg-banner-ratio-pc').value;
         const mobileRatio = document.getElementById('cfg-banner-ratio-mobile').value;
+        const intervalSec = Number(document.getElementById('cfg-banner-interval').value) || 3;
         try {
             await setDoc(doc(db, "settings", "store_config"), { 
                 bannerRatioDesktop: pcRatio,
-                bannerRatioMobile: mobileRatio
+                bannerRatioMobile: mobileRatio,
+                bannerInterval: intervalSec
             }, { merge: true });
-            window.showAlert("Success", "Banner Ratio Saved!", "success");
+            window.showAlert("Success", "Banner Settings Saved!", "success");
         } catch (error) { 
-            console.error("Error saving banner ratio", error); 
-            window.showAlert("Error", "Failed to save ratio", "error");
+            console.error("Error saving banner settings", error); 
+            window.showAlert("Error", "Failed to save settings", "error");
         }
     };
     
-    window.saveDeliveryFee = async () => {
+        window.saveDeliveryFee = async () => {
         const fee = Number(document.getElementById('cfg-delivery').value) || 0;
         try {
             await setDoc(doc(db, "settings", "store_config"), { deliveryFee: fee }, { merge: true });

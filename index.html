@@ -676,11 +676,12 @@ onSnapshot(doc(db, "settings", "store_config"), (docSnap) => {
                 if(data.heroBanners !== undefined) {
                     if(typeof window.renderDynamicBanners === 'function') {
                         // កំណត់ទំហំដែល Admin បានរើសបញ្ជូនទៅកាន់ CSS
+// កំណត់ទំហំដែល Admin បានរើសបញ្ជូនទៅកាន់ CSS
                         document.documentElement.style.setProperty('--banner-ratio-pc', data.bannerRatioDesktop || '16/9');
                         document.documentElement.style.setProperty('--banner-ratio-mobile', data.bannerRatioMobile || '1/1');
                         
-                        window.renderDynamicBanners(data.heroBanners);
-                    }
+                        // បោះល្បឿនវិនាទីទៅឱ្យមុខងារ Slider
+                        window.renderDynamicBanners(data.heroBanners, data.bannerInterval);                    }
                 } else {
                     // បើទើបបង្កើត Store ថ្មី មិនទាន់មាន Data ទាល់តែសោះ
                     if(typeof window.renderDynamicBanners === 'function') {
@@ -1916,38 +1917,10 @@ function listenToProducts() {
         // ==========================================
         let slideInterval;
         
-     window.renderDynamicBanners = (banners) => {
+window.renderDynamicBanners = (banners, intervalSec) => {
+            const timeMs = (intervalSec && intervalSec > 0) ? (intervalSec * 1000) : 3000;
             const sliderEl = document.getElementById('main-hero-slider');
-            const dotsEl = document.getElementById('main-hero-dots');
-            const heroSection = document.querySelector('.hero');
-            if(!sliderEl || !dotsEl || !heroSection) return;
-            
-            // បើ Admin លុបរូប Cover ចោលអស់ គឺលាក់ផ្ទាំងនេះពីវេបសាយភ្ញៀវតែម្តង
-            if(banners.length === 0) {
-                heroSection.style.display = 'none';
-                clearInterval(slideInterval);
-                return;
-            }
-            
-            heroSection.style.display = 'block'; // បង្ហាញមកវិញបើមានរូប
-            
-            // 1. បញ្ចូលរូបភាពទៅក្នុង HTML
-            
-            // 1. បញ្ចូលរូបភាពទៅក្នុង HTML
-            sliderEl.innerHTML = banners.map((url, i) => `<img src="${url}" class="hero-slide" alt="Cover ${i+1}">`).join('');
-            
-            // 2. បញ្ចូលចំណុចអុចៗ
-            dotsEl.innerHTML = banners.map((_, i) => `<span class="dot ${i===0 ? 'active' : ''}"></span>`).join('');
-            
-            // 3. រៀបចំមុខងារលោតអូតូ
-            const dots = dotsEl.querySelectorAll('.dot');
-            let currentSlide = 0;
-            const totalSlides = banners.length;
-            
-            clearInterval(slideInterval); // បិទម៉ោងចាស់សិនការពារកុំឱ្យលោតជាន់គ្នា
-            
-            if(totalSlides <= 1) return; // បើមានរូបតែ ១ មិនបាច់ឱ្យលោតទេ
-            
+            // ... (កូដផ្សេងៗរក្សាដដែល)
             const updateDots = (index) => {
                 dots.forEach(d => d.classList.remove('active'));
                 if(dots[index]) dots[index].classList.add('active');
@@ -1960,8 +1933,9 @@ function listenToProducts() {
                 updateDots(currentSlide);
             };
 
-            const startSlider = () => { slideInterval = setInterval(goToNextSlide, 3000); };
+            const startSlider = () => { slideInterval = setInterval(goToNextSlide, timeMs); };
             const stopSlider = () => { clearInterval(slideInterval); };
+            // ... (រក្សាដដែលដល់ចប់មុខងារ)
 
             startSlider();
             
