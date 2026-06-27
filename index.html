@@ -62,12 +62,10 @@
         .loader-logo span { font-size: 46px; }
         @keyframes pulseGlow { 0% { opacity: 0.4; transform: scale(0.98); } 100% { opacity: 1; transform: scale(1.02); text-shadow: 0 0 15px rgba(255,255,255,0.4); } }
 
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 50px; border-bottom: 1px solid #1a1a1a; position: sticky; top: 0; background-color: rgba(10, 10, 10, 0.95); z-index: 100; backdrop-filter: blur(10px); }
-        .nav-links { display: flex; gap: 25px; }
-        .nav-links a { text-transform: uppercase; font-weight: 400; }
-        .logo a h1 { font-size: 28px; font-weight: 800; letter-spacing: 2px; text-transform: none; }
-        .logo a h1 span { font-size: 32px; }
-        
+.navbar { width: 100%; max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 15px 50px; border-bottom: 1px solid #1a1a1a; position: sticky; top: 0; background-color: rgba(10, 10, 10, 0.95); z-index: 100; backdrop-filter: blur(10px); }
+        .logo a h1 { font-size: 24px; font-weight: 800; letter-spacing: 1px; text-transform: none; display: flex; align-items: baseline; gap: 6px; margin: 0; white-space: nowrap; }
+        .logo a h1 span { font-size: 28px; }
+
         .nav-icons { display: flex; gap: 15px; align-items: center; position: relative;}
         .nav-icons a { display: flex; align-items: center; justify-content: center; position: relative; padding: 5px; cursor: pointer;}
         .nav-icons svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; transition: 0.3s; }
@@ -83,7 +81,7 @@
         .page.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.hero { position: relative; width: 100%; background: #000; overflow: hidden; }
+.hero { position: relative; width: 100%; max-width: 1400px; margin: 0 auto; background: #000; overflow: hidden; }
 .hero-slider { display: flex; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: none; aspect-ratio: var(--banner-ratio-pc, 16/9); }
         .hero-slider::-webkit-scrollbar { display: none; }
         .hero-slide { flex: 0 0 100%; width: 100%; object-fit: cover; scroll-snap-align: start; opacity: 0.85; }
@@ -153,8 +151,8 @@
         .detail-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; gap: 15px; }
         .d-title { font-size: 28px; font-weight: 800; margin-bottom: 0; letter-spacing: 1px; flex: 1; line-height: 1.3;}
         .d-price { font-size: 24px; font-weight: 600; margin-bottom: 0; color: white; white-space: nowrap; margin-top: 2px; display: flex; align-items: baseline; gap: 10px;}
-        .detail-desc-box { font-size: 13px; color: #888; line-height: 1.6; margin-bottom: 30px; }
-        
+.detail-desc-box { font-size: 14px; color: white; line-height: 1.6; margin-bottom: 30px; }
+
         .detail-action-row { display: flex; gap: 15px; margin-bottom: 15px; width: 100%; }
         .btn-add, .btn-checkout { padding: 18px 10px; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; cursor: pointer;}
         .btn-add { background: transparent; color: white; border: 1px solid var(--border-color); }
@@ -167,7 +165,7 @@
 .related-section { margin-top: 25px; padding-top: 20px; border-top: 1px solid #1a1a1a; }
         .related-title { font-size: 18px; font-weight: 800; margin-bottom: 25px; letter-spacing: 2px; text-transform: uppercase; }
 
-        .site-footer { border-top: 1px solid var(--border-color); padding: 50px 20px; margin-top: 60px; text-align: center; display: flex; flex-direction: column; gap: 12px; background: #050505;}
+.site-footer { max-width: 1400px; margin: 60px auto 0 auto; border-top: 1px solid var(--border-color); padding: 50px 20px; text-align: center; display: flex; flex-direction: column; gap: 12px; background: #050505;}
         .footer-logo { font-size: 24px; font-weight: 800; margin-bottom: 10px; letter-spacing: 2px;}
         .footer-logo span { font-size: 28px; }
         .site-footer p { font-size: 13px; color: var(--text-muted); line-height: 1.6; display: flex; align-items: center; justify-content: center; gap: 8px;}
@@ -290,8 +288,8 @@
         .btn-google:hover { background: #e0e0e0; }
         .btn-phone { background: transparent; color: #fff; border: 1px solid #333; }
         .btn-phone:hover { border-color: #fff; background: rgba(255,255,255,0.05); }
-        .back-floating-btn { position: fixed; top: 90px; left: 20px; width: 40px; height: 40px; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; z-index: 1000; font-size: 18px; text-decoration: none; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .back-floating-btn:hover { background: rgba(0, 0, 0, 0.9); transform: scale(1.1); color: white; }
+.back-floating-btn { position: fixed; top: 100px; left: 30px; width: 40px; height: 40px; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; z-index: 9999; font-size: 18px; text-decoration: none; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.5); margin: 0 !important; }
+.back-floating-btn:hover { background: rgba(0, 0, 0, 0.9); transform: scale(1.1); color: white; }
 
 /* Promo Code Styles */
         .promo-input-wrap { display: flex; gap: 10px; margin-top: 15px; border-top: 1px dashed #333; padding-top: 15px; }
@@ -303,8 +301,10 @@
 
 @media (max-width: 992px) { .product-grid { grid-template-columns: repeat(2, 1fr); } .detail-container { grid-template-columns: 1fr; gap: 15px; } }@media (max-width: 600px) {
             .hero-slider { aspect-ratio: var(--banner-ratio-mobile, 1/1); }
-            .navbar { padding: 15px 20px; } .nav-links { display: none; }
-            .new-arrivals { padding: 25px 20px 40px 20px; }
+.navbar { padding: 12px 20px; } 
+            .logo a h1 { font-size: 20px; } 
+            .logo a h1 span { font-size: 24px; }
+                        .new-arrivals { padding: 25px 20px 40px 20px; }
             .section-header { margin-bottom: 15px; padding-bottom: 8px;}
             .product-grid { gap: 15px; } .product-image-container { height: 250px; }
             .product-info-wrap { padding: 12px; gap: 12px;} .p-btn { padding: 10px 0; font-size: 11px; }
@@ -372,12 +372,11 @@
         </div>
     </div>
 
-    <header class="navbar">
-        <div class="nav-links"><a href="#" onclick="window.showPage('home', event)">New Arrivals</a><a href="#" onclick="window.showPage('home', event)">Catalog</a></div>
-        <div class="logo"><a href="#" onclick="window.showPage('home', event)"><h1><span>?</span> idk.</h1></a></div>
+<header class="navbar">
+        <div class="logo" style="flex: 1; display: flex; justify-content: flex-start;"><a href="#" onclick="window.showPage('home', event)"><h1><span>?</span> idk.</h1></a></div>
         
         <div class="nav-icons">
-            <a onclick="window.openSearch(event)" title="Search">
+                                    <a onclick="window.openSearch(event)" title="Search">
                 <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             </a>
             <a onclick="window.handleFavoriteNav(event)" title="Favorites">
@@ -466,12 +465,13 @@
         </footer>
     </main>
 
-    <main id="page-detail" class="page">
+<main id="page-detail" class="page">
+        <a href="#" class="back-floating-btn" onclick="window.showPage('home', event)">❮</a>
+        
         <div class="detail-page-wrapper">
-            <a href="#" class="back-floating-btn" onclick="window.showPage('home', event)">❮</a>
             <div class="detail-container">
                 <div class="detail-gallery">
-                    <div class="slider-container">
+                                                            <div class="slider-container">
                         <div class="slider-btn prev-btn" onclick="window.prevImage()">❮</div>
                         <img id="detail-main-img" src="" class="main-img" onclick="window.openFullscreen(this.src)">
                         <div class="slider-btn next-btn" onclick="window.nextImage()">❯</div>
@@ -516,10 +516,13 @@
         </footer>
     </main>
 
-    <main id="page-checkout" class="page">
+<main id="page-checkout" class="page">
+        <a href="#" class="back-floating-btn" onclick="window.goBackFromCheckout(event)">❮</a>
+        
         <div class="checkout-page-wrapper">
             <div class="checkout-container">
                 <h2 class="checkout-header"><span>💲</span> Checkout</h2>
+
               <div class="summary-box">
                     <h3 class="summary-header">Summary</h3>
                     <div class="checkout-item-row" id="checkout-product-block" style="display: none;"></div>
@@ -566,22 +569,25 @@
         </div>
     </main>
 
-    <main id="page-profile" class="page">
+<main id="page-profile" class="page">
+        <a href="#" class="back-floating-btn" onclick="window.showPage('home', event)">❮</a>
+        
         <div class="checkout-page-wrapper">
-            <h2 class="checkout-header"><span>👤</span> My Account</h2>
-            
-     <div class="summary-box" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                <div>
-                    <p id="profile-status-text" style="color: var(--text-muted); font-size: 12px; text-transform: uppercase; margin-bottom: 4px;">Logged in as</p>
-                    <p id="profile-identity" style="font-size: 16px; font-weight: bold; color: white;">User</p>
+            <div class="checkout-container">
+                <h2 class="checkout-header"><span>👤</span> My Account</h2>
+                            
+                <div class="summary-box" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                    <div>
+                        <p id="profile-status-text" style="color: var(--text-muted); font-size: 12px; text-transform: uppercase; margin-bottom: 4px;">Logged in as</p>
+                        <p id="profile-identity" style="font-size: 16px; font-weight: bold; color: white;">User</p>
+                    </div>
+                    <button id="btn-profile-action" onclick="window.processLogout()" style="background: #ff4444; color: white; padding: 12px 20px; border-radius: 6px; font-weight: 800; font-size: 12px; border: none; cursor: pointer; transition: 0.2s;">LOG OUT</button>
                 </div>
-                <button id="btn-profile-action" onclick="window.processLogout()" style="background: #ff4444; color: white; padding: 12px 20px; border-radius: 6px; font-weight: 800; font-size: 12px; border: none; cursor: pointer; transition: 0.2s;">LOG OUT</button>
-            </div>
 
-            <h3 style="font-size: 18px; font-weight: 900; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">📦 Order History</h3>
-            
-            <div id="order-history-list">
-                </div>
+                <h3 style="font-size: 18px; font-weight: 900; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">📦 Order History</h3>
+                
+                <div id="order-history-list"></div>
+            </div>
         </div>
     </main>
 
@@ -1213,8 +1219,11 @@ let extra = `
             window.updateCartBadge();
         }
 
-        window.goToCheckout = (event) => {
+ window.goToCheckout = (event) => {
             if(event) event.preventDefault();
+            // កត់ត្រាទុកថា ចូល Checkout មកពីទំព័រ Detail
+            sessionStorage.setItem('idk_checkout_source', 'detail');
+            
             let existingIndex = cartItems.findIndex(item => item.id === currentItem.id);
             if(existingIndex === -1) {
                 let defaultSize = currentItem.sizes[0] || 'M';
@@ -1330,14 +1339,38 @@ window.getCartModalHtml = () => {
             }
         }
 
-        window.handleCartClick = (event) => {
+   window.handleCartClick = (event) => {
             if(event) event.preventDefault();
             if(cartItems.length === 0) { window.showUIModal('Your Bag 🛍️', 'Your shopping bag is currently empty.', 'Continue Shopping', window.closeUIModal); } 
             else { 
                 let checkoutBtnContent = `<span style="font-size:18px;">💲</span> Checkout`;
-                window.showUIModal('Your Bag 🛍️', '', checkoutBtnContent, () => { window.closeUIModal(); window.updateCheckoutUI(); window.showPage('checkout', null); }, window.getCartModalHtml()); 
+                window.showUIModal('Your Bag 🛍️', '', checkoutBtnContent, () => { 
+                    window.closeUIModal(); 
+                    
+                    // កត់ត្រាទុកថា ចូល Checkout មកពីកន្ត្រកលើ Home
+                    sessionStorage.setItem('idk_checkout_source', 'home');
+                    
+                    window.updateCheckoutUI(); 
+                    window.showPage('checkout', null); 
+                }, window.getCartModalHtml()); 
             }
         }
+
+     window.goBackFromCheckout = (event) => {
+            if(event) event.preventDefault();
+            const source = sessionStorage.getItem('idk_checkout_source');
+            const savedProduct = localStorage.getItem('idk_currentProduct'); // ទាញយក ID ដើម្បីការពារពេលមានការ Refresh
+            
+            if (source === 'detail' && (currentItem.id || savedProduct)) {
+                // បើមកពី Detail គឺត្រឡប់ទៅ Detail វិញ ដោយទាញយកទិន្នន័យមកបង្ហាញឲ្យបានពេញលេញ
+                window.openProduct(currentItem.id || savedProduct);
+            } else {
+                // បើមិនដឹងមកពីណា ឬមកពីកន្ត្រកលើ Home គឺទៅ Home វិញ
+                window.showPage('home', null);
+            }
+            // លុបប្រភពចោលវិញ
+            sessionStorage.removeItem('idk_checkout_source');
+        };
 
         window.scrollToArrivals = () => { window.scrollTo({ top: document.getElementById('arrivals-section').offsetTop - 80, behavior: 'smooth' }); }
         
