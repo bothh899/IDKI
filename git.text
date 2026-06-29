@@ -1,3 +1,79 @@
 git add .
 git commit -m "Update ទាំង Frontend និង Backendផ"
 git push origin main
+
+// ឯកសារសម្រាប់ផ្ទុកទិន្នន័យ (Keys) សំខាន់ៗទាំងអស់
+window.STORE_CONFIG = {
+    // ១. ទិន្នន័យ Firebase Database & Auth
+    firebase: {
+        apiKey: "AIzaSyCcyKbP1X1E3BUnuMmZiB9ycg0sanFs4jg",
+        authDomain: "idki-7845c.firebaseapp.com",
+        projectId: "idki-7845c",
+        storageBucket: "idki-7845c.firebasestorage.app",
+        messagingSenderId: "1065808983592",
+        appId: "1:1065808983592:web:07419e1f901cafa091e71d",
+        measurementId: "G-WLNBCYT2MR"
+    },
+    
+    // ២. ទិន្នន័យឃ្លាំងស្តុករូបភាព Cloudflare R2
+    r2: {
+        accessKeyId: "0b1d9091cf7006115464cd341f490a00",
+        secretAccessKey: "c1da863f908f26c15bd6e9e48fc83bc0bc742b6b518a5f361557e732980eed19",
+        endpoint: "https://16e1f7ba5668898f977a6c6f273c12b8.r2.cloudflarestorage.com",
+        bucketName: "idk-shop-images",
+        publicUrl: "https://pub-c627bcd786664e8da58b5efda6cbad61.r2.dev"
+    },
+
+    // ៣. ទិន្នន័យទទួលប្រាក់តាម KHQR
+    khqr: {
+        accountID: "virakboth_vann@bkrt",
+        merchantName: "VIRAKBOTH VANN",
+        merchantCity: "Phnom Penh",
+        terminalId: "T001",
+        storeId: "IDKSHOP"
+    },
+
+    // ៤. ទិន្នន័យ Cloudflare Worker សម្រាប់បាញ់ Telegram
+    telegramWorkerURL: "https://idk-backend.vannvirakboth372.workers.dev"
+};
+
+
+//in admin
+
+const firebaseConfig = {
+      apiKey: "AIzaSyCcyKbP1X1E3BUnuMmZiB9ycg0sanFs4jg",
+      authDomain: "idki-7845c.firebaseapp.com",
+      projectId: "idki-7845c",
+      storageBucket: "idki-7845c.firebasestorage.app",
+      messagingSenderId: "1065808983592",
+      appId: "1:1065808983592:web:07419e1f901cafa091e71d",
+      measurementId: "G-WLNBCYT2MR"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app); 
+
+    const R2_ACCESS_KEY = "0b1d9091cf7006115464cd341f490a00";
+    const R2_SECRET_KEY = "c1da863f908f26c15bd6e9e48fc83bc0bc742b6b518a5f361557e732980eed19";
+    const R2_ENDPOINT = "https://16e1f7ba5668898f977a6c6f273c12b8.r2.cloudflarestorage.com";
+    const R2_BUCKET_NAME = "idk-shop-images";
+    const R2_PUBLIC_URL = "https://pub-c627bcd786664e8da58b5efda6cbad61.r2.dev";
+
+    const s3Client = new S3Client({
+        region: "auto",
+        endpoint: R2_ENDPOINT,
+        forcePathStyle: true,
+        credentials: { accessKeyId: R2_ACCESS_KEY, secretAccessKey: R2_SECRET_KEY }
+    });
+
+    async function uploadFileToR2(file) {
+        const cleanFileName = "receipt_" + Date.now() + ".jpg";
+        const arrayBuffer = await file.arrayBuffer();
+        const fileData = new Uint8Array(arrayBuffer);
+        const command = new PutObjectCommand({ Bucket: window.STORE_CONFIG.r2.bucketName, Key: cleanFileName, Body: fileData, ContentType: file.type });
+        await s3Client.send(command); 
+        return `${window.STORE_CONFIG.r2.publicUrl}/${cleanFileName}`;
+    }
+
+    សុំប្រាប់ខ្ញុំបែប នេះជា block code ចាស់ & នេះជា block code ថ្មី សុំយកចិត្តទុកដាក់ ពិនិត្យកូដម្ដងមួយជួរៗ
