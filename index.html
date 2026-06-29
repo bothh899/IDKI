@@ -4,22 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<title>Bellis Cambodia | Skincare That Knows You</title>
-    <meta name="title" content="Bellis Cambodia | Skincare That Knows You">
-    <meta name="description" content="Bellis Cambodia - ផលិតផលថែរក្សាសម្រស់ និងស្បែកមុខកម្រិត Premium។ ផ្តល់ភាពជឿជាក់ និងទន់ភ្លន់សម្រាប់ស្បែករបស់អ្នក។">
-    <meta name="keywords" content="bellis, bellis cambodia, skincare cambodia, beauty phnom penh, skincare shop">
+    <title>IDK Cambodia | Premium Clothing Store</title>
+    <meta name="title" content="IDK Cambodia | Premium Clothing Store">
+    <meta name="description" content="IDK Cambodia - ហាងសម្លៀកបំពាក់ដ៏ទាន់សម័យក្នុងទីក្រុងភ្នំពេញ។ ទិញអាវយឺត (Tee), អាវក្រៅ (Jacket), អាវរងា (Hoodie) ដែលមានគុណភាពខ្ពស់។">
+    <meta name="keywords" content="idk, idkcambodia, idk cambodia, idk shop, idk clothing, idk store phnom penh, idk clothes">
     
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://belliscambodia.vercel.app/">
-    <meta property="og:title" content="Bellis Cambodia | Skincare That Knows You">
-    <meta property="og:description" content="ផលិតផលថែរក្សាសម្រស់ និងស្បែកមុខកម្រិត Premium។ ផ្តល់ភាពជឿជាក់ និងទន់ភ្លន់សម្រាប់ស្បែករបស់អ្នក។">
-        <meta property="og:image" content="https://idkcambodia.com/Cover.png">
+    <meta property="og:url" content="https://idkcambodia.com/">
+    <meta property="og:title" content="IDK Cambodia | Premium Clothing Store">
+    <meta property="og:description" content="ហាងសម្លៀកបំពាក់ដ៏ទាន់សម័យក្នុងទីក្រុងភ្នំពេញ។ ទិញអាវយឺត (Tee), អាវក្រៅ (Jacket), អាវរងា (Hoodie) ដែលមានគុណភាពខ្ពស់។">
+    <meta property="og:image" content="https://idkcambodia.com/Cover.png">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Kantumruy+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">   
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link rel="icon" type="image/png" href="favicon.png?v=2">
+    <link rel="icon" type="image/png" href="favicon.png">
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-WLNBCYT2MR"></script>
@@ -703,16 +703,15 @@ import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, g
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, sendPasswordResetEmail, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { S3Client, PutObjectCommand } from "https://cdn.jsdelivr.net/npm/@aws-sdk/client-s3/+esm";
 
-     // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyCzQaqcSyxJIEK8ZYkmtkXIydLRc3J2Nrw",
-  authDomain: "bellis-57874.firebaseapp.com",
-  projectId: "bellis-57874",
-  storageBucket: "bellis-57874.firebasestorage.app",
-  messagingSenderId: "852642663347",
-  appId: "1:852642663347:web:76b694a9c93d8db499d9c6",
-  measurementId: "G-5MQRX046LN"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyCcyKbP1X1E3BUnuMmZiB9ycg0sanFs4jg",
+            authDomain: "idki-7845c.firebaseapp.com",
+            projectId: "idki-7845c",
+            storageBucket: "idki-7845c.firebasestorage.app",
+            messagingSenderId: "1065808983592",
+            appId: "1:1065808983592:web:07419e1f901cafa091e71d",
+            measurementId: "G-WLNBCYT2MR"
+        };
 
   const app = initializeApp(firebaseConfig);
    const db = getFirestore(app);
@@ -738,11 +737,11 @@ const firebaseConfig = {
   // ==============================================
 
 
-        const R2_ACCESS_KEY = "0e594b6605d55ee83b15eb04824c5102";
-        const R2_SECRET_KEY = "13253d2ae0cc91ef4da2b61f33b594d7339c54d7dee35f96fad7fa9f3153e631";
+        const R2_ACCESS_KEY = "0b1d9091cf7006115464cd341f490a00";
+        const R2_SECRET_KEY = "c1da863f908f26c15bd6e9e48fc83bc0bc742b6b518a5f361557e732980eed19";
         const R2_ENDPOINT = "https://16e1f7ba5668898f977a6c6f273c12b8.r2.cloudflarestorage.com";
-        const R2_BUCKET_NAME = "bellis-images";
-        const R2_PUBLIC_URL = "https://pub-00b460024dea43ef844e0a11575b4a78.r2.dev";
+        const R2_BUCKET_NAME = "idk-shop-images";
+        const R2_PUBLIC_URL = "https://pub-c627bcd786664e8da58b5efda6cbad61.r2.dev";
 
         const s3Client = new S3Client({
             region: "auto",

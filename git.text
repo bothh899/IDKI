@@ -76,4 +76,4 @@ const firebaseConfig = {
         return `${window.STORE_CONFIG.r2.publicUrl}/${cleanFileName}`;
     }
 
-    សុំប្រាប់ខ្ញុំបែប នេះជា block code ចាស់ & នេះជា block code ថ្មី សុំយកចិត្តទុកដាក់ ពិនិត្យកូដម្ដងមួយជួរៗ
+    សុំប្រាប់ខ្ញុំបែប នេះជា block code ចាស់ & នេះជា block code ថ្មី
