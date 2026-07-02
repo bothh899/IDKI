@@ -8,6 +8,10 @@
     <meta name="title" content="IDK Cambodia | Premium Clothing Store">
     <meta name="description" content="IDK Cambodia - ហាងសម្លៀកបំពាក់ដ៏ទាន់សម័យក្នុងទីក្រុងភ្នំពេញ។ ទិញអាវយឺត (Tee), អាវក្រៅ (Jacket), អាវរងា (Hoodie) ដែលមានគុណភាពខ្ពស់។">
     <meta name="keywords" content="idk, idkcambodia, idk cambodia, idk shop, idk clothing, idk store phnom penh, idk clothes">
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://idkcambodia.com/">
@@ -696,7 +700,6 @@
         <div class="slider-btn next-btn" style="position: fixed; right: 15px; z-index: 100001;" onclick="event.stopPropagation(); window.nextImageFs()">❯</div>
     </div>
 
-<script src="khqr.js?v=9"></script>
     <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, getDoc, setDoc, onSnapshot, query, where, increment, limit, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
@@ -2243,6 +2246,12 @@ window.renderDynamicBanners = (banners, intervalSec) => {
             }
         });
 
+    </script>
+    <script>
+        let khqrScript = document.createElement('script');
+        // បូកបញ្ចូលម៉ោងបច្ចុប្បន្ន (ឧទាហរណ៍៖ khqr.js?v=1710923847593)
+        khqrScript.src = "khqr.js?v=" + new Date().getTime(); 
+        document.body.appendChild(khqrScript);
     </script>
 </body>
 </html>
