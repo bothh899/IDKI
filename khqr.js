@@ -80,38 +80,22 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
         
         setTimeout(() => { qrContainer.appendChild(centerLogo); }, 50);
 
-// 🔴 ១. ទាញយកកូដ MD5 ពី QR 🔴
+// 🔴 ១. ទាញយកកូដ MD5 ពី QR ដែលទើបនឹងបង្កើត 🔴
         let qrMd5 = result.data?.md5;
 
-        // 🔴 ២. បង្កើត Deep Link និងឆែកមើលថាជាទូរស័ព្ទឬអត់ 🔴
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        let abaButtonHtml = '';
-        
-        if (isMobile) {
-            // បម្លែងកូដ QR String ទៅជាទម្រង់ Link ដែល ABA ស្គាល់ 
-            let abaDeepLink = `abamobilebank://?type=payway&qrcode=${encodeURIComponent(dynamicKHQRString)}`;
-            
-            abaButtonHtml = `
-                <a href="${abaDeepLink}" style="background: #005b9f; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px; border-radius: 8px; text-decoration: none; font-weight: 800; margin-bottom: 15px; font-size: 14px; box-shadow: 0 4px 15px rgba(0, 91, 159, 0.4); border: 1px solid #004d86;">
-                    <img src="https://payway.ababank.com/img/favicon.png" style="width: 22px; height: 22px; border-radius: 4px; background: white; padding: 1px;">
-                    <span>បើក ABA Mobile ដើម្បីទូទាត់</span>
-                </a>
-            `;
-        }
-
-        // 🔴 ៣. ប្តូរផ្ទាំង UI 🔴
+        // 🔴 ២. ប្តូរផ្ទាំង UI ប្រាប់ភ្ញៀវថាមិនបាច់ Upload ទេ 🔴
         statusEl.innerHTML = `
-            ${abaButtonHtml}
-            <div style="width: 100%; background: #0a0a0a; padding: 15px; border-radius: 12px; border: 1px solid #222;">
+            <div style="width: 100%; margin-top: 15px; background: #0a0a0a; padding: 15px; border-radius: 12px; border: 1px solid #222;">
                 <div class="spinner" style="margin: 0 auto 10px auto;"></div>
                 <p style="font-size: 13px; color: #4caf50; font-weight: bold; margin: 0;">ប្រព័ន្ធកំពុងរង់ចាំការទូទាត់ដោយស្វ័យប្រវត្តិ...</p>
                 <p style="font-size: 11px; color: #888; margin-top: 5px;">មិនចាំបាច់ថតវិក្កយបត្រទេ ផ្ទាំងនេះនឹងបិទដោយខ្លួនឯងពេលលុយលោតចូល។</p>
             </div>
         `;
 
-        // 🔴 ៤. ប្រព័ន្ធ Polling សួរ Worker រៀងរាល់ ៣ វិនាទីម្តង 🔴
+        // 🔴 ៣. បង្កើតប្រព័ន្ធ Polling សួរ Worker រៀងរាល់ ៣ វិនាទីម្តង 🔴
         window.checkPaymentInterval = setInterval(async () => {
             try {
+                // បញ្ជាក់៖ កន្លែងនេះត្រូវដាក់ Link Worker ថ្មីរបស់បង (ដែលបងបានថែមការ Check Bakong លើកមុន)
                 const workerURL = "https://idk-backend.vannvirakboth372.workers.dev"; 
                 
                 const response = await fetch(workerURL, {
@@ -122,16 +106,18 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
                 
                 const checkData = await response.json();
                 
+                // បើ Worker ឆែកឃើញថាជោគជ័យ
                 if (checkData.success === true) {
-                    clearInterval(window.checkPaymentInterval); 
-                    clearInterval(timerInterval); 
+                    clearInterval(window.checkPaymentInterval); // បញ្ឈប់ការសួរ (Polling)
+                    clearInterval(timerInterval); // បញ្ឈប់ម៉ោងដើរថយក្រោយ
                     
                     orderData.status = "Paid via KHQR (Auto)";
-                    orderData.transaction_id = checkData.data.hash; 
-                    orderData.receiptImage = null; 
+                    orderData.transaction_id = checkData.data.hash; // កត់ត្រាលេខកូដប្រតិបត្តិការ (Hash) របស់បាគង
+                    orderData.receiptImage = null; // លែងត្រូវការរូបភាពហើយ
                     
                     statusEl.innerHTML = `<span style="color:#4caf50; font-weight:bold;">✅ ទូទាត់ជោគជ័យ! កំពុងបញ្ជូនវិក្កយបត្រ...</span>`;
                     
+                    // ហៅមុខងារ Save ចូល Firebase ដោយស្វ័យប្រវត្តិ
                     if(typeof window.saveOrderToFirebase === 'function') {
                         window.saveOrderToFirebase(orderData);
                     }
@@ -139,8 +125,8 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
             } catch (error) {
                 console.log("Polling error:", error);
             }
-        }, 3000);
-        
+        }, 3000); // 3000 ms = 3 វិនាទី
+
    // 🔴 ដូរពី 600 មក 300 (ព្រោះ 300 វិនាទី = ៥ នាទី) 🔴
         let timeLeft = 300; 
         if(timerInterval) clearInterval(timerInterval);
