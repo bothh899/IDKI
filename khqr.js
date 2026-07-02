@@ -48,8 +48,7 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
             terminalId: "T001",
             storeId: "IDKSHOP",
             // 🔴 នេះជាបន្ទាត់ដែលខ្វះកាលពីមុន ដែលធ្វើឱ្យវាលោត Error ក្រហម 🔴
-            expirationTimestamp: Date.now() + 10 * 60 * 1000 
-        };
+            expirationTimestamp: Date.now() + 5 * 60 * 1000        };
 
         const result = KHQR.generate(qrData);
 
@@ -81,89 +80,90 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
         
         setTimeout(() => { qrContainer.appendChild(centerLogo); }, 50);
 
+// 🔴 ១. ទាញយកកូដ MD5 ពី QR 🔴
+        let qrMd5 = result.data?.md5;
+
+        // 🔴 ២. បង្កើត Deep Link និងឆែកមើលថាជាទូរស័ព្ទឬអត់ 🔴
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        let abaButtonHtml = '';
+        
+        if (isMobile) {
+            // បម្លែងកូដ QR String ទៅជាទម្រង់ Link ដែល ABA ស្គាល់ 
+            let abaDeepLink = `abamobilebank://?type=payway&qrcode=${encodeURIComponent(dynamicKHQRString)}`;
+            
+            abaButtonHtml = `
+                <a href="${abaDeepLink}" style="background: #005b9f; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px; border-radius: 8px; text-decoration: none; font-weight: 800; margin-bottom: 15px; font-size: 14px; box-shadow: 0 4px 15px rgba(0, 91, 159, 0.4); border: 1px solid #004d86;">
+                    <img src="https://payway.ababank.com/img/favicon.png" style="width: 22px; height: 22px; border-radius: 4px; background: white; padding: 1px;">
+                    <span>បើក ABA Mobile ដើម្បីទូទាត់</span>
+                </a>
+            `;
+        }
+
+        // 🔴 ៣. ប្តូរផ្ទាំង UI 🔴
         statusEl.innerHTML = `
-            <div style="width: 100%; margin-top: 5px; background: #0a0a0a; padding: 12px; border-radius: 12px; border: 1px solid #222;">
-                <p style="font-size: 12px; color: #ffaa00; margin-bottom: 10px; font-weight: bold;">⚠️ សូមថតអេក្រង់ (Screenshot) វិក្កយបត្រ បន្ទាប់ពីវេរលុយរួច</p>
-                <label id="upload-label" for="receipt-upload" style="background: #1a1a1a; border: 1px dashed #555; padding: 15px; border-radius: 8px; display: block; text-align: center; cursor: pointer; font-size: 13px; font-weight: bold; color: white; margin: 0; transition: 0.2s;">
-                    📸 ចុចទីនេះដើម្បី Upload វិក្កយបត្រ
-                    <input type="file" id="receipt-upload" accept="image/*" style="display: none;" onchange="window.handleReceiptUpload(event)">
-                </label>
-                
-                <div id="receipt-action-area" style="display: none; align-items: center; gap: 12px; width: 100%;">
-                    <div style="position: relative; flex-shrink: 0;">
-                        <img id="receipt-img" src="" style="width: 48px; height: 48px; border-radius: 6px; border: 1px solid #4caf50; object-fit: cover; display: block;">
-                        <div onclick="window.removeReceipt()" style="position: absolute; top: -6px; right: -6px; background: #ff4444; color: white; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">✕</div>
-                    </div>
-                    <button id="btn-manual-confirm" onclick="window.confirmManualPayment()" style="background: #4caf50; color: white; border: none; padding: 14px 10px; border-radius: 8px; font-size: 14px; font-weight: 900; flex-grow: 1; cursor: pointer; text-transform: uppercase; transition: 0.3s; box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);">
-                        ✅ បញ្ជាក់ការទូទាត់
-                    </button>
-                </div>
+            ${abaButtonHtml}
+            <div style="width: 100%; background: #0a0a0a; padding: 15px; border-radius: 12px; border: 1px solid #222;">
+                <div class="spinner" style="margin: 0 auto 10px auto;"></div>
+                <p style="font-size: 13px; color: #4caf50; font-weight: bold; margin: 0;">ប្រព័ន្ធកំពុងរង់ចាំការទូទាត់ដោយស្វ័យប្រវត្តិ...</p>
+                <p style="font-size: 11px; color: #888; margin-top: 5px;">មិនចាំបាច់ថតវិក្កយបត្រទេ ផ្ទាំងនេះនឹងបិទដោយខ្លួនឯងពេលលុយលោតចូល។</p>
             </div>
         `;
 
-        window.handleReceiptUpload = (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 600; 
-                        const scaleSize = MAX_WIDTH / img.width;
-                        canvas.width = MAX_WIDTH;
-                        canvas.height = img.height * scaleSize;
-                        
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        
-                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                        
-                        document.getElementById('upload-label').style.display = 'none';
-                        document.getElementById('receipt-action-area').style.display = 'flex';
-                        document.getElementById('receipt-img').src = compressedBase64;
-                        
-                        orderData.receiptImage = compressedBase64; 
-                        orderData.status = "Paid (Pending Verification)";
+        // 🔴 ៤. ប្រព័ន្ធ Polling សួរ Worker រៀងរាល់ ៣ វិនាទីម្តង 🔴
+        window.checkPaymentInterval = setInterval(async () => {
+            try {
+                const workerURL = "https://idk-backend.vannvirakboth372.workers.dev"; 
+                
+                const response = await fetch(workerURL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: "check_payment", md5: qrMd5 })
+                });
+                
+                const checkData = await response.json();
+                
+                if (checkData.success === true) {
+                    clearInterval(window.checkPaymentInterval); 
+                    clearInterval(timerInterval); 
+                    
+                    orderData.status = "Paid via KHQR (Auto)";
+                    orderData.transaction_id = checkData.data.hash; 
+                    orderData.receiptImage = null; 
+                    
+                    statusEl.innerHTML = `<span style="color:#4caf50; font-weight:bold;">✅ ទូទាត់ជោគជ័យ! កំពុងបញ្ជូនវិក្កយបត្រ...</span>`;
+                    
+                    if(typeof window.saveOrderToFirebase === 'function') {
+                        window.saveOrderToFirebase(orderData);
                     }
-                    img.src = e.target.result;
                 }
-                reader.readAsDataURL(file);
+            } catch (error) {
+                console.log("Polling error:", error);
             }
-        };
-
-        window.removeReceipt = () => {
-            document.getElementById('upload-label').style.display = 'block';
-            document.getElementById('receipt-action-area').style.display = 'none';
-            document.getElementById('receipt-upload').value = '';
-            orderData.receiptImage = null;
-        };
-
-        window.confirmManualPayment = () => {
-            if(!orderData.receiptImage) {
-                alert("សូម Upload រូបភាពវិក្កយបត្រជាមុនសិន!");
-                return;
-            }
-            clearInterval(timerInterval);
-            statusEl.innerHTML = `<span style="color:#4caf50; font-weight:bold;">កំពុងបញ្ជូនវិក្កយបត្រ...</span>`;
-            if(typeof window.saveOrderToFirebase === 'function') window.saveOrderToFirebase(orderData); 
-        };
-
-        let timeLeft = 600; 
+        }, 3000);
+        
+   // 🔴 ដូរពី 600 មក 300 (ព្រោះ 300 វិនាទី = ៥ នាទី) 🔴
+        let timeLeft = 300; 
         if(timerInterval) clearInterval(timerInterval);
         
-        timerText.innerText = "10:00";
+        // 🔴 ដូរពី 10:00 មក 05:00 🔴
+        timerText.innerText = "05:00";
         
         timerInterval = setInterval(() => {
             timeLeft--;
             let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
             let s = (timeLeft % 60).toString().padStart(2, '0');
             timerText.innerText = `${m}:${s}`;
+            
+            // នៅពេលម៉ោងដើរដល់សូន្យ (០)
             if(timeLeft <= 0) {
-                clearInterval(timerInterval);
+                clearInterval(timerInterval); // បញ្ឈប់ម៉ោងដើរថយក្រោយ
+                
+                // 🔴 បញ្ឈប់ការលួចសួរ (Polling) ទៅកាន់ Cloudflare Worker 🔴
+                if(window.checkPaymentInterval) clearInterval(window.checkPaymentInterval); 
+                
+                // ប្តូរអក្សរទៅជាពណ៌ក្រហម និងធ្វើឲ្យ QR ព្រិល (Opacity 0.2)
                 statusEl.innerHTML = `❌ <span style="color:#ff4444;">ផុតកំណត់ម៉ោងទូទាត់! សូមបិទផ្ទាំងនេះរួចចុចទិញម្តងទៀត។</span>`;
                 qrContainer.style.opacity = "0.2"; 
-                document.getElementById('upload-label').style.display = 'none';
             }
         }, 1000);
 
@@ -175,6 +175,8 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
 
 window.cancelKHQR = () => {
     if(timerInterval) clearInterval(timerInterval);
+    if(window.checkPaymentInterval) clearInterval(window.checkPaymentInterval); // 🔴 បន្ថែមការបិទ Polling
+    
     const modalEl = document.getElementById('khqr-modal');
     if(modalEl) modalEl.classList.remove('active');
 };
