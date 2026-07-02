@@ -88,7 +88,6 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
             <div style="width: 100%; margin-top: 15px; background: #0a0a0a; padding: 15px; border-radius: 12px; border: 1px solid #222;">
                 <div class="spinner" style="margin: 0 auto 10px auto;"></div>
                 <p style="font-size: 13px; color: #4caf50; font-weight: bold; margin: 0;">ប្រព័ន្ធកំពុងរង់ចាំការទូទាត់ដោយស្វ័យប្រវត្តិ...</p>
-                <p style="font-size: 11px; color: #888; margin-top: 5px;">មិនចាំបាច់ថតវិក្កយបត្រទេ ផ្ទាំងនេះនឹងបិទដោយខ្លួនឯងពេលលុយលោតចូល។</p>
             </div>
         `;
 
