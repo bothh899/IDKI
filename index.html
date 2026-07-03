@@ -795,7 +795,6 @@ import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, g
         let detailDisplayCount = 10;
         window.pageRestored = false; 
 
-        let unsub = null;
         let allProductsDB = [];
         let isFetchingAll = false;
 
@@ -2076,22 +2075,36 @@ if(coords) finalAddress += ` | Maps: https://maps.google.com/?q=${coords}`;
             }
         };
 
-function listenToProducts() {
-            if (unsub) { unsub(); } 
-            const q = query(collection(db, "products"), limit(homeDisplayCount));
-            
-            unsub = onSnapshot(q, (querySnapshot) => {
+// 🔴 កូដថ្មី៖ ប្រើ getDocs ជំនួស onSnapshot ដើម្បីសន្សំ Reads 🔴
+        async function listenToProducts() {
+            try {
+                // កំណត់ចំនួនទំនិញដែលត្រូវទាញយក
+                const q = query(collection(db, "products"), limit(homeDisplayCount));
+                
+                // ទាញយកទិន្នន័យតែម្តងគត់
+                const querySnapshot = await getDocs(q);
+                
                 let tempProducts = [];
                 querySnapshot.forEach((doc) => {
                     let data = doc.data(); 
                     let finalSizes = data.inventory ? Object.keys(data.inventory) : (data.sizes || ["One Size"]); 
                     let coverImg = (data.images && data.images.length > 0) ? data.images[0] : (data.img || 'https://via.placeholder.com/300'); 
                     let allImages = data.images || [coverImg]; 
-                    // 🔴 ថែម orderIndex ទាញពី Firebase 🔴
-tempProducts.push({ id: doc.id, title: data.title, price: data.price, description: data.description || "Premium item.", sizes: finalSizes, imgUrl: coverImg, imagesArray: allImages, orderIndex: data.orderIndex || 0, isOutOfStock: data.isOutOfStock || false });
+                    
+                    tempProducts.push({ 
+                        id: doc.id, 
+                        title: data.title, 
+                        price: data.price, 
+                        description: data.description || "Premium item.", 
+                        sizes: finalSizes, 
+                        imgUrl: coverImg, 
+                        imagesArray: allImages, 
+                        orderIndex: data.orderIndex || 0, 
+                        isOutOfStock: data.isOutOfStock || false 
+                    });
                 });
                 
-                // 🔴 តម្រៀបទំនិញតាមលំដាប់ OrderIndex ដែល Admin បានកំណត់ 🔴
+                // តម្រៀបទំនិញតាមលំដាប់ OrderIndex
                 tempProducts.sort((a, b) => a.orderIndex - b.orderIndex);
                 
                 productsDB = tempProducts;
@@ -2119,11 +2132,11 @@ tempProducts.push({ id: doc.id, title: data.title, price: data.price, descriptio
                     }
                 }
 
-            }, (error) => { 
-                console.error(error); 
+            } catch (error) { 
+                console.error("Error fetching products:", error); 
                 document.getElementById('product-grid').innerHTML = '<div style="grid-column: 1/-1; padding: 20px; color: #ff4444; text-align: center;">Error connecting to database. Please check your network.</div>';
-            });
-        }
+            }
+        }        
 
         listenToProducts();
 
@@ -2245,6 +2258,9 @@ window.renderDynamicBanners = (banners, intervalSec) => {
                 }
             }
         });
+
+
+        
 
     </script>
     <script>
