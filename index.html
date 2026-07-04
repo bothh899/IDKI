@@ -26,7 +26,7 @@
     <link rel="icon" type="image/png" href="favicon.png">
 
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-WLNBCYT2MR"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-WLNBCYT2MR" fetchpriority="low"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -534,10 +534,10 @@
             <div class="detail-container">
                 <div class="detail-gallery">
                                                             <div class="slider-container">
-                        <div class="slider-btn prev-btn" onclick="window.prevImage()">❮</div>
-                        <img id="detail-main-img" src="" class="main-img" onclick="window.openFullscreen(this.src)">
+<div class="slider-btn prev-btn" onclick="window.prevImage()">❮</div>
+                        <img id="detail-main-img" src="" class="main-img" fetchpriority="high" onclick="window.openFullscreen(this.src)">
                         <div class="slider-btn next-btn" onclick="window.nextImage()">❯</div>
-                    </div>
+                                        </div>
                     <div class="thumb-row" id="thumb-container"></div>
                 </div>
                 
@@ -795,6 +795,7 @@ import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, g
         let detailDisplayCount = 10;
         window.pageRestored = false; 
 
+        let unsub = null;
         let allProductsDB = [];
         let isFetchingAll = false;
 
@@ -1004,10 +1005,10 @@ window.generateGridHtml = (productsToRender) => {
                     <div class="product-card">
                         <div class="product-image-container" onclick="window.closeSearch(); window.openProduct('${p.id}')">
                             ${badgeHtml}
-                            ${outOfStockBanner}
-                            <img src="${p.imgUrl}" class="${imgClass}">
+${outOfStockBanner}
+                            <img src="${p.imgUrl}" class="${imgClass}" fetchpriority="low" loading="lazy">
                             <div class="fav-btn ${userFavorites.includes(p.id) ? 'active' : ''}" onclick="window.toggleFavorite(event, '${p.id}', this)">
-                                <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                                                                <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                             </div>
                         </div>
                         <div class="product-info-wrap">
@@ -2075,36 +2076,22 @@ if(coords) finalAddress += ` | Maps: https://maps.google.com/?q=${coords}`;
             }
         };
 
-// 🔴 កូដថ្មី៖ ប្រើ getDocs ជំនួស onSnapshot ដើម្បីសន្សំ Reads 🔴
-        async function listenToProducts() {
-            try {
-                // កំណត់ចំនួនទំនិញដែលត្រូវទាញយក
-                const q = query(collection(db, "products"), limit(homeDisplayCount));
-                
-                // ទាញយកទិន្នន័យតែម្តងគត់
-                const querySnapshot = await getDocs(q);
-                
+function listenToProducts() {
+            if (unsub) { unsub(); } 
+            const q = query(collection(db, "products"), limit(homeDisplayCount));
+            
+            unsub = onSnapshot(q, (querySnapshot) => {
                 let tempProducts = [];
                 querySnapshot.forEach((doc) => {
                     let data = doc.data(); 
                     let finalSizes = data.inventory ? Object.keys(data.inventory) : (data.sizes || ["One Size"]); 
                     let coverImg = (data.images && data.images.length > 0) ? data.images[0] : (data.img || 'https://via.placeholder.com/300'); 
                     let allImages = data.images || [coverImg]; 
-                    
-                    tempProducts.push({ 
-                        id: doc.id, 
-                        title: data.title, 
-                        price: data.price, 
-                        description: data.description || "Premium item.", 
-                        sizes: finalSizes, 
-                        imgUrl: coverImg, 
-                        imagesArray: allImages, 
-                        orderIndex: data.orderIndex || 0, 
-                        isOutOfStock: data.isOutOfStock || false 
-                    });
+                    // 🔴 ថែម orderIndex ទាញពី Firebase 🔴
+tempProducts.push({ id: doc.id, title: data.title, price: data.price, description: data.description || "Premium item.", sizes: finalSizes, imgUrl: coverImg, imagesArray: allImages, orderIndex: data.orderIndex || 0, isOutOfStock: data.isOutOfStock || false });
                 });
                 
-                // តម្រៀបទំនិញតាមលំដាប់ OrderIndex
+                // 🔴 តម្រៀបទំនិញតាមលំដាប់ OrderIndex ដែល Admin បានកំណត់ 🔴
                 tempProducts.sort((a, b) => a.orderIndex - b.orderIndex);
                 
                 productsDB = tempProducts;
@@ -2132,11 +2119,11 @@ if(coords) finalAddress += ` | Maps: https://maps.google.com/?q=${coords}`;
                     }
                 }
 
-            } catch (error) { 
-                console.error("Error fetching products:", error); 
+            }, (error) => { 
+                console.error(error); 
                 document.getElementById('product-grid').innerHTML = '<div style="grid-column: 1/-1; padding: 20px; color: #ff4444; text-align: center;">Error connecting to database. Please check your network.</div>';
-            }
-        }        
+            });
+        }
 
         listenToProducts();
 
@@ -2167,8 +2154,9 @@ window.renderDynamicBanners = (banners, intervalSec) => {
     heroSection.style.display = 'block'; // បង្ហាញមកវិញបើមានរូប
     
     // 1. បញ្ចូលរូបភាពទៅក្នុង HTML
-    sliderEl.innerHTML = banners.map((url, i) => `<img src="${url}" class="hero-slide" alt="Cover ${i+1}">`).join('');
-    
+// 1. បញ្ចូលរូបភាពទៅក្នុង HTML (រូបទី១ ដាក់ High, រូបបន្ទាប់ដាក់ Low និង Lazy)
+    sliderEl.innerHTML = banners.map((url, i) => `<img src="${url}" class="hero-slide" alt="Cover ${i+1}" ${i === 0 ? 'fetchpriority="high"' : 'fetchpriority="low" loading="lazy"'}>`).join('');
+
     // 2. បញ្ចូលចំណុចអុចៗ
     dotsEl.innerHTML = banners.map((_, i) => `<span class="dot ${i===0 ? 'active' : ''}"></span>`).join('');
     
@@ -2258,9 +2246,6 @@ window.renderDynamicBanners = (banners, intervalSec) => {
                 }
             }
         });
-
-
-        
 
     </script>
     <script>
