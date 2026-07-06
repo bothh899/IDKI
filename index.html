@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
+    <link rel="preconnect" href="https://pub-c627bcd786664e8da58b5efda6cbad61.r2.dev" crossorigin>
+    <link rel="dns-prefetch" href="https://pub-c627bcd786664e8da58b5efda6cbad61.r2.dev">
+
     <title>IDK Cambodia | Premium Clothing Store</title>
     <meta name="title" content="IDK Cambodia | Premium Clothing Store">
     <meta name="description" content="IDK Cambodia - ហាងសម្លៀកបំពាក់ដ៏ទាន់សម័យក្នុងទីក្រុងភ្នំពេញ។ ទិញអាវយឺត (Tee), អាវក្រៅ (Jacket), អាវរងា (Hoodie) ដែលមានគុណភាពខ្ពស់។">
@@ -815,6 +818,55 @@
             border-bottom: none;
         }
 
+        /* =========================================================
+           🔴 មុខងារ Staggered Animation (បង្ហាញ Section តាមលំដាប់) 🔴
+           ========================================================= */
+           
+        /* បង្កើតចលនារុញពីក្រោមឡើងលើបន្តិច យ៉ាងទន់ភ្លន់ */
+        @keyframes smoothSlideUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ចាប់យកគ្រប់ Section ទាំងអស់ក្នុងទំព័រ Home មកលាក់សិន រួចចាំឲ្យចលនាដើរ */
+        #page-home .hero,
+        #page-home #arrivals-section,
+        #page-home #models-section,
+        #page-home .site-footer {
+            opacity: 0; /* លាក់ឲ្យបាត់ពីភ្នែកសិន */
+            animation: smoothSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* 🔴 កំណត់វិនាទីឲ្យវាចេញមកម្តងមួយៗ (Delay) 🔴 */
+        
+        /* ទី១: Banner ចេញមកមុនគេបង្អស់ (0.1s) */
+        #page-home .hero { 
+            animation-delay: 0.1s; 
+        }
+        
+        /* ទី២: ទំនិញ New Arrivals ចេញមកបន្ទាប់ (0.3s) */
+        #page-home #arrivals-section { 
+            animation-delay: 0.3s; 
+        }
+        
+        /* ទី៣: ផ្ទាំង Model រូបភាពអូសៗ ចេញមកបន្ទាប់ទៀត (0.5s) */
+        #page-home #models-section { 
+            animation-delay: 0.5s; 
+        }
+        
+        /* ទី៤: ផ្នែក Footer ខាងក្រោមគេបង្អស់ ចេញមកក្រោយគេ (0.7s) */
+        #page-home .site-footer { 
+            animation-delay: 0.7s; 
+        }
+
+        /* 🔴 បច្ចេកទេសបង្កើនល្បឿន Render 🔴 */
+        #arrivals-section,
+        #models-section,
+        .related-section {
+            content-visibility: auto; /* មិនទាន់គូរ បើភ្ញៀវមិនទាន់អូសមកដល់ */
+            contain-intrinsic-size: 500px; /* ប្រាប់ Browser ថាកម្ពស់វាប្រហែល 500px ដើម្បីកុំឲ្យលោត */
+        }
+
     </style>
 </head>
 <body>
@@ -1450,7 +1502,7 @@ window.generateGridHtml = (productsToRender) => {
                         <div class="product-image-container" onclick="window.closeSearch(); window.openProduct('${p.id}')" style="cursor: pointer;">
                             ${badgeHtml}
                             ${outOfStockBanner}
-                            <img src="${p.imgUrl}" class="${imgClass}" fetchpriority="low" loading="lazy">
+<img src="${p.imgUrl}" class="${imgClass}" fetchpriority="low" loading="lazy" decoding="async">
                         </div>
                         
                       <div class="product-info-wrap" style="padding-top: 10px; padding-bottom: 10px;">
@@ -2688,7 +2740,7 @@ window.renderModelsGrid = () => {
                 const isVideo = m.imgUrl.includes('.mp4') || m.imgUrl.includes('.mov') || m.imgUrl.includes('.webm');
                 const mediaHtml = isVideo 
                     ? `<video src="${m.imgUrl}" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; pointer-events: none;"></video>`
-                    : `<img src="${m.imgUrl}" fetchpriority="low" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">`;
+                    : `<img src="${m.imgUrl}" fetchpriority="low" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">`;
 
                 return `
                 <div class="model-item-card product-card" style="border: none; background: transparent; cursor: default;">
@@ -2724,21 +2776,23 @@ window.renderModelsGrid = () => {
 
             cards.forEach(card => modelObserver.observe(card));
 
-            // 🔴 ៣. កំណត់មុខងារ Auto-Scroll ទៅ Item ទី 2 🔴
+     // 🔴 ៣. កំណត់មុខងារ Auto-Scroll ទៅ Item ទី 2 (កែប្រែថ្មីការពារការលោតទំព័រ) 🔴
             // យើងចាប់ផ្តើមពីសំណុំទី 3 (កណ្តាលគេបង្អស់) ដើម្បីទុកកន្លែងឲ្យអូសទៅឆ្វេងក៏បាន ស្តាំក៏បាន
             const realStartIndex = modelsDB.length * 2; 
             
             setTimeout(() => {
                 const firstRealItem = grid.children[realStartIndex];
                 if (firstRealItem) {
-                    // រំកិលទៅ Item ទី១ ស្ងាត់ៗ (អត់ Animation)
-                    firstRealItem.scrollIntoView({ block: 'nearest', inline: 'center' });
+                    // 🔴 ប្រើ grid.scrollLeft ជំនួស scrollIntoView ដើម្បីកុំឲ្យទំព័រលោតចុះក្រោម 🔴
+                    const scrollPos1 = firstRealItem.offsetLeft - (grid.clientWidth / 2) + (firstRealItem.clientWidth / 2);
+                    grid.scrollLeft = scrollPos1; 
                     
-                    // បន្ទាប់ពី 1.5 វិនាទី, ឲ្យវា Auto Scroll ទៅកាន់ Item ទី២ យ៉ាងរលូន
+                    // បន្ទាប់ពី 1.5 វិនាទី, ឲ្យវា Auto Scroll ទៅកាន់ Item ទី២ ផ្ដេកយ៉ាងរលូន
                     setTimeout(() => {
                         const secondRealItem = grid.children[realStartIndex + 1];
                         if (secondRealItem) {
-                            secondRealItem.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                            const scrollPos2 = secondRealItem.offsetLeft - (grid.clientWidth / 2) + (secondRealItem.clientWidth / 2);
+                            grid.scrollTo({ left: scrollPos2, behavior: 'smooth' });
                         }
                     }, 1500);
                 }
