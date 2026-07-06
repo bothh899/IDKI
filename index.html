@@ -692,7 +692,7 @@
             vertical-align: middle; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        
+
         
         /* ពណ៌ពេលយក Mouse ទៅដាក់ពីលើ (Hover) */
         .btn-detail-size-inline:hover { 
@@ -868,26 +868,9 @@
                 <div class="cart-tooltip" id="cart-tooltip">Item added! Check your bag here.</div>
             </a>
 
-            <div style="position: relative; display: flex; align-items: center;">
-                <a title="Theme Settings" onclick="window.toggleThemeMenu(event)">
-                    <svg id="nav-theme-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="19.36" x2="19.78" y2="20.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                </a>
-                
-                <div class="theme-dropdown" id="theme-dropdown">
-                    <div class="theme-option" id="theme-opt-light" onclick="window.setThemePreference('light', event)">
-                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="19.36" x2="19.78" y2="20.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                        Light Mode
-                    </div>
-                    <div class="theme-option" id="theme-opt-dark" onclick="window.setThemePreference('dark', event)">
-                        <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                        Dark Mode
-                    </div>
-                    <div class="theme-option" id="theme-opt-system" onclick="window.setThemePreference('system', event)">
-                        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-                        Device Setting
-                    </div>
-                </div>
-            </div>
+<a title="Toggle Theme" onclick="window.toggleTheme(event)">
+                <svg id="nav-theme-icon" viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.3s ease;"></svg>
+            </a>
         </div>
     </header>
 
@@ -950,14 +933,14 @@
             </div>
         </section>
 
-   <section class="new-arrivals" id="models-section" style="padding-top: 0;">
+<section class="new-arrivals" id="models-section" style="padding-top: 0; margin-top: -30px;">
             <div class="section-header">
                 <h2>MODEL</h2>
                 <a class="view-all">View All Models ⟶</a>
             </div>
             
             <div class="model-slider" id="model-grid">
-                <div style="width: 100%; display: flex; align-items: center; justify-content: center; height: 100px;">
+                                <div style="width: 100%; display: flex; align-items: center; justify-content: center; height: 100px;">
                     <div class="loader-logo" style="font-size: 18px;">Loading...</div>
                 </div>
             </div>
@@ -1470,13 +1453,13 @@ window.generateGridHtml = (productsToRender) => {
                             <img src="${p.imgUrl}" class="${imgClass}" fetchpriority="low" loading="lazy">
                         </div>
                         
-                        <div class="product-info-wrap" style="padding-bottom: 20px;">
+                      <div class="product-info-wrap" style="padding-top: 10px; padding-bottom: 10px;">
                             <div class="product-header" onclick="window.closeSearch(); window.openProduct('${p.id}')" style="cursor: pointer;">
                                 <span class="product-title" title="${p.title}">${p.title}</span>
                                 ${priceHtml}
                             </div>
                             
-                            <div class="product-actions" style="margin-top: 15px;">
+                            <div class="product-actions" style="margin-top: 1px;">
                                 <button class="${btnClass}" style="${btnStyle}" onclick="${actionClick}">${btnText}</button>
                             </div>
                         </div>
@@ -2690,7 +2673,7 @@ tempProducts.push({ id: doc.id, title: data.title, price: data.price, descriptio
             });
         }
 
-            window.renderModelsGrid = () => {
+window.renderModelsGrid = () => {
             const grid = document.getElementById('model-grid');
             if(!grid) return;
             if(modelsDB.length === 0) {
@@ -2698,7 +2681,10 @@ tempProducts.push({ id: doc.id, title: data.title, price: data.price, descriptio
                 return;
             }
             
-            grid.innerHTML = modelsDB.map(m => {
+            // 🔴 ១. ចម្លងទិន្នន័យ ៥ សំណុំ ដើម្បីបង្កើតទម្រង់ "អូសមិនចេះអស់" (Infinite Loop) 🔴
+            let infiniteModels = [...modelsDB, ...modelsDB, ...modelsDB, ...modelsDB, ...modelsDB];
+            
+            grid.innerHTML = infiniteModels.map(m => {
                 const isVideo = m.imgUrl.includes('.mp4') || m.imgUrl.includes('.mov') || m.imgUrl.includes('.webm');
                 const mediaHtml = isVideo 
                     ? `<video src="${m.imgUrl}" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; pointer-events: none;"></video>`
@@ -2718,44 +2704,81 @@ tempProducts.push({ id: doc.id, title: data.title, price: data.price, descriptio
                 `;
             }).join('');
 
-            // 🔴 មុខងារចាប់សញ្ញាពេលភ្ញៀវអូស (Scroll Trigger Animation) 🔴
+            // 🔴 ២. Effect រីកធំពេលរូបមកដល់កណ្តាលអេក្រង់ (Focus) 🔴
             const cards = grid.querySelectorAll('.model-item-card');
             const observerOptions = {
                 root: grid,
                 rootMargin: '0px',
-                threshold: 0.6 // 🟢 បញ្ជាឱ្យលោត Effect ពេលទំនិញចូលមកដល់ ៦០% នៃកណ្តាលអេក្រង់
+                threshold: 0.6 
             };
 
             const modelObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        entry.target.classList.add('model-focus'); // បន្ថែម Class ធ្វើឱ្យច្បាស់ និងរីកធំ
+                        entry.target.classList.add('model-focus'); 
                     } else {
-                        entry.target.classList.remove('model-focus'); // ដកចេញឱ្យវាព្រាល និងតូចវិញ
+                        entry.target.classList.remove('model-focus'); 
                     }
                 });
             }, observerOptions);
 
             cards.forEach(card => modelObserver.observe(card));
 
-            // 🔴 Effect ងក់ទៅស្តាំដដែល ដើម្បីប្រាប់ភ្ញៀវឱ្យអូស 🔴
+            // 🔴 ៣. កំណត់មុខងារ Auto-Scroll ទៅ Item ទី 2 🔴
+            // យើងចាប់ផ្តើមពីសំណុំទី 3 (កណ្តាលគេបង្អស់) ដើម្បីទុកកន្លែងឲ្យអូសទៅឆ្វេងក៏បាន ស្តាំក៏បាន
+            const realStartIndex = modelsDB.length * 2; 
+            
             setTimeout(() => {
-                if (grid.scrollWidth > grid.clientWidth) { 
-                    grid.scrollTo({ left: 100, behavior: 'smooth' }); 
+                const firstRealItem = grid.children[realStartIndex];
+                if (firstRealItem) {
+                    // រំកិលទៅ Item ទី១ ស្ងាត់ៗ (អត់ Animation)
+                    firstRealItem.scrollIntoView({ block: 'nearest', inline: 'center' });
+                    
+                    // បន្ទាប់ពី 1.5 វិនាទី, ឲ្យវា Auto Scroll ទៅកាន់ Item ទី២ យ៉ាងរលូន
                     setTimeout(() => {
-                        grid.scrollTo({ left: 0, behavior: 'smooth' }); 
-                    }, 500); 
+                        const secondRealItem = grid.children[realStartIndex + 1];
+                        if (secondRealItem) {
+                            secondRealItem.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                        }
+                    }, 1500);
                 }
-            }, 1500); 
-        };
-        
-        listenToModels(); // បញ្ជាឲ្យមុខងារនេះដំណើរការ
+            }, 100);
 
-    
+            // 🔴 ៤. មុខងារលោតវិលជុំ (Infinite Scroll - អូសមិនចេះអស់) 🔴
+            grid.addEventListener('scroll', () => {
+                if (grid.isJumping) return; // ការពារកុំឲ្យកូដដើរជាន់គ្នាពេលវាកំពុងលោត
+                
+                const firstItem = grid.children[0];
+                if (!firstItem) return;
+                
+                const itemWidth = firstItem.offsetWidth;
+                const gap = 15; // គម្លាត 15px ដែលយើងកំណត់ក្នុង CSS
+                const singleSetWidth = (itemWidth + gap) * modelsDB.length; // ទំហំនៃ ១ សំណុំ
+                
+                // បើភ្ញៀវអូសទៅឆ្វេងហួស លោតមកមុខវិញឲ្យទាន់
+                if (grid.scrollLeft < singleSetWidth * 1.5) {
+                    grid.isJumping = true;
+                    grid.scrollLeft += singleSetWidth; 
+                    setTimeout(() => grid.isJumping = false, 50);
+                } 
+                // បើភ្ញៀវអូសទៅស្តាំហួស លោតមកក្រោយវិញឲ្យទាន់
+                else if (grid.scrollLeft > singleSetWidth * 3.5) {
+                    grid.isJumping = true;
+                    grid.scrollLeft -= singleSetWidth; 
+                    setTimeout(() => grid.isJumping = false, 50);
+                }
+            });
+        };
+
+listenToModels(); // បញ្ជាឲ្យមុខងារនេះដំណើរការ
+
+        // 🔴 ត្រូវបន្ថែមជួរនេះ ដើម្បីប្រកាសអថេរម៉ោង ទើបកូដលែងគាំង Error 🔴
+        let slideInterval; 
+        
         window.renderDynamicBanners = (banners, intervalSec) => {
             const sliderEl = document.getElementById('main-hero-slider');
             const dotsEl = document.getElementById('main-hero-dots');
-            const heroSection = document.querySelector('.hero');
+                        const heroSection = document.querySelector('.hero');
             if(!sliderEl || !dotsEl || !heroSection) return;
             
             // បើ Admin លុបរូប Cover ចោលអស់ គឺលាក់ផ្ទាំងនេះពីវេបសាយភ្ញៀវតែម្តង
