@@ -2956,88 +2956,66 @@ listenToModels(); // បញ្ជាឲ្យមុខងារនេះដំ�
             }
         });
 
-        // ==========================================
-        // 🔴 មុខងារ គ្រប់គ្រង THEME (Light/Dark/System) 🔴
+// ==========================================
+        // 🔴 មុខងារ គ្រប់គ្រង THEME (Auto Device + Toggle) 🔴
         // ==========================================
         
-        // Icon សម្រាប់បង្ហាញលើ Nav bar (ព្រះអាទិត្យ ព្រះច័ន្ទ កុំព្យូទ័រ)
-        const themeIcons = {
-            light: '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="19.36" x2="19.78" y2="20.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>',
-            dark: '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>',
-            system: '<rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line>'
-        };
+        const iconMoon = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+        const iconSun = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="19.36" x2="19.78" y2="20.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
 
-        window.applyTheme = (preference) => {
+        // អនុវត្តពណ៌ និងប្តូរ Icon
+        window.applyTheme = (themeName) => {
             const root = document.documentElement;
-            const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const navIcon = document.getElementById('nav-theme-icon');
             
-            // កំណត់ថាត្រូវប្រើពណ៌អ្វីពិតប្រាកដ
-            let actualTheme = preference;
-            if (preference === 'system') {
-                actualTheme = isSystemDark ? 'dark' : 'light';
-            }
-
-            // ប្តូរពណ៌
-            if (actualTheme === 'light') {
+            if (themeName === 'light') {
                 root.classList.add('light-theme');
+                if(navIcon) {
+                    navIcon.innerHTML = iconMoon; // បង្ហាញព្រះច័ន្ទ (ប្រាប់ថា "ចុចខ្ញុំទៅ Dark")
+                    navIcon.style.transform = 'rotate(-20deg)';
+                }
             } else {
                 root.classList.remove('light-theme');
+                if(navIcon) {
+                    navIcon.innerHTML = iconSun; // បង្ហាញព្រះអាទិត្យ (ប្រាប់ថា "ចុចខ្ញុំទៅ Light")
+                    navIcon.style.transform = 'rotate(0deg)';
+                }
             }
-
-            // អាប់ដេត Icon លើ Nav Bar តាមជម្រើស
-            const navIcon = document.getElementById('nav-theme-icon');
-            if(navIcon) navIcon.innerHTML = themeIcons[preference];
-
-            // Update ការ Highlight លើ Menu
-            document.querySelectorAll('.theme-option').forEach(el => el.classList.remove('active'));
-            const activeOpt = document.getElementById(`theme-opt-${preference}`);
-            if(activeOpt) activeOpt.classList.add('active');
         };
 
-        window.setThemePreference = (preference, event) => {
-            if(event) event.stopPropagation();
-            localStorage.setItem('idk_theme_pref', preference); // Save ទុកក្នុងទូរស័ព្ទភ្ញៀវ
-            window.applyTheme(preference);
-            window.closeThemeMenu();
+        // មុខងារពេលចុចប៊ូតុង Icon ផ្ទាល់ (Toggle)
+        window.toggleTheme = (event) => {
+            if(event) event.preventDefault();
+            const isLight = document.documentElement.classList.contains('light-theme');
+            const newTheme = isLight ? 'dark' : 'light'; // ប្តូរឆ្លាស់គ្នា
+            
+            localStorage.setItem('idk_theme_pref', newTheme); // ចំណាំជម្រើសភ្ញៀវ
+            window.applyTheme(newTheme);
         };
 
-        // មុខងារបើក/បិទប្រអប់រើស Theme
-      window.toggleTheme = (event) => {
-    if(event) event.preventDefault();
-    const root = document.documentElement;
-    
-    // ពិនិត្យមើលថាតើបច្ចុប្បន្នជា Light Mode ឬអត់
-    const isLight = root.classList.contains('light-theme');
-    const newTheme = isLight ? 'dark' : 'light';
-    
-    // បន្ទាប់មកអនុវត្តការផ្លាស់ប្តូរ
-    localStorage.setItem('idk_theme_pref', newTheme);
-    window.applyTheme(newTheme);
-};
-
-
-        
-        window.closeThemeMenu = () => {
-            const dropdown = document.getElementById('theme-dropdown');
-            if(dropdown) dropdown.classList.remove('show');
+        // មុខងារចាប់ផ្តើមដំបូងពេលបើកវេបសាយ
+        window.initTheme = () => {
+            const savedPref = localStorage.getItem('idk_theme_pref');
+            if (savedPref) {
+                window.applyTheme(savedPref); // បើធ្លាប់រើស យកតាមជម្រើសភ្ញៀវ
+            } else {
+                // បើអត់ធ្លាប់រើស យកតាម Device (ទូរស័ព្ទ/កុំព្យូទ័រ)
+                const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                window.applyTheme(isSystemDark ? 'dark' : 'light');
+            }
         };
 
-        // បិទប្រអប់វិញពេលចុចកន្លែងផ្សេង
-        document.addEventListener('click', window.closeThemeMenu);
-        
-        // តាមដានប្រសិនបើភ្ញៀវដូរពណ៌ទូរស័ព្ទ (Device Setting) ពេលកំពុងមើលវេបសាយ
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-            const savedPref = localStorage.getItem('idk_theme_pref') || 'system';
-            if (savedPref === 'system') {
-                window.applyTheme('system');
+        // តាមដានបើសិនជាភ្ញៀវដូរពណ៌ទូរស័ព្ទ (Device Setting) ពេលកំពុងមើលវេបសាយ
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            // វាដូរតាមទូរស័ព្ទ លុះត្រាតែភ្ញៀវអត់ទាន់បានចុចកំណត់ Theme ដោយខ្លួនឯង
+            if (!localStorage.getItem('idk_theme_pref')) {
+                window.applyTheme(e.matches ? 'dark' : 'light');
             }
         });
 
-        // ដំណើរការភ្លាមៗពេលបើកវេបសាយ (Load default គឺ Device Setting បើអត់ធ្លាប់រើស)
-        const savedPreference = localStorage.getItem('idk_theme_pref') || 'system';
-        window.applyTheme(savedPreference);
-
-    
+        // បញ្ជាឲ្យដំណើរការ
+        window.initTheme();
+            
         let khqrScript = document.createElement('script');
         // បូកបញ្ចូលម៉ោងបច្ចុប្បន្ន (ឧទាហរណ៍៖ khqr.js?v=1710923847593)
         khqrScript.src = "khqr.js?v=" + new Date().getTime(); 
