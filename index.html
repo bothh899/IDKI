@@ -867,10 +867,28 @@
             contain-intrinsic-size: 500px; /* ប្រាប់ Browser ថាកម្ពស់វាប្រហែល 500px ដើម្បីកុំឲ្យលោត */
         }
 
+        /* 🔴 ធ្វើឲ្យគ្រប់ទំព័រទាំងមូលមានចលនាពេលបើក (Page Transition) 🔴 */
+    .page {
+        animation: smoothEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes smoothEntrance {
+        0% {
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
     </style>
 </head>
 <body>
-
+<div id="loader" style="position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg-color); z-index: 9999999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s;">
+    <div class="loader-logo"><span>?</span> idk.</div>
+</div>
     <div id="promo-modal" class="promo-modal-overlay">
         <div class="promo-modal-box">
             <div class="promo-modal-close" onclick="window.closePromoPopup()">✕</div>
@@ -920,9 +938,9 @@
                 <div class="cart-tooltip" id="cart-tooltip">Item added! Check your bag here.</div>
             </a>
 
-<a title="Toggle Theme" onclick="window.toggleTheme(event)">
-                <svg id="nav-theme-icon" viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.3s ease;"></svg>
-            </a>
+<a title="Toggle Theme" style="cursor: pointer;" onclick="window.toggleTheme(event)">
+    <svg id="nav-theme-icon" viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.3s ease;"></svg>
+</a>
         </div>
     </header>
 
@@ -1954,6 +1972,8 @@ window.getCartModalHtml = () => {
             }
         }
 
+        
+
    window.handleCartClick = (event) => {
             if(event) event.preventDefault();
             if(cartItems.length === 0) { window.showUIModal('Your Bag 🛍️', 'Your shopping bag is currently empty.', 'Continue Shopping', window.closeUIModal); } 
@@ -2982,10 +3002,20 @@ listenToModels(); // បញ្ជាឲ្យមុខងារនេះដំ�
         };
 
         // មុខងារបើក/បិទប្រអប់រើស Theme
-        window.toggleThemeMenu = (event) => {
-            if(event) event.stopPropagation();
-            document.getElementById('theme-dropdown').classList.toggle('show');
-        };
+      window.toggleTheme = (event) => {
+    if(event) event.preventDefault();
+    const root = document.documentElement;
+    
+    // ពិនិត្យមើលថាតើបច្ចុប្បន្នជា Light Mode ឬអត់
+    const isLight = root.classList.contains('light-theme');
+    const newTheme = isLight ? 'dark' : 'light';
+    
+    // បន្ទាប់មកអនុវត្តការផ្លាស់ប្តូរ
+    localStorage.setItem('idk_theme_pref', newTheme);
+    window.applyTheme(newTheme);
+};
+
+
         
         window.closeThemeMenu = () => {
             const dropdown = document.getElementById('theme-dropdown');
@@ -3013,6 +3043,14 @@ listenToModels(); // បញ្ជាឲ្យមុខងារនេះដំ�
         khqrScript.src = "khqr.js?v=" + new Date().getTime(); 
         document.body.appendChild(khqrScript);
 
+    // 🔴 មុខងារបិទ Loader ពេលវេបសាយ Load ពេញ 🔴
+    window.addEventListener('load', () => {
+        const loader = document.getElementById('loader');
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.style.display = 'none';
+        }, 500);
+    });
     
     </script>
 
