@@ -888,6 +888,35 @@
         }
     }
 
+    /* 🔴 ម៉ូតសម្រាប់ Block Thumbnail ថ្មី (Grid Layout 2 - 4) 🔴 */
+        .masonry-gallery {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+            width: 100%;
+        }
+        .masonry-item {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 3/4; /* ទម្រង់រូបបញ្ឈរ */
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: zoom-in;
+            border: 1px solid var(--border-color);
+            transition: 0.3s;
+            background: #050505;
+        }
+        .masonry-item:hover {
+            border-color: var(--text-main);
+        }
+        /* 🟢 រូបទី 1 និង ទី 2 យកទំហំ 2 ក្រឡា (50%) 🟢 */
+        .masonry-gallery .masonry-item:nth-child(1),
+        .masonry-gallery .masonry-item:nth-child(2) {
+            grid-column: span 2;
+        }
+        /* រូបទី 3, 4, 5, 6... នឹងយកទំហំ 1 ក្រឡាដោយស្វ័យប្រវត្តិ (25%) */
+
     </style>
 </head>
 <body>
@@ -1046,11 +1075,13 @@
                         <video id="detail-main-video" src="" class="main-img" style="display:none; width:100%; height:100%; object-fit:contain; background: #050505;" autoplay loop muted playsinline onclick="window.openFullscreen(this.src)"></video>
                         <div class="slider-btn next-btn" onclick="window.nextImage()">❯</div>
                     </div>
-                                        <div class="thumb-row" id="thumb-container"></div>
+<div class="thumb-row" id="thumb-container"></div>
+                    
+                    <div id="masonry-gallery-container" class="masonry-gallery" style="display: none;"></div>
                 </div>
                 
                 <div class="detail-info">
-<div class="detail-header-row" style="margin-bottom: 0px;">
+                    <div class="detail-header-row" style="margin-bottom: 0px;">
                         <div id="detail-title" class="d-title">Product Title</div>
                         <div id="detail-price" class="d-price">$0</div>
                     </div>
@@ -2210,12 +2241,11 @@ window.openProduct = (id) => {
 
 // 🔴 កែប្រែថ្មី៖ បើមាន Detail Images គឺយកតែ Detail Images មកបង្ហាញជា Slider និង Thumbnails
             // តែបើគ្មាន Detail Images ទាល់តែសោះ ទើបយករូប Cover មកបង្ហាញជំនួស
-            currentImageArray = p.imagesArray.length > 0 ? p.imagesArray : [currentItem.imgUrl];
-            currentImageIndex = 0; 
+            currentImageArray = (p.imagesArray && p.imagesArray.length > 0) ? p.imagesArray : [currentItem.imgUrl];
+            currentImageIndex = 0;            
+let thumbHtml = '';
             
-            let thumbHtml = '';
-            
-            // 🔴 បង្ហាញ Thumbnails តែនៅពេលដែលមានរូបសរុបច្រើនជាង ១ ប៉ុណ្ណោះ
+            // 🔴 បង្ហាញ Thumbnails តូចៗ (ផ្តេក)
             if (currentImageArray.length > 1) {
                 for(let i = 0; i < currentImageArray.length; i++) { 
                     let activeClass = i === 0 ? 'active' : ''; 
@@ -2225,12 +2255,48 @@ window.openProduct = (id) => {
                         : `<img src="${currentImageArray[i]}" class="${activeClass}" id="thumb-${i}" onclick="window.changeMainImg(${i})">`; 
                 }
             }
-            
             document.getElementById('thumb-container').innerHTML = thumbHtml; 
+            
+// 🔴 កូដថ្មី៖ បង្កើត Masonry Gallery សម្រាប់ (ប្រអប់ទី ៣ Masonry Images) 🔴
+            let masonryContainer = document.getElementById('masonry-gallery-container');
+            if (!masonryContainer) { 
+                masonryContainer = document.createElement('div');
+                masonryContainer.id = 'masonry-gallery-container';
+                masonryContainer.className = 'masonry-gallery';
+                document.getElementById('thumb-container').after(masonryContainer);
+            }
+
+// បើ Admin បាន Upload រូបក្នុងប្រអប់ទី៣ (masonryImages) វានឹងបង្ហាញចេញមក
+            let hasMasonry = false;
+            if (p.masonryImages && p.masonryImages.length > 0) {
+                hasMasonry = true;
+                let masonryHtml = '';
+                p.masonryImages.forEach((url) => {
+                    let isMasonryVid = url.includes('.mp4') || url.includes('.mov') || url.includes('.webm');
+                    masonryHtml += isMasonryVid
+                        ? `<video src="${url}" class="masonry-item" autoplay loop muted playsinline onclick="window.openFullscreen('${url}')"></video>`
+                        : `<img src="${url}" class="masonry-item" loading="lazy" onclick="window.openFullscreen('${url}')">`;
+                });
+                masonryContainer.innerHTML = masonryHtml;
+                masonryContainer.style.display = 'grid'; 
+            } else {
+                masonryContainer.innerHTML = '';
+                masonryContainer.style.display = 'none'; // លាក់ចោលបើអត់មានរូប
+            }
+
+            // 🔴 បិទប៊ូតុងអូស < > លើរូបធំបើមានរូប Masonry ឬបើមានរូបតែ១ 🔴
+            const mainSliderBtns = document.querySelectorAll('.slider-container .slider-btn');
+            if (hasMasonry || currentImageArray.length <= 1) {
+                // លាក់ប៊ូតុងចេញ
+                mainSliderBtns.forEach(btn => btn.style.display = 'none');
+            } else {
+                // បង្ហាញប៊ូតុងមកវិញ បើអត់មាន Masonry ហើយមានរូប Detail ច្រើន
+                mainSliderBtns.forEach(btn => btn.style.display = 'flex');
+            }
             
             window.changeMainImg(0); // បញ្ជាឱ្យបង្ហាញរូប ឬវីដេអូទី១ ដោយស្វ័យប្រវត្តិ
             window.syncDetailButtonState();
-                        window.savePageLocally('detail', id);
+                                                window.savePageLocally('detail', id);
             
             detailDisplayCount = 10;
             window.updateRelatedGrid();
@@ -2729,14 +2795,11 @@ if(coords) finalAddress += ` | Maps: https://maps.google.com/?q=${coords}`;
                     let data = doc.data(); 
                     let finalSizes = data.inventory ? Object.keys(data.inventory) : (data.sizes || ["One Size"]); 
                     let coverImg = (data.images && data.images.length > 0) ? data.images[0] : (data.img || 'https://via.placeholder.com/300'); 
+let allImages = (data.images && data.images.length > 1) ? data.images.slice(1) : []; 
                     
-                    // 🔴 កែប្រែ៖ ទាញយករូបចាប់ពីទីតាំងទី១ (Index 1) ឡើងទៅ ដែលជា Detail Images ពិតប្រាកដ
-                    // ប្រសិនបើគ្មាន Detail Images ទេ វាទុក Array ទទេ ([]) កុំអោយយករូប Cover មកជាន់គ្នា
-                    let allImages = (data.images && data.images.length > 1) ? data.images.slice(1) : []; 
-                    
-tempProducts.push({ id: doc.id, title: data.title, price: data.price, description: data.description || "", sizes: finalSizes, imgUrl: coverImg, imagesArray: allImages, orderIndex: data.orderIndex || 0, isOutOfStock: data.isOutOfStock || false });
+                    // 🔴 ថែម masonryImages ទាញចេញពី Database មក 🔴
+tempProducts.push({ id: doc.id, title: data.title, price: data.price, description: data.description || "", sizes: finalSizes, imgUrl: coverImg, imagesArray: allImages, masonryImages: data.masonryImages || [], orderIndex: data.orderIndex || 0, isOutOfStock: data.isOutOfStock || false });
                 });
-
                 
                 // 🔴 តម្រៀបទំនិញតាមលំដាប់ OrderIndex ដែល Admin បានកំណត់ 🔴
                 tempProducts.sort((a, b) => a.orderIndex - b.orderIndex);
