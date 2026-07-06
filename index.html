@@ -466,11 +466,12 @@
         .fav-btn.active svg { fill: white; stroke: white; }
 
         .btn-see-more { background: transparent; color: white; border: 1px solid #333; padding: 14px 40px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; border-radius: 4px; cursor: pointer; transition: 0.3s; display: inline-block; margin-top: 40px; margin-bottom: 20px;}
-        .btn-see-more:hover { background: white; color: black; border-color: white;}
+.btn-see-more:hover { background: white; color: black; border-color: white;}
 
-        .detail-page-wrapper { padding: 40px 50px; max-width: 1200px; margin: 0 auto; min-height: 80vh; }
+        /* 🔴 ទាញផ្នែកខាងលើឱ្យខិតជាប់ Nav Bar (ប្តូរលេខ 40px ទៅ 0px) 🔴 */
+        .detail-page-wrapper { padding: 0px 50px 40px 50px; max-width: 1200px; margin: 0 auto; min-height: 80vh; }
         .detail-container { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; width: 100%; }
-        .detail-gallery { display: flex; flex-direction: column; gap: 15px; width: 100%; min-width: 0; position: relative; }
+                .detail-gallery { display: flex; flex-direction: column; gap: 15px; width: 100%; min-width: 0; position: relative; }
         .slider-container { position: relative; width: 100%; height: 600px; background: #050505; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden;}
         .main-img { max-width: 100%; max-height: 100%; object-fit: contain; cursor: zoom-in; transition: 0.2s ease-in-out;}
         .slider-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(25, 25, 25, 0.6); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); z-index: 10;}
@@ -480,9 +481,9 @@
 
         .thumb-row { display: flex; gap: 10px; overflow-x: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; padding-bottom: 5px; width: 100%; scroll-snap-type: x mandatory;}
         .thumb-row::-webkit-scrollbar { display: none; }
-        .thumb-row img { width: 80px; height: 80px; object-fit: cover; cursor: pointer; border: 2px solid transparent; opacity: 0.5; border-radius: 6px; transition: 0.2s; flex-shrink: 0; scroll-snap-align: start;}
-        .thumb-row img:hover, .thumb-row img.active { opacity: 1; border-color: var(--text-main); }
-        
+.thumb-row img, .thumb-row video { width: 80px; height: 80px; object-fit: cover; cursor: pointer; border: 2px solid transparent; opacity: 0.5; border-radius: 6px; transition: 0.2s; flex-shrink: 0; scroll-snap-align: start;}
+        .thumb-row img:hover, .thumb-row img.active, .thumb-row video:hover, .thumb-row video.active { opacity: 1; border-color: var(--text-main); }
+
         .detail-info { padding-top: 10px; width: 100%; }
         .detail-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; gap: 15px; }
         .d-price { font-size: 24px; font-weight: 600; margin-bottom: 0; color: white; white-space: nowrap; margin-top: 2px; display: flex; align-items: baseline; gap: 10px;}
@@ -643,10 +644,14 @@
                         .new-arrivals { padding: 25px 20px 40px 20px; }
             .section-header { margin-bottom: 15px; padding-bottom: 8px;}
             .product-grid { gap: 15px; } .product-image-container { height: 250px; }
-            .product-info-wrap { padding: 12px; gap: 12px;} .p-btn { padding: 10px 0; font-size: 11px; }
-            .detail-page-wrapper, .checkout-page-wrapper { padding: 20px; } 
+.product-info-wrap { padding: 12px; gap: 12px;} .p-btn { padding: 10px 0; font-size: 11px; }
+            
+            /* 🔴 បំបែកកូដ ហើយកំណត់ padding ខាងលើឱ្យស្មើ 0 សម្រាប់ទូរស័ព្ទ 🔴 */
+            .checkout-page-wrapper { padding: 20px; } 
+            .detail-page-wrapper { padding: 0px 20px 20px 20px; } 
+            
             .d-title { font-size: 24px; } .d-price { font-size: 20px; flex-direction: column; gap: 2px;}
-.related-section { margin-top: 2px; padding-top: 2px; padding-left: 10px; padding-right: 10px; } .related-title { font-size: 16px; margin-bottom: 14px; }            .detail-action-row { gap: 10px; margin-bottom: 0px;} .btn-add, .btn-checkout { padding: 14px 5px; font-size: 11px; }
+            .related-section { margin-top: 2px; padding-top: 2px; padding-left: 10px; padding-right: 10px; } .related-title { font-size: 16px; margin-bottom: 14px; }            .detail-action-row { gap: 10px; margin-bottom: 0px;} .btn-add, .btn-checkout { padding: 14px 5px; font-size: 11px; }
             .nav-icons { gap: 10px; } .nav-icons svg { width: 24px; height: 24px; } 
             .slider-container { height: 450px; background: transparent; } 
             .slider-btn { width: 35px; height: 35px; font-size: 16px; }
@@ -1035,12 +1040,13 @@
         <div class="detail-page-wrapper">
             <div class="detail-container">
                 <div class="detail-gallery">
-                                                            <div class="slider-container">
-<div class="slider-btn prev-btn" onclick="window.prevImage()">❮</div>
+<div class="slider-container">
+                        <div class="slider-btn prev-btn" onclick="window.prevImage()">❮</div>
                         <img id="detail-main-img" src="" class="main-img" fetchpriority="high" onclick="window.openFullscreen(this.src)">
+                        <video id="detail-main-video" src="" class="main-img" style="display:none; width:100%; height:100%; object-fit:contain; background: #050505;" autoplay loop muted playsinline onclick="window.openFullscreen(this.src)"></video>
                         <div class="slider-btn next-btn" onclick="window.nextImage()">❯</div>
-                                        </div>
-                    <div class="thumb-row" id="thumb-container"></div>
+                    </div>
+                                        <div class="thumb-row" id="thumb-container"></div>
                 </div>
                 
                 <div class="detail-info">
@@ -1508,6 +1514,7 @@ window.generateGridHtml = (productsToRender) => {
                 const dInfo = window.getDiscountInfo(p.id, p.price);
                 const badgeHtml = dInfo.isDiscounted ? `<div class="discount-badge">-${dInfo.percent}% OFF</div>` : '';
                 
+              // 🔴 បង្កើត HTML សម្រាប់បដា និងកែប្រែរូបរាងរូបភាព 🔴
                 const outOfStockBanner = isOut ? `<div class="sold-out-overlay">OUT OF STOCK</div>` : '';
                 const imgClass = isOut ? 'out-of-stock-img' : '';
 
@@ -1515,12 +1522,19 @@ window.generateGridHtml = (productsToRender) => {
                     ? `<div class="price-wrap"><span class="product-price" style="color:#ff4444;">$${dInfo.price.toFixed(2)}</span><span class="original-price">$${p.price.toFixed(2)}</span></div>`
                     : `<span class="product-price">$${p.price.toFixed(2)}</span>`;
 
+                const itemModelBlock = `<div class="item-model-block" style="padding-top: 10px;"></div>`;
+                
+                const isVideo = p.imgUrl.includes('.mp4') || p.imgUrl.includes('.mov') || p.imgUrl.includes('.webm');
+                const mediaHtml = isVideo 
+                    ? `<video src="${p.imgUrl}" class="${imgClass}" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>`
+                    : `<img src="${p.imgUrl}" class="${imgClass}" fetchpriority="low" loading="lazy" decoding="async">`;
+
                 return `
                     <div class="product-card">
                         <div class="product-image-container" onclick="window.closeSearch(); window.openProduct('${p.id}')" style="cursor: pointer;">
                             ${badgeHtml}
                             ${outOfStockBanner}
-<img src="${p.imgUrl}" class="${imgClass}" fetchpriority="low" loading="lazy" decoding="async">
+                            ${mediaHtml}
                         </div>
                         
                       <div class="product-info-wrap" style="padding-top: 10px; padding-bottom: 10px;">
@@ -2194,16 +2208,29 @@ window.openProduct = (id) => {
                 sizeBtn.innerHTML = '📏 Detail Size';
             }
 
-            currentImageArray = p.imagesArray && p.imagesArray.length > 0 ? p.imagesArray : [currentItem.imgUrl]; 
+// 🔴 កែប្រែថ្មី៖ បើមាន Detail Images គឺយកតែ Detail Images មកបង្ហាញជា Slider និង Thumbnails
+            // តែបើគ្មាន Detail Images ទាល់តែសោះ ទើបយករូប Cover មកបង្ហាញជំនួស
+            currentImageArray = p.imagesArray.length > 0 ? p.imagesArray : [currentItem.imgUrl];
             currentImageIndex = 0; 
-            document.getElementById('detail-main-img').src = currentImageArray[0]; 
             
             let thumbHtml = '';
-            for(let i = 0; i < currentImageArray.length; i++) { let activeClass = i === 0 ? 'active' : ''; thumbHtml += `<img src="${currentImageArray[i]}" class="${activeClass}" id="thumb-${i}" onclick="window.changeMainImg(${i})">`; }
+            
+            // 🔴 បង្ហាញ Thumbnails តែនៅពេលដែលមានរូបសរុបច្រើនជាង ១ ប៉ុណ្ណោះ
+            if (currentImageArray.length > 1) {
+                for(let i = 0; i < currentImageArray.length; i++) { 
+                    let activeClass = i === 0 ? 'active' : ''; 
+                    let isThumbVid = currentImageArray[i].includes('.mp4') || currentImageArray[i].includes('.mov') || currentImageArray[i].includes('.webm');
+                    thumbHtml += isThumbVid
+                        ? `<video src="${currentImageArray[i]}" class="${activeClass}" id="thumb-${i}" onclick="window.changeMainImg(${i})" muted playsinline></video>`
+                        : `<img src="${currentImageArray[i]}" class="${activeClass}" id="thumb-${i}" onclick="window.changeMainImg(${i})">`; 
+                }
+            }
+            
             document.getElementById('thumb-container').innerHTML = thumbHtml; 
             
+            window.changeMainImg(0); // បញ្ជាឱ្យបង្ហាញរូប ឬវីដេអូទី១ ដោយស្វ័យប្រវត្តិ
             window.syncDetailButtonState();
-            window.savePageLocally('detail', id);
+                        window.savePageLocally('detail', id);
             
             detailDisplayCount = 10;
             window.updateRelatedGrid();
@@ -2225,11 +2252,28 @@ window.openProduct = (id) => {
             });
         };
 
-        window.changeMainImg = (index) => {
-            if(index < 0 || index >= currentImageArray.length) return; currentImageIndex = index; document.getElementById('detail-main-img').src = currentImageArray[index]; document.querySelectorAll('.thumb-row img').forEach(img => img.classList.remove('active'));
-            const activeThumb = document.getElementById(`thumb-${index}`); if(activeThumb) { activeThumb.classList.add('active'); activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }
+window.changeMainImg = (index) => {
+            if(index < 0 || index >= currentImageArray.length) return; 
+            currentImageIndex = index; 
+            
+            const src = currentImageArray[index];
+            const isVid = src.includes('.mp4') || src.includes('.mov') || src.includes('.webm');
+            const imgEl = document.getElementById('detail-main-img');
+            const vidEl = document.getElementById('detail-main-video');
+            
+            if(isVid) {
+                imgEl.style.display = 'none'; imgEl.src = '';
+                vidEl.style.display = 'block'; vidEl.src = src; vidEl.play();
+            } else {
+                vidEl.style.display = 'none'; vidEl.pause(); vidEl.src = '';
+                imgEl.style.display = 'block'; imgEl.src = src;
+            }
+
+            document.querySelectorAll('.thumb-row img, .thumb-row video').forEach(el => el.classList.remove('active'));
+            const activeThumb = document.getElementById(`thumb-${index}`); 
+            if(activeThumb) { activeThumb.classList.add('active'); activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }
         }
-        window.nextImage = () => { let newIndex = currentImageIndex + 1; if(newIndex >= currentImageArray.length) newIndex = 0; window.changeMainImg(newIndex); }
+                window.nextImage = () => { let newIndex = currentImageIndex + 1; if(newIndex >= currentImageArray.length) newIndex = 0; window.changeMainImg(newIndex); }
         window.prevImage = () => { let newIndex = currentImageIndex - 1; if(newIndex < 0) newIndex = currentImageArray.length - 1; window.changeMainImg(newIndex); }
 window.openFullscreen = (src) => { 
             const imgEl = document.getElementById('fs-img');
@@ -2325,10 +2369,12 @@ window.openFullscreen = (src) => {
 
                 checkoutItemsHtml += `
                     <div class="checkout-item-row" style="flex-direction: column; align-items: stretch; border-bottom: 1px solid #222; padding-bottom: 20px;">
-                        <div style="display: flex; gap: 15px;">
-                            <img src="${item.imgUrl}" class="checkout-item-img">
+<div style="display: flex; gap: 15px;">
+                            ${item.imgUrl.includes('.mp4') || item.imgUrl.includes('.mov') || item.imgUrl.includes('.webm') 
+                                ? `<video src="${item.imgUrl}" class="checkout-item-img" autoplay loop muted playsinline style="object-fit:cover;"></video>` 
+                                : `<img src="${item.imgUrl}" class="checkout-item-img">`}
                             <div style="display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1;">
-                                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                                                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                                     <span class="checkout-item-title" style="font-size: 15px;">${item.title}</span>
                                     <span class="modal-remove-btn" onclick="window.removeModalItem(${index})">✕ Remove</span>
                                 </div>
@@ -2677,16 +2723,20 @@ if(coords) finalAddress += ` | Maps: https://maps.google.com/?q=${coords}`;
             if (unsub) { unsub(); } 
             const q = query(collection(db, "products"), limit(homeDisplayCount));
             
-            unsub = onSnapshot(q, (querySnapshot) => {
+          unsub = onSnapshot(q, (querySnapshot) => {
                 let tempProducts = [];
                 querySnapshot.forEach((doc) => {
                     let data = doc.data(); 
                     let finalSizes = data.inventory ? Object.keys(data.inventory) : (data.sizes || ["One Size"]); 
                     let coverImg = (data.images && data.images.length > 0) ? data.images[0] : (data.img || 'https://via.placeholder.com/300'); 
-                    let allImages = data.images || [coverImg]; 
-                    // 🔴 ថែម orderIndex ទាញពី Firebase 🔴
+                    
+                    // 🔴 កែប្រែ៖ ទាញយករូបចាប់ពីទីតាំងទី១ (Index 1) ឡើងទៅ ដែលជា Detail Images ពិតប្រាកដ
+                    // ប្រសិនបើគ្មាន Detail Images ទេ វាទុក Array ទទេ ([]) កុំអោយយករូប Cover មកជាន់គ្នា
+                    let allImages = (data.images && data.images.length > 1) ? data.images.slice(1) : []; 
+                    
 tempProducts.push({ id: doc.id, title: data.title, price: data.price, description: data.description || "", sizes: finalSizes, imgUrl: coverImg, imagesArray: allImages, orderIndex: data.orderIndex || 0, isOutOfStock: data.isOutOfStock || false });
                 });
+
                 
                 // 🔴 តម្រៀបទំនិញតាមលំដាប់ OrderIndex ដែល Admin បានកំណត់ 🔴
                 tempProducts.sort((a, b) => a.orderIndex - b.orderIndex);
@@ -3015,7 +3065,7 @@ listenToModels(); // បញ្ជាឲ្យមុខងារនេះដំ�
 
         // បញ្ជាឲ្យដំណើរការ
         window.initTheme();
-            
+
         let khqrScript = document.createElement('script');
         // បូកបញ្ចូលម៉ោងបច្ចុប្បន្ន (ឧទាហរណ៍៖ khqr.js?v=1710923847593)
         khqrScript.src = "khqr.js?v=" + new Date().getTime(); 
