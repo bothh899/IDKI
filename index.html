@@ -3041,7 +3041,7 @@ window.openFullscreen = (src) => {
         let lastLeaveTime = 0;
         const REFRESH_THRESHOLD = 20 * 60 * 1000; // ២០ នាទី (គិតជាមិល្លីវិនាទី)
 
-        document.addEventListener("visibilitychange", () => {
+      document.addEventListener("visibilitychange", () => {
             if (document.hidden) {
                 // កត់ត្រាម៉ោង ពេលភ្ញៀវចុចបិទអេក្រង់ ឬអូសទៅ App ផ្សេង
                 lastLeaveTime = Date.now();
@@ -3050,14 +3050,20 @@ window.openFullscreen = (src) => {
                 if (lastLeaveTime > 0) {
                     const timeAway = Date.now() - lastLeaveTime;
                     
-                    // បើលើសពី ២០ នាទី
                     if (timeAway >= REFRESH_THRESHOLD) {
-                        // 🔴 មុននឹង Refresh យើងបញ្ជាឲ្យវាលុបការចងចាំ Page ចោល ដើម្បីឲ្យវាលោតទៅ Home វិញ 🔴
                         localStorage.setItem('idk_currentPage', 'home');
                         localStorage.removeItem('idk_currentProduct'); 
-                        
-                        // បង្ខំឲ្យ Refresh យកទិន្នន័យថ្មី (Clear Cache បណ្តោះអាសន្ន)
                         window.location.reload(true);
+                    }
+                }
+
+                // 🔴 កូដបន្ថែមថ្មី៖ ដាស់ប្រព័ន្ធអោយឆែកលុយភ្លាមៗ 🔴
+                // បើផ្ទាំង KHQR កំពុងបើក មានន័យថាគាត់ទើបតែចេញទៅវាយលុយ ហើយត្រលប់មកវិញ
+                const khqrModal = document.getElementById('khqr-modal');
+                if (khqrModal && khqrModal.classList.contains('active')) {
+                    // ប្រសិនបើក្នុង khqr.js មាន function សម្រាប់ Force Check យើងហៅវានៅទីនេះ
+                    if (typeof window.forceCheckPayment === 'function') {
+                        window.forceCheckPayment();
                     }
                 }
             }
