@@ -411,10 +411,11 @@
         .product-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; }
         .product-card { background-color: #0f0f0f; border: 1px solid #151515; overflow: hidden; display: flex; flex-direction: column; position: relative; border-radius: 4px; transition: border-color 0.3s;}
         .product-card:hover { border-color: #333; }
-.product-image-container { width: 100%; height: 450px; overflow: hidden; position: relative; cursor: pointer;}
-        .product-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
-        .product-card:hover img { transform: scale(1.05); }
-        
+/* 🔴 ប្តូរពី height: 450px; ទៅជា aspect-ratio: 3/4; height: auto; ដើម្បីកុំឱ្យកាត់រូប 🔴 */
+        .product-image-container { width: 100%; aspect-ratio: 3/4; height: auto; overflow: hidden; position: relative; cursor: pointer; background: #0a0a0a;}
+        .product-card img, .product-card video { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
+        .product-card:hover img, .product-card:hover video { transform: scale(1.05); }
+
         /* 🔴 ម៉ូតសម្រាប់អក្សរ Out of stock ប្រឆិត 🔴 */
         .sold-out-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-35deg); background: rgba(239, 68, 68, 0.95); color: white; padding: 10px 40px; font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; z-index: 15; box-shadow: 0 10px 20px rgba(0,0,0,0.6); pointer-events: none; border: 2px solid rgba(255,255,255,0.2); backdrop-filter: blur(2px); white-space: nowrap; }
         /* ធ្វើឲ្យរូបរាងស្រអាប់ និងសខ្មៅ ពេលអស់ស្តុក */
@@ -695,10 +696,14 @@
             .logo a h1 { font-size: 20px; } 
             .logo a h1 span { font-size: 24px; }
                         .new-arrivals { padding: 25px 20px 40px 20px; }
-            .section-header { margin-bottom: 15px; padding-bottom: 8px;}
-            .product-grid { gap: 15px; } .product-image-container { height: 250px; }
-.product-info-wrap { padding: 12px; gap: 12px;} .p-btn { padding: 10px 0; font-size: 11px; }
+.section-header { margin-bottom: 15px; padding-bottom: 8px;}
             
+            /* 🔴 លុប height: 250px; ចេញ ជំនួសដោយ aspect-ratio និង height: auto; 🔴 */
+            .product-grid { gap: 15px; } 
+            .product-image-container { aspect-ratio: 3/4; height: auto; }
+            
+            .product-info-wrap { padding: 12px; gap: 12px;} .p-btn { padding: 10px 0; font-size: 11px; }
+                        
             /* 🔴 បំបែកកូដ ហើយកំណត់ padding ខាងលើឱ្យស្មើ 0 សម្រាប់ទូរស័ព្ទ 🔴 */
             .checkout-page-wrapper { padding: 20px; } 
             .detail-page-wrapper { padding: 0px 20px 20px 20px; } 
@@ -1121,17 +1126,17 @@
         </a>        
         <div class="detail-page-wrapper">
             <div class="detail-container">
-                <div class="detail-gallery">
-<div class="slider-container">
+             <div class="detail-gallery">
+                    <div class="slider-container">
                         <div class="slider-btn prev-btn" onclick="window.prevImage()">❮</div>
                         <img id="detail-main-img" src="" class="main-img" fetchpriority="high" onclick="window.openFullscreen(this.src)">
                         <video id="detail-main-video" src="" class="main-img" style="display:none; width:100%; height:100%; object-fit:contain; background: #050505;" autoplay loop muted playsinline onclick="window.openFullscreen(this.src)"></video>
                         <div class="slider-btn next-btn" onclick="window.nextImage()">❯</div>
                     </div>
-<div class="thumb-row" id="thumb-container"></div>
-                    
-                    <div id="masonry-gallery-container" class="masonry-gallery" style="display: none;"></div>
+                    <!-- 🔴 កន្លែងបង្ហាញរូបតូចៗ (Thumbnails) 🔴 -->
+                    <div class="thumb-row" id="thumb-container"></div>
                 </div>
+
                 
                 <div class="detail-info">
                     <div class="detail-header-row" style="margin-bottom: 0px;">
@@ -1516,11 +1521,13 @@ window.generateGridHtml = (productsToRender) => {
                     : `<img src="${p.imgUrl}" class="${imgClass}" fetchpriority="low" loading="lazy" decoding="async">`;
 
                 return `
-                    <div class="product-card">
-                        <div class="product-image-container" onclick="window.closeSearch(); window.openProduct('${p.id}')" style="cursor: pointer;">
+                  <div class="product-card">
+                        <div class="product-image-container" onclick="window.closeSearch(); window.openProduct('${p.id}')">
                             ${badgeHtml}
                             ${outOfStockBanner}
-                            ${mediaHtml}
+                            ${isVideo 
+                                ? `<video src="${p.imgUrl}" class="${imgClass}" autoplay loop muted playsinline></video>`
+                                : `<img src="${p.imgUrl}" class="${imgClass}" alt="${p.title}" loading="lazy">`}
                         </div>
                         
                       <div class="product-info-wrap" style="padding-top: 10px; padding-bottom: 10px;">
@@ -2229,7 +2236,12 @@ window.getCartModalHtml = () => {
         }
 
 window.openProduct = (id) => {
-            const p = productsDB.find(x => x.id === id); if (!p) return;
+            const p = productsDB.find(x => x.id === id); 
+            if (!p) return;
+            
+
+    // 🔴 បន្ថែមជួរនេះ ដើម្បីប្តូរ URL ពេលបើកទំនិញ 🔴
+    window.history.pushState({ productId: id }, p.title, `?product=${id}`);
             
             // កំណត់ Size ស្តង់ដារដែលត្រូវបង្ហាញជានិច្ច
             const standardSizes = ['S', 'M', 'L', 'XL'];
@@ -2287,13 +2299,19 @@ window.openProduct = (id) => {
                 sizeBtn.innerHTML = '📏 Detail Size';
             }
 
-// 🔴 កែប្រែថ្មី៖ បើមាន Detail Images គឺយកតែ Detail Images មកបង្ហាញជា Slider និង Thumbnails
-            // តែបើគ្មាន Detail Images ទាល់តែសោះ ទើបយករូប Cover មកបង្ហាញជំនួស
-            currentImageArray = (p.imagesArray && p.imagesArray.length > 0) ? p.imagesArray : [currentItem.imgUrl];
-            currentImageIndex = 0;            
-let thumbHtml = '';
+// 🔴 កំណត់រូបភាពទាំងអស់បញ្ជូលគ្នា (Cover + Details)
+            let details = p.imagesArray || [];
+            currentImageArray = [currentItem.imgUrl, ...details];
             
-            // 🔴 បង្ហាញ Thumbnails តូចៗ (ផ្តេក)
+            // ការពារការជាន់គ្នាបើមានការ Duplicate
+            if(details[0] === currentItem.imgUrl) {
+                currentImageArray = [...details];
+            }
+            currentImageIndex = 0; 
+            
+            let thumbHtml = '';
+            
+            // 🔴 បង្ហាញ Thumbnails តូចៗផ្តេក តែនៅពេលដែលមានរូបសរុបច្រើនជាង ១ ប៉ុណ្ណោះ 🔴
             if (currentImageArray.length > 1) {
                 for(let i = 0; i < currentImageArray.length; i++) { 
                     let activeClass = i === 0 ? 'active' : ''; 
@@ -2303,48 +2321,20 @@ let thumbHtml = '';
                         : `<img src="${currentImageArray[i]}" class="${activeClass}" id="thumb-${i}" onclick="window.changeMainImg(${i})">`; 
                 }
             }
-            document.getElementById('thumb-container').innerHTML = thumbHtml; 
             
-// 🔴 កូដថ្មី៖ បង្កើត Masonry Gallery សម្រាប់ (ប្រអប់ទី ៣ Masonry Images) 🔴
-            let masonryContainer = document.getElementById('masonry-gallery-container');
-            if (!masonryContainer) { 
-                masonryContainer = document.createElement('div');
-                masonryContainer.id = 'masonry-gallery-container';
-                masonryContainer.className = 'masonry-gallery';
-                document.getElementById('thumb-container').after(masonryContainer);
-            }
+            document.getElementById('thumb-container').innerHTML = thumbHtml; 
 
-// បើ Admin បាន Upload រូបក្នុងប្រអប់ទី៣ (masonryImages) វានឹងបង្ហាញចេញមក
-            let hasMasonry = false;
-            if (p.masonryImages && p.masonryImages.length > 0) {
-                hasMasonry = true;
-                let masonryHtml = '';
-                p.masonryImages.forEach((url) => {
-                    let isMasonryVid = url.includes('.mp4') || url.includes('.mov') || url.includes('.webm');
-                    masonryHtml += isMasonryVid
-                        ? `<video src="${url}" class="masonry-item" autoplay loop muted playsinline onclick="window.openFullscreen('${url}')"></video>`
-                        : `<img src="${url}" class="masonry-item" loading="lazy" onclick="window.openFullscreen('${url}')">`;
-                });
-                masonryContainer.innerHTML = masonryHtml;
-                masonryContainer.style.display = 'grid'; 
-            } else {
-                masonryContainer.innerHTML = '';
-                masonryContainer.style.display = 'none'; // លាក់ចោលបើអត់មានរូប
-            }
-
-            // 🔴 បិទប៊ូតុងអូស < > លើរូបធំបើមានរូប Masonry ឬបើមានរូបតែ១ 🔴
+            // 🔴 បើករឺបិទប៊ូតុងអូសរូប (Prev/Next) ទៅតាមចំនួនរូប 🔴
             const mainSliderBtns = document.querySelectorAll('.slider-container .slider-btn');
-            if (hasMasonry || currentImageArray.length <= 1) {
-                // លាក់ប៊ូតុងចេញ
+            if (currentImageArray.length <= 1) {
                 mainSliderBtns.forEach(btn => btn.style.display = 'none');
             } else {
-                // បង្ហាញប៊ូតុងមកវិញ បើអត់មាន Masonry ហើយមានរូប Detail ច្រើន
                 mainSliderBtns.forEach(btn => btn.style.display = 'flex');
             }
             
-            window.changeMainImg(0); // បញ្ជាឱ្យបង្ហាញរូប ឬវីដេអូទី១ ដោយស្វ័យប្រវត្តិ
+            window.changeMainImg(0); // បញ្ជាឱ្យបង្ហាញរូបទី១ នៅលើកញ្ចក់ធំ
             window.syncDetailButtonState();
-                                                window.savePageLocally('detail', id);
+             window.savePageLocally('detail', id);
             
             detailDisplayCount = 10;
             window.updateRelatedGrid();
@@ -2365,6 +2355,22 @@ let thumbHtml = '';
                 if(box.innerText === size) box.classList.add('active');
             });
         };
+
+            window.addEventListener('popstate', (event) => {
+                if (event.state && event.state.productId) {
+                    window.openProduct(event.state.productId);
+                } else {
+                    window.showPage('home', null);
+                    window.history.pushState(null, 'Home', window.location.pathname);
+                }
+            });
+
+            window.updateMetaTags = (product) => {
+                document.title = `${product.title} | IDK Cambodia`;
+                document.querySelector('meta[property="og:title"]').setAttribute("content", `${product.title} | IDK Cambodia`);
+                document.querySelector('meta[property="og:image"]').setAttribute("content", product.imgUrl);
+                document.querySelector('meta[property="og:description"]').setAttribute("content", product.description || "Premium clothing by IDK Cambodia.");
+            };
 
 window.changeMainImg = (index) => {
             if(index < 0 || index >= currentImageArray.length) return; 
@@ -2483,7 +2489,7 @@ window.openFullscreen = (src) => {
 
                 checkoutItemsHtml += `
                     <div class="checkout-item-row" style="flex-direction: column; align-items: stretch; border-bottom: 1px solid #222; padding-bottom: 20px;">
-<div style="display: flex; gap: 15px;">
+                <div style="display: flex; gap: 15px;">
                             ${item.imgUrl.includes('.mp4') || item.imgUrl.includes('.mov') || item.imgUrl.includes('.webm') 
                                 ? `<video src="${item.imgUrl}" class="checkout-item-img" autoplay loop muted playsinline style="object-fit:cover;"></video>` 
                                 : `<img src="${item.imgUrl}" class="checkout-item-img">`}
@@ -2536,7 +2542,7 @@ window.openFullscreen = (src) => {
             document.getElementById('checkout-total').innerText = "$" + finalTotal.toFixed(2);
         }
 
-window.processPurchase = async () => {
+        window.processPurchase = async () => {
             if(cartItems.length === 0) return window.showUIModal('Error', 'Your cart is empty!', 'OK', window.closeUIModal);
             
             let name = document.getElementById('buyer-name').value; 
@@ -2632,7 +2638,7 @@ window.processPurchase = async () => {
         };
 
 
- window.getLocation = (e) => {
+        window.getLocation = (e) => {
             e.preventDefault();
             const status = document.getElementById('location-status');
             const coordInput = document.getElementById('buyer-coords');
@@ -2923,7 +2929,8 @@ window.processPurchase = async () => {
             window.renderModelsGrid();
             window.updateRelatedGrid();
             window.refreshCartUI();
-            
+            window.updateMetaTags(p); 
+
             if(!window.pageRestored) {
                 const savedPage = localStorage.getItem('idk_currentPage') || 'home';
                 if (savedPage === 'detail') {
@@ -3056,7 +3063,7 @@ window.processPurchase = async () => {
             }
         });
 
-        
+
 // ==========================================
         // 🔴 មុខងារ គ្រប់គ្រង THEME (Auto Device + Toggle) 🔴
         // ==========================================
