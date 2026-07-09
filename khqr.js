@@ -91,41 +91,51 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
             </div>
         `;
 
-        // 🔴 ៣. បង្កើតប្រព័ន្ធ Polling សួរ Worker រៀងរាល់ ៣ វិនាទីម្តង 🔴
-        window.checkPaymentInterval = setInterval(async () => {
+        // 🔴 ៣. បង្កើតមុខងារឆែកលុយ និងប្រព័ន្ធ Polling 🔴
+        window.currentQrMd5 = qrMd5; // រក្សាទុកជាសកល
+        window.currentOrderData = orderData; // រក្សាទុកជាសកល
+        window.isPaymentProcessed = false; // ការពារកុំអោយវា Save ជាន់គ្នា ២ ដង
+
+        // បង្កើតមុខងារ Force Check សម្រាប់ឱ្យកូដពី index.html ហៅប្រើបានពេលភ្ញៀវចូល App វិញ
+        window.forceCheckPayment = async () => {
+            if (window.isPaymentProcessed || !window.currentQrMd5) return;
+            
             try {
-                // បញ្ជាក់៖ កន្លែងនេះត្រូវដាក់ Link Worker ថ្មីរបស់បង (ដែលបងបានថែមការ Check Bakong លើកមុន)
                 const workerURL = "https://idk-backend.vannvirakboth372.workers.dev"; 
-                
                 const response = await fetch(workerURL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ action: "check_payment", md5: qrMd5 })
+                    body: JSON.stringify({ action: "check_payment", md5: window.currentQrMd5 })
                 });
                 
                 const checkData = await response.json();
                 
                 // បើ Worker ឆែកឃើញថាជោគជ័យ
                 if (checkData.success === true) {
-                    clearInterval(window.checkPaymentInterval); // បញ្ឈប់ការសួរ (Polling)
-                    clearInterval(timerInterval); // បញ្ឈប់ម៉ោងដើរថយក្រោយ
+                    window.isPaymentProcessed = true; // បិទកុំឱ្យកូដនេះដើរម្តងទៀត
                     
-                    orderData.status = "Paid via KHQR (Auto)";
-                    orderData.transaction_id = checkData.data.hash; // កត់ត្រាលេខកូដប្រតិបត្តិការ (Hash) របស់បាគង
-                    orderData.receiptImage = null; // លែងត្រូវការរូបភាពហើយ
+                    if(window.checkPaymentInterval) clearInterval(window.checkPaymentInterval); // បញ្ឈប់ការសួរ
+                    if(timerInterval) clearInterval(timerInterval); // បញ្ឈប់ម៉ោង
+                    
+                    window.currentOrderData.status = "Paid via KHQR (Auto)";
+                    window.currentOrderData.transaction_id = checkData.data.hash; 
+                    window.currentOrderData.receiptImage = null; 
                     
                     statusEl.innerHTML = `<span style="color:#4caf50; font-weight:bold;">✅ ទូទាត់ជោគជ័យ! កំពុងបញ្ជូនវិក្កយបត្រ...</span>`;
                     
                     // ហៅមុខងារ Save ចូល Firebase ដោយស្វ័យប្រវត្តិ
                     if(typeof window.saveOrderToFirebase === 'function') {
-                        window.saveOrderToFirebase(orderData);
+                        window.saveOrderToFirebase(window.currentOrderData);
                     }
                 }
             } catch (error) {
-                console.log("Polling error:", error);
+                console.log("Polling/ForceCheck error:", error);
             }
-        }, 3000); // 3000 ms = 3 វិនាទី
+        };
 
+        // បញ្ជាឱ្យប្រព័ន្ធអូតូសួររៀងរាល់ ៣ វិនាទីម្តង (ប្រើប្រាស់មុខងារខាងលើ)
+        window.checkPaymentInterval = setInterval(window.forceCheckPayment, 3000);
+        
    // 🔴 ដូរពី 600 មក 300 (ព្រោះ 300 វិនាទី = ៥ នាទី) 🔴
         let timeLeft = 300; 
         if(timerInterval) clearInterval(timerInterval);
