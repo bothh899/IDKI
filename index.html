@@ -1332,6 +1332,25 @@ import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, g
 
    const auth = getAuth(app);
 
+   window.addEventListener('load', () => {
+    const pendingMd5 = sessionStorage.getItem('pending_payment_md5');
+    const pendingOrderData = sessionStorage.getItem('pending_order_data');
+
+    if (pendingMd5 && pendingOrderData) {
+        // ប្រសិនបើមានទិន្នន័យទូទាត់ដែលនៅសល់ (Pending) នោះត្រូវហៅមុខងារឆែកលុយភ្លាមៗ
+        window.currentQrMd5 = pendingMd5;
+        window.currentOrderData = JSON.parse(pendingOrderData);
+        
+        // បើក Modal វិញ (ក្នុងករណីវាបិទ)
+        document.getElementById('khqr-modal').classList.add('active');
+        
+        // ហៅមុខងារឆែកលុយម្តងទៀត
+        if (typeof window.forceCheckPayment === 'function') {
+            window.forceCheckPayment();
+        }
+    }
+});
+
  
 // ==============================================
     // 🔴 ប្រព័ន្ធរាប់អ្នកចូលមើល (Analytics)
@@ -2667,6 +2686,9 @@ window.openFullscreen = (src) => {
         };
 
         window.saveOrderToFirebase = async (orderData) => {
+
+          
+
             try {
                // 1. Upload រូបវិក្កយបត្រទៅ Cloudflare R2 កាត់តាម Worker
                 if (orderData.receiptImage && orderData.receiptImage.startsWith('data:image')) {
@@ -2691,6 +2713,10 @@ window.openFullscreen = (src) => {
                 if (!orderData.status || orderData.status === "Pending") {
                     orderData.status = "Paid via KHQR (Auto)"; 
                 }
+
+                // បន្ថែមក្នុង window.saveOrderToFirebase នៅកន្លែងបង្ហាញវិក្កយបត្រជោគជ័យ
+                sessionStorage.removeItem('pending_payment_md5');
+                sessionStorage.removeItem('pending_order_data');
                 
                 // 2. Save ទិន្នន័យចូល Firebase Firestore
                 await addDoc(collection(db, "orders"), orderData);
