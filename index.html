@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<h lang="en">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -11,6 +11,7 @@
     <meta name="title" content="IDK Cambodia | Premium Clothing Store">
     <meta name="description" content="IDK Cambodia - ហាងសម្លៀកបំពាក់ដ៏ទាន់សម័យក្នុងទីក្រុងភ្នំពេញ។ ទិញអាវយឺត (Tee), អាវក្រៅ (Jacket), អាវរងា (Hoodie) ដែលមានគុណភាពខ្ពស់។">
     <meta name="keywords" content="idk, idkcambodia, idk cambodia, idk shop, idk clothing, idk store phnom penh, idk clothes">
+
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://idkcambodia.com/">
@@ -63,8 +64,20 @@
         .light-theme .product-card:hover { border-color: #ccc; }
         .light-theme .search-bar-inner { background: #eeeeee; }
         .light-theme .search-bar-inner input { color: #000; }
-        .light-theme .site-footer { background: #f1f1f1; border-color: #e5e5e5; }
-        .light-theme .ui-modal-box, .light-theme .khqr-modal-box { background: #ffffff; border-color: #e5e5e5; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+.light-theme .site-footer {
+            background: rgba(255, 255, 255, 0.6) !important;
+            border: 1px solid rgba(0, 0, 0, 0.05) !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05) !important;
+        }
+        .light-theme .social-icon-btn {
+            background: rgba(0, 0, 0, 0.05);
+            color: #000;
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+        .light-theme .social-icon-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+                .light-theme .ui-modal-box, .light-theme .khqr-modal-box { background: #ffffff; border-color: #e5e5e5; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
         
         /* 🟢 បង្ខំអក្សរចំណងជើងដែលធ្លាប់ជាពណ៌ស ឬប្រផេះ ទៅជាពណ៌ខ្មៅនៅពេល Light Mode 🟢 */
       /* 🟢 បង្ខំអក្សរចំណងជើង និង Logo ឱ្យទៅជាពណ៌ខ្មៅនៅពេល Light Mode 🟢 */
@@ -498,15 +511,59 @@
         .related-section { margin-top: 15px; padding-top: 20px; border-top: 1px solid var(--border-color); }
         .related-title { font-size: 18px; font-weight: 800; margin-bottom: 25px; letter-spacing: 2px; text-transform: uppercase; }
 
-.site-footer { max-width: 1400px; margin: 60px auto 0 auto; border-top: 1px solid var(--border-color); padding: 50px 20px; text-align: center; display: flex; flex-direction: column; gap: 12px; background: #050505;}
-        .footer-logo { font-size: 24px; font-weight: 800; margin-bottom: 10px; letter-spacing: 2px;}
-        .footer-logo span { font-size: 28px; }
-        .site-footer p { font-size: 13px; color: var(--text-muted); line-height: 1.6; display: flex; align-items: center; justify-content: center; gap: 8px;}
-        .site-footer a { color: white; font-weight: 600; text-decoration: none;}
-        .site-footer a:hover { text-decoration: underline; color: var(--text-muted); }
+/* 🔴 Glassmorphism Footer 🔴 */
+        .site-footer { 
+            max-width: 1200px; 
+            margin: 60px auto 30px auto; /* ទុកគម្លាតពីក្រោមបន្តិចឲ្យមើលទៅដូចអណ្តែត */
+            padding: 50px 20px; 
+            text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            background: rgba(255, 255, 255, 0.03); /* ផ្ទៃកញ្ចក់ថ្លា */
+            backdrop-filter: blur(16px); 
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            border-radius: 24px; /* មុំកោងស្អាត */
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); /* ស្រមោលអណ្តែត */
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+        }
+        
+        /* បន្ថែមពន្លឺជះតិចៗពីក្រោយ Footer ឲ្យស៊ីនឹង Theme អាថ៌កំបាំង */
+        .site-footer::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: 50%; transform: translateX(-50%);
+            width: 60%; height: 100px;
+            background: radial-gradient(circle, rgba(194, 155, 98, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
 
-        .social-icon-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #1a1a1a; color: white; padding: 10px 25px; border-radius: 30px; font-size: 13px; font-weight: 600; text-decoration: none !important; border: 1px solid #333; transition: 0.3s; margin-top: 10px; }
-        .social-icon-btn:hover { background: #1877f2; border-color: #1877f2; color: white; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(24, 119, 242, 0.4); }
+        .footer-logo { font-size: 26px; font-weight: 900; margin-bottom: 5px; letter-spacing: 2px; color: var(--text-main); position: relative; z-index: 2;}
+        .footer-logo span { font-size: 32px; color: var(--accent); text-shadow: 0 0 15px rgba(194, 155, 98, 0.4);}
+        .site-footer p { font-size: 14px; color: var(--text-muted); line-height: 1.8; display: flex; align-items: center; justify-content: center; gap: 8px; position: relative; z-index: 2;}
+        .site-footer a { color: var(--text-main); font-weight: 600; text-decoration: none; transition: 0.3s;}
+        .site-footer a:hover { color: var(--accent); }
+
+        .social-icon-btn { 
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px; 
+            background: rgba(255, 255, 255, 0.05); /* ប៊ូតុងកញ្ចក់ */
+            backdrop-filter: blur(10px);
+            color: var(--text-main); padding: 14px 35px; border-radius: 30px; 
+            font-size: 13px; font-weight: 600; text-decoration: none !important; 
+            border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease; 
+            margin-top: 15px; position: relative; z-index: 2;
+        }
+        .social-icon-btn:hover { 
+            background: rgba(255, 255, 255, 0.1); 
+            border-color: var(--accent); /* ចេញស៊ុមពណ៌មាសពេល Hover */
+            color: var(--accent); 
+            transform: translateY(-4px); 
+            box-shadow: 0 10px 25px rgba(194, 155, 98, 0.15); 
+        }
+        .social-icon-btn svg { width: 20px; height: 20px; fill: currentColor; transition: 0.3s;}
 
         .ui-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0,0,0,0.8); z-index: 99999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(5px); }
         .ui-modal-overlay.active { opacity: 1; pointer-events: auto; }
@@ -1283,34 +1340,6 @@ import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, g
         }, { merge: true }).catch(e => console.error(e));
     }
     
-    // 🔴 មុខងារ Live Presence (ចំណុចទី ២) ត្រូវបានបិទចោលដើម្បីសន្សំ Database Limit 🔴
-  // ==============================================
-
-
-        const R2_ACCESS_KEY = "0b1d9091cf7006115464cd341f490a00";
-        const R2_SECRET_KEY = "c1da863f908f26c15bd6e9e48fc83bc0bc742b6b518a5f361557e732980eed19";
-        const R2_ENDPOINT = "https://16e1f7ba5668898f977a6c6f273c12b8.r2.cloudflarestorage.com";
-        const R2_BUCKET_NAME = "idk-shop-images";
-        const R2_PUBLIC_URL = "https://pub-c627bcd786664e8da58b5efda6cbad61.r2.dev";
-
-        const s3Client = new S3Client({
-            region: "auto",
-            endpoint: R2_ENDPOINT,
-            forcePathStyle: true,
-            credentials: { accessKeyId: R2_ACCESS_KEY, secretAccessKey: R2_SECRET_KEY }
-        });
-
-        async function uploadFileToR2(file) {
-            const cleanFileName = "receipt_" + Date.now() + ".jpg";
-            const arrayBuffer = await file.arrayBuffer();
-            const fileData = new Uint8Array(arrayBuffer);
-            const command = new PutObjectCommand({ Bucket: R2_BUCKET_NAME, Key: cleanFileName, Body: fileData, ContentType: file.type });
-            await s3Client.send(command); 
-            return `${R2_PUBLIC_URL}/${cleanFileName}`;
-        }
-
-
-
 let productsDB = []; 
         let modelsDB = []; // 🔴 អថេរថ្មីសម្រាប់ផ្ទុកទិន្នន័យ Models 🔴
         let cartCount = 0;
@@ -1355,78 +1384,8 @@ let productsDB = [];
             document.getElementById('promo-modal').classList.remove('active');
             if(promoTimeout) clearTimeout(promoTimeout);
         };
-            onSnapshot(doc(db, "settings", "store_config"), (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                
-                deliveryFee = data.deliveryFee || 0;
-                if(data.heroBanners !== undefined) {
-                    if(typeof window.renderDynamicBanners === 'function') {
-                        document.documentElement.style.setProperty('--banner-ratio-pc', data.bannerRatioDesktop || '16/9');
-                        document.documentElement.style.setProperty('--banner-ratio-mobile', data.bannerRatioMobile || '1/1');
-                        // បោះល្បឿនវិនាទីទៅឱ្យមុខងារ Slider
-                        window.renderDynamicBanners(data.heroBanners, data.bannerInterval);                    }
-                } else {
-                    // បើទើបបង្កើត Store ថ្មី មិនទាន់មាន Data ទាល់តែសោះ
-                    if(typeof window.renderDynamicBanners === 'function') {
-                        window.renderDynamicBanners(['Cover.png', 'Cover2.png']); 
-                    }
-                }
-                
-                if (data.announcements && data.announcements.length > 0) {
-                    let now = new Date();
-                    let activeAnn = data.announcements.find(ann => {
-                        if(!ann.active) return false;
-                        let start = ann.start ? new Date(ann.start) : null;
-                        let end = ann.end ? new Date(ann.end) : null;
-                        if(start && now < start) return false;
-                        if(end && now > end) return false;
-                        return true;
-                    });
-
-                    if (activeAnn) {
-                        let today = now.toDateString();
-                        let viewsData = JSON.parse(localStorage.getItem('idk_promo_views') || '{"date":"","count":0, "id":""}');
-                        
-                        if (viewsData.date !== today || viewsData.id !== activeAnn.id) {
-                            viewsData = { date: today, count: 0, id: activeAnn.id };
-                        }
-
-                        if (viewsData.count < (activeAnn.dailyLimit || 1)) {
-                            document.getElementById('promo-title').innerText = activeAnn.title || 'Notice';
-                            document.getElementById('promo-title').style.color = activeAnn.color || '#ffffff';
-                            document.getElementById('promo-text').innerText = activeAnn.text || '';
-                            document.getElementById('promo-modal').classList.add('active');
-
-                            viewsData.count++;
-                            localStorage.setItem('idk_promo_views', JSON.stringify(viewsData));
-
-                          // 🔴 Effect ងក់ទៅស្តាំដដែល ដើម្បីប្រាប់ភ្ញៀវឱ្យអូស 🔴
-                            setTimeout(() => {
-                                if (grid.scrollWidth > grid.clientWidth) { 
-                                    grid.scrollTo({ left: 100, behavior: 'smooth' }); 
-                                    setTimeout(() => {
-                                        grid.scrollTo({ left: 0, behavior: 'smooth' }); 
-                                    }, 500); 
-                                }
-                            }, 1500); 
-                        }
-                    }
-
-                  };
-
-                currentPromos = data.discounts ? data.discounts.filter(d => d.active) : [];
-
-                if(productsDB.length > 0) {
-                    window.renderHomeGrid();
-                    window.updateRelatedGrid();
-                    window.refreshCartUI();
-                    if(document.getElementById('page-detail').classList.contains('active')) {
-                        window.updateDetailPrice();
-                    }
-                }
-            }
-        });
+           
+       
         
         window.getDiscountInfo = (productId, basePrice) => {
             let bestDiscount = null;
@@ -1584,258 +1543,351 @@ window.generateGridHtml = (productsToRender) => {
             grid.innerHTML = window.generateGridHtml(productsToRender);
         };
 
-        
-
-     window.renderHomeGrid = () => {
-            if (productsDB.length === 0) {
-                document.getElementById('product-grid').innerHTML = '<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: var(--text-muted);">No products yet.</div>';
-                
-                const modelGrid = document.getElementById('model-grid');
-                if(modelGrid) modelGrid.innerHTML = '<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: var(--text-muted);">No models yet.</div>';
+        // ========================================================
+        // 🔴 មុខងារគូររូប Model បង្ហាញលើអេក្រង់ (Infinite Scroll ម៉ូតចាស់) 🔴
+        // ========================================================
+        window.renderModelsGrid = () => {
+            const grid = document.getElementById('model-grid');
+            if (!grid) return;
+            
+            if (!modelsDB || modelsDB.length === 0) {
+                grid.innerHTML = '<div style="width: 100%; text-align: center; color: var(--text-muted); padding: 20px;">មិនទាន់មាន Model ទេ។</div>';
                 return;
             }
+
+            // 🔴 ១. ចម្លងទិន្នន័យ ៥ សំណុំ ដើម្បីបង្កើតទម្រង់ "អូសមិនចេះអស់" (Infinite Loop) 🔴
+            const duplicatedModels = [...modelsDB, ...modelsDB, ...modelsDB, ...modelsDB, ...modelsDB];
             
-       // បោះទំនិញចូលផ្ទាំងទី១ (NEW ARRIVALS)
-            window.renderGrid(productsDB, 'product-grid');
+            let html = '';
+            duplicatedModels.forEach((m) => {
+                let isVid = m.imgUrl && (m.imgUrl.includes('.mp4') || m.imgUrl.includes('.mov') || m.imgUrl.includes('.webm'));
+                let mediaHtml = isVid 
+                    ? `<video src="${m.imgUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;" autoplay loop muted playsinline></video>`
+                    : `<img src="${m.imgUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">`;
+                
+                html += `
+                    <div class="model-item-card" onclick="window.openFullscreen('${m.imgUrl}')" style="position: relative; height: 400px; cursor: zoom-in;">
+                        ${mediaHtml}
+                    </div>
+                `;
+            });
             
-            // 🔴 លុបកូដបញ្ជូនទំនិញក្លែងក្លាយចូលផ្ទាំង Model ចេញ (យើងមានកូដថ្មីដាច់ដោយឡែកសម្រាប់វា) 🔴
+            grid.innerHTML = html;
 
-            const btn = document.getElementById('home-see-more');
-            if(btn) btn.style.display = productsDB.length < homeDisplayCount ? 'none' : 'inline-block';
-        }
-
-        window.loadMoreHome = () => { homeDisplayCount += 10; listenToProducts(); }
-        
-        window.updateRelatedGrid = async () => {
-            const currentPage = localStorage.getItem('idk_currentPage') || 'home';
-            if (currentPage === 'detail' && currentItem && currentItem.id) {
-                let sourceDB = allProductsDB.length > 0 ? allProductsDB : productsDB;
-                let related = sourceDB.filter(x => x.id !== currentItem.id);
-                window.renderGrid(related.slice(0, detailDisplayCount), 'related-product-grid');
-                let btn = document.getElementById('detail-see-more');
-                if(btn) btn.style.display = detailDisplayCount >= related.length ? 'none' : 'inline-block';
-
-                if (allProductsDB.length === 0 && !isFetchingAll) {
-                    if (typeof window.fetchAllProductsForSearch === 'function') {
-                        window.fetchAllProductsForSearch().then(() => {
-                            sourceDB = allProductsDB;
-                            related = sourceDB.filter(x => x.id !== currentItem.id);
-                            window.renderGrid(related.slice(0, detailDisplayCount), 'related-product-grid');
-                            if(btn) btn.style.display = detailDisplayCount >= related.length ? 'none' : 'inline-block';
-                        });
-                    }
+            // 🔴 ៣. កំណត់មុខងារ Auto-Scroll ទៅ Item ទី 2 (កែប្រែថ្មីការពារការលោតទំព័រ) 🔴
+            // យើងចាប់ផ្តើមពីសំណុំទី 3 (កណ្តាលគេបង្អស់) ដើម្បីទុកកន្លែងឲ្យអូសទៅឆ្វេងក៏បាន ស្តាំក៏បាន
+            setTimeout(() => {
+                const cards = grid.querySelectorAll('.model-item-card');
+                if (cards.length > 0) {
+                    const originalLength = modelsDB.length;
+                    // ចាប់យកកាតទី២ នៅក្នុងសំណុំទី៣ (Index = originalLength * 2 + 1)
+                    let targetIndex = (originalLength * 2) + 1; 
+                    if (targetIndex >= cards.length) targetIndex = Math.floor(cards.length / 2);
+                    
+                    const targetCard = cards[targetIndex];
+                    
+                    // រុញទៅកណ្តាលដោយស្ងាត់ៗ (អត់មាន Animation) ដើម្បីកុំឲ្យលោតទំព័រ
+                    grid.scrollLeft = targetCard.offsetLeft - (grid.clientWidth / 2) + (targetCard.clientWidth / 2);
                 }
-            }
-        }
-        
-        window.loadMoreDetail = () => { detailDisplayCount += 10; window.updateRelatedGrid(); }
+            }, 100);
 
-      window.toggleFavorite = async (event, productId, element) => {
-            event.stopPropagation(); 
-            const index = userFavorites.indexOf(productId);
-            if (index > -1) { 
-                userFavorites.splice(index, 1); 
-                element.classList.remove('active'); 
-            } else { 
-                userFavorites.push(productId); 
-                element.classList.add('active'); 
-            }
+            // 🔴 ២. Effect រីកធំពេលរូបមកដល់កណ្តាលអេក្រង់ (Focus) 🔴
+            // 🔴 ៤. មុខងារលោតវិលជុំ (Infinite Scroll - អូសមិនចេះអស់) 🔴
+            let isHandlingScroll = false;
 
-            if (!currentCustomer) {
-                localStorage.setItem('idk_guest_favs', JSON.stringify(userFavorites)); // Save local
-            } else {
-                try { await setDoc(doc(db, "favorites", currentCustomer.uid), { items: userFavorites }, { merge: true }); } catch (error) { console.error(error); }
-            }
-        }
+            grid.addEventListener('scroll', () => {
+                if (isHandlingScroll) return; // ការពារកុំឲ្យរត់ជាន់គ្នាពេលកំពុងលោត
 
-        window.handleFavoriteNav = (event) => {
-            event.preventDefault();
-            let favListToCheck = currentCustomer ? userFavorites : getLocalFavs();
-
-            if(favListToCheck.length === 0) { 
-                window.showUIModal('Favorites 🤍', 'Your wishlist is currently empty.', 'Start Browsing', window.closeUIModal);
-            } else {
-                let listHtml = `<div class="fav-vertical-list">`;
-                favListToCheck.forEach(id => {
-                    let p = productsDB.find(x => x.id === id);
-                    if(p) { 
-                        const dInfo = window.getDiscountInfo(p.id, p.price);
-                        listHtml += `<div class="fav-list-item" onclick="window.closeUIModal(); window.openProduct('${p.id}')"><img src="${p.imgUrl}" class="fav-list-img"><div class="fav-list-info"><span class="fav-list-title">${p.title}</span><span class="fav-list-price">$${dInfo.price.toFixed(2)}</span></div></div>`; 
+                let cards = grid.querySelectorAll('.model-item-card');
+                let gridCenter = grid.offsetWidth / 2;
+                let gridRectLeft = grid.getBoundingClientRect().left;
+                
+                // ទី២៖ Effect ធ្វើឲ្យរូបកណ្តាលច្បាស់ និងរីកធំ
+                cards.forEach(card => {
+                    let rect = card.getBoundingClientRect();
+                    let cardCenter = rect.left + (rect.width / 2);
+                    
+                    let dist = Math.abs((gridRectLeft + gridCenter) - cardCenter);
+                    if (dist < rect.width / 1.5) {
+                        card.classList.add('model-focus');
+                    } else {
+                        card.classList.remove('model-focus');
                     }
                 });
-                listHtml += `</div>`;
-                
-                let extraBtn = !currentCustomer ? '<button class="ui-modal-btn" onclick="window.showLoginUI()" style="margin-top: 15px;">Log In to Save Permanently</button>' : '';
-                window.showUIModal(`Favorites 🤍`, `You have saved <b>${favListToCheck.length}</b> item(s).`, 'Close', window.closeUIModal, listHtml + extraBtn);
-            }
-        }
 
-window.handleUser = (event) => { 
-            if(event) event.preventDefault(); 
-            // មិនបាច់បង្ខំឱ្យ Login ទេ គឺបើកផ្ទាំង Profile អោយចូលមើលប្រវត្តិទិញ (Guest Tracking) តែម្តង
-            window.showPage('profile', null); 
-        }
+                // ទី៤៖ មុខងារ Infinite Loop (វិលជុំអូសមិនចេះអស់)
+                const scrollLeft = grid.scrollLeft;
+                const maxScroll = grid.scrollWidth - grid.clientWidth;
+                const setWidth = grid.scrollWidth / 5; // ប្រវែងនៃសំណុំនីមួយៗ (៥ សំណុំ)
 
-
-
-window.showLoginUI = () => { 
-            let body = `
-                <div style="text-align:left; margin-top:20px;">
-                    <label class="form-label" style="color:white;">Email</label>
-                    <input type="email" id="auth-email" class="ui-search-input" style="margin-bottom:15px; text-align:left; padding-left:15px;" placeholder="Enter email">
-                    <label class="form-label" style="color:white;">Password</label>
-                    <input type="password" id="auth-password" class="ui-search-input" style="margin-bottom:10px; text-align:left; padding-left:15px;" placeholder="Enter password">
-                    <div id="auth-error" style="color:#ff4444; font-size:12px; margin-bottom:10px; display:none;"></div>
-                </div>
-            `;
-let extra = `
-                <button class="ui-modal-btn" onclick="window.processLogin()">Sign In</button>
-                <div class="auth-divider"><span>OR</span></div>
-                <button class="btn-social btn-phone" onclick="window.showPhoneAuthUI(false)">📱 Continue with Phone</button>
-                <div style="margin-top:20px; font-size:13px; color:var(--text-muted);">New here? <span style="color:white; cursor:pointer; text-decoration:underline; font-weight:bold;" onclick="window.showSignUpUI()">Create an account</span></div>
-            `; 
-            window.showUIModal('Log In 👤', body, null, null, extra); 
-        }
-
-        window.showSignUpUI = () => { 
-            let body = `
-                <div style="text-align:left; margin-top:20px;">
-                    <label class="form-label" style="color:white;">Email</label>
-                    <input type="email" id="auth-email" class="ui-search-input" style="margin-bottom:15px; text-align:left; padding-left:15px;" placeholder="Enter email">
-                    <label class="form-label" style="color:white;">Password</label>
-                    <input type="password" id="auth-password" class="ui-search-input" style="margin-bottom:10px; text-align:left; padding-left:15px;" placeholder="Create password (min 6 chars)">
-                    <div id="auth-error" style="color:#ff4444; font-size:12px; margin-bottom:10px; display:none;"></div>
-                </div>
-            `; 
- let extra = `
-                <button class="ui-modal-btn" onclick="window.processSignUp()">Create Account</button>
-                <div class="auth-divider"><span>OR</span></div>
-                <button class="btn-social btn-phone" onclick="window.showPhoneAuthUI(true)">📱 Sign up with Phone</button>
-                <div style="margin-top:20px; font-size:13px; color:var(--text-muted);">Already have an account? <span style="color:white; cursor:pointer; text-decoration:underline; font-weight:bold;" onclick="window.showLoginUI()">Log In</span></div>
-            `;
-            window.showUIModal('Sign Up 👤', body, null, null, extra); 
-        }
-
-
-
-        // ==========================================
-        // 🔴 មុខងារថ្មី៖ Login/Sign Up តាមលេខទូរស័ព្ទ (គ្មាន OTP) 🔴
-        // ==========================================
-        window.showPhoneAuthUI = (isSignUp = false) => {
-            let title = isSignUp ? 'Phone Sign Up 📱' : 'Phone Login 📱';
-            let btnText = isSignUp ? 'Create Account' : 'Sign In';
-            let action = isSignUp ? 'window.processPhoneSignUp()' : 'window.processPhoneLogin()';
-            let toggleText = isSignUp 
-                ? 'Already have an account? <span style="color:white; cursor:pointer; text-decoration:underline; font-weight:bold;" onclick="window.showPhoneAuthUI(false)">Log In</span>' 
-                : 'New here? <span style="color:white; cursor:pointer; text-decoration:underline; font-weight:bold;" onclick="window.showPhoneAuthUI(true)">Create an account</span>';
-
-            let body = `
-                <div style="text-align:left; margin-top:20px;">
-                    <label class="form-label" style="color:white;">Phone Number</label>
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                        <select id="country-code" class="ui-search-input" style="width: 35%; padding: 12px 5px; text-align: center; margin-bottom: 0; outline: none;">
-                            <option value="+855">🇰🇭 +855</option>
-                            <option value="+66">🇹🇭 +66</option>
-                            <option value="+84">🇻🇳 +84</option>
-                        </select>
-                        <input type="tel" id="auth-phone" class="ui-search-input" style="width: 65%; text-align:left; padding-left:15px; margin-bottom: 0;" placeholder="12 345 678">
-                    </div>
-                    <label class="form-label" style="color:white;">Password</label>
-                    <input type="password" id="auth-phone-password" class="ui-search-input" style="margin-bottom:10px; text-align:left; padding-left:15px;" placeholder="${isSignUp ? 'Create password (min 6 chars)' : 'Enter password'}">
-                    <div id="auth-error" style="color:#ff4444; font-size:12px; margin-bottom:10px; display:none;"></div>
-                </div>
-            `;
-            let extra = `
-                <button class="ui-modal-btn" onclick="${action}">${btnText}</button>
-                <div style="margin-top:20px; font-size:13px; color:var(--text-muted); text-align:center;">${toggleText}</div>
-                <div class="auth-divider"><span>OR</span></div>
-                <button class="ui-modal-btn outline" onclick="window.showLoginUI()">Back to Email</button>
-            `;
-            window.showUIModal(title, body, null, null, extra);
-        }
-
-        window.processPhoneLogin = async () => {
-            const countryCode = document.getElementById('country-code').value;
-            let rawPhone = document.getElementById('auth-phone').value.trim();
-            const p = document.getElementById('auth-phone-password').value;
-            const errBox = document.getElementById('auth-error');
-
-            if(!rawPhone || !p) { errBox.innerText = "សូមបំពេញលេខទូរស័ព្ទ និងលេខសម្ងាត់។"; errBox.style.display="block"; return; }
-            if (rawPhone.startsWith('0')) { rawPhone = rawPhone.substring(1); }
+                // បើអូសមកដល់សំណុំទី ១ (ខាងឆ្វេងបំផុត) ឲ្យលោតទៅសំណុំទី ៣ វិញ
+                if (scrollLeft < 10) {
+                    isHandlingScroll = true;
+                    grid.scrollLeft = scrollLeft + (setWidth * 2);
+                    setTimeout(() => isHandlingScroll = false, 50);
+                } 
+                // បើអូសមកដល់សំណុំទី ៥ (ខាងស្តាំបំផុត) ឲ្យលោតមកសំណុំទី ៣ វិញ
+                else if (scrollLeft > maxScroll - 10) {
+                    isHandlingScroll = true;
+                    grid.scrollLeft = scrollLeft - (setWidth * 2);
+                    setTimeout(() => isHandlingScroll = false, 50);
+                }
+            });
             
-            // បំប្លែងទៅជា Email ដើម្បីប្រើប្រាស់មុខងារ Login ធម្មតា
-            const fakeEmail = `${countryCode.replace('+','')}${rawPhone}@idkshop.phone`;
-
-            try { 
-                await signInWithEmailAndPassword(auth, fakeEmail, p); 
-                window.showUIModal('Success ✅', 'អ្នកបានចូលគណនីដោយជោគជ័យ។', 'Continue', window.closeUIModal); 
-            } catch(err) { 
-                errBox.innerText = "លេខទូរស័ព្ទ ឬលេខសម្ងាត់មិនត្រឹមត្រូវ។"; errBox.style.display = "block"; 
-            }
-        }
-
-        window.processPhoneSignUp = async () => {
-            const countryCode = document.getElementById('country-code').value;
-            let rawPhone = document.getElementById('auth-phone').value.trim();
-            const p = document.getElementById('auth-phone-password').value;
-            const errBox = document.getElementById('auth-error');
-
-            if(!rawPhone || !p) { errBox.innerText = "សូមបំពេញលេខទូរស័ព្ទ និងលេខសម្ងាត់។"; errBox.style.display="block"; return; }
-            if(p.length < 6) { errBox.innerText = "លេខសម្ងាត់ត្រូវមានយ៉ាងហោចណាស់ ៦ ខ្ទង់។"; errBox.style.display="block"; return; }
-            if (rawPhone.startsWith('0')) { rawPhone = rawPhone.substring(1); }
-
-            const fakeEmail = `${countryCode.replace('+','')}${rawPhone}@idkshop.phone`;
-
-            try { 
-                await createUserWithEmailAndPassword(auth, fakeEmail, p); 
-                window.showUIModal('Welcome! 🎉', 'គណនីរបស់អ្នកត្រូវបានបង្កើត។', 'Continue', window.closeUIModal); 
-            } catch(err) { 
-                errBox.innerText = "លេខទូរស័ព្ទនេះមានគេប្រើរួចហើយ។"; errBox.style.display = "block"; 
-            }
-        }
-
-        window.processLogin = async () => { const e = document.getElementById('auth-email').value; const p = document.getElementById('auth-password').value; const errBox = document.getElementById('auth-error'); if(!e || !p) { errBox.innerText = "Please fill all fields."; errBox.style.display = "block"; return; } try { await signInWithEmailAndPassword(auth, e, p); window.showUIModal('Success ✅', 'You have successfully logged in.', 'Continue', window.closeUIModal); } catch(err) { errBox.innerText = "Invalid email or password."; errBox.style.display = "block"; } }
-        
-        window.processSignUp = async () => { const e = document.getElementById('auth-email').value; const p = document.getElementById('auth-password').value; const errBox = document.getElementById('auth-error'); if(!e || !p) { errBox.innerText = "Please fill all fields."; errBox.style.display = "block"; return; } if(p.length < 6) { errBox.innerText = "Password must be at least 6 characters."; errBox.style.display = "block"; return; } try { await createUserWithEmailAndPassword(auth, e, p); window.showUIModal('Welcome! 🎉', 'Your account has been created.', 'Continue', window.closeUIModal); } catch(err) { errBox.innerText = "Error creating account. Email might be in use."; errBox.style.display = "block"; } }
-        
-        window.processLogout = async () => { 
-            await signOut(auth); 
-            window.closeUIModal(); 
-            if(document.getElementById('page-profile').classList.contains('active')) {
-                window.showPage('home', null);
-            }
-        }
-
-window.syncDetailButtonState = () => {
-            const detailBtn = document.getElementById('detail-add-btn');
-            const checkoutBtn = document.querySelector('.btn-checkout');
-            if(!detailBtn || !checkoutBtn) return;
-            
-            const isOut = currentItem.isOutOfStock === true;
-            if (isOut) {
-                detailBtn.innerHTML = "🚫 OUT OF STOCK";
-                detailBtn.style.background = "#333";
-                detailBtn.style.color = "#888";
-                detailBtn.style.borderColor = "#333";
-                detailBtn.style.cursor = "not-allowed";
-                detailBtn.onclick = (e) => e.preventDefault();
-                checkoutBtn.style.display = 'none'; // លាក់ប៊ូតុង Checkout ពេលអស់ស្តុក
-                return;
-            } else {
-                detailBtn.style = ""; // Clear ពណ៌ចោល
-                checkoutBtn.style.display = 'flex'; // បង្ហាញវិញ
-                detailBtn.onclick = window.toggleDetailCart;
-            }
-
-            const isAdded = cartItems.some(item => item.id === currentItem.id);
-            if(isAdded) {
-                detailBtn.innerHTML = "✅ ADDED TO BAG";
-                detailBtn.classList.add('added');
-            } else {
-                detailBtn.innerHTML = "👜 ADD TO BAG";
-                detailBtn.classList.remove('added');
-            }
+            // ដាស់វា ១ ដងដើម្បីឲ្យរូបដំបូងច្បាស់ពេល Load វេបសាយភ្លាម
+            setTimeout(() => grid.dispatchEvent(new Event('scroll')), 150);
         };
+        
+
+        window.renderHomeGrid = () => {
+                    if (productsDB.length === 0) {
+                        document.getElementById('product-grid').innerHTML = '<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: var(--text-muted);">No products yet.</div>';
+                        const modelGrid = document.getElementById('model-grid');
+                        if(modelGrid) modelGrid.innerHTML = '<div style="grid-column: 1/-1; padding: 20px; text-align: center; color: var(--text-muted);">No models yet.</div>';
+                        return;
+                    }
+                    
+                    // 🔴 កាត់យកតែចំនួនកំណត់មកបង្ហាញ (លឿនជាងសួរទៅ Firebase ថ្មី)
+                    const visibleProducts = productsDB.slice(0, homeDisplayCount);
+                    window.renderGrid(visibleProducts, 'product-grid');
+                    
+                    const btn = document.getElementById('home-see-more');
+                    if(btn) btn.style.display = productsDB.length <= homeDisplayCount ? 'none' : 'inline-block';
+                }
+
+                window.loadMoreHome = () => { homeDisplayCount += 10; window.renderHomeGrid(); }
+                
+                
+                window.updateRelatedGrid = async () => {
+                    const currentPage = localStorage.getItem('idk_currentPage') || 'home';
+                    if (currentPage === 'detail' && currentItem && currentItem.id) {
+                        let sourceDB = allProductsDB.length > 0 ? allProductsDB : productsDB;
+                        let related = sourceDB.filter(x => x.id !== currentItem.id);
+                        window.renderGrid(related.slice(0, detailDisplayCount), 'related-product-grid');
+                        let btn = document.getElementById('detail-see-more');
+                        if(btn) btn.style.display = detailDisplayCount >= related.length ? 'none' : 'inline-block';
+
+                        if (allProductsDB.length === 0 && !isFetchingAll) {
+                            if (typeof window.fetchAllProductsForSearch === 'function') {
+                                window.fetchAllProductsForSearch().then(() => {
+                                    sourceDB = allProductsDB;
+                                    related = sourceDB.filter(x => x.id !== currentItem.id);
+                                    window.renderGrid(related.slice(0, detailDisplayCount), 'related-product-grid');
+                                    if(btn) btn.style.display = detailDisplayCount >= related.length ? 'none' : 'inline-block';
+                                });
+                            }
+                        }
+                    }
+                }
+                
+                window.loadMoreDetail = () => { detailDisplayCount += 10; window.updateRelatedGrid(); }
+
+            window.toggleFavorite = async (event, productId, element) => {
+                    event.stopPropagation(); 
+                    const index = userFavorites.indexOf(productId);
+                    if (index > -1) { 
+                        userFavorites.splice(index, 1); 
+                        element.classList.remove('active'); 
+                    } else { 
+                        userFavorites.push(productId); 
+                        element.classList.add('active'); 
+                    }
+
+                    if (!currentCustomer) {
+                        localStorage.setItem('idk_guest_favs', JSON.stringify(userFavorites)); // Save local
+                    } else {
+                        try { await setDoc(doc(db, "favorites", currentCustomer.uid), { items: userFavorites }, { merge: true }); } catch (error) { console.error(error); }
+                    }
+                }
+
+                window.handleFavoriteNav = (event) => {
+                    event.preventDefault();
+                    let favListToCheck = currentCustomer ? userFavorites : getLocalFavs();
+
+                    if(favListToCheck.length === 0) { 
+                        window.showUIModal('Favorites 🤍', 'Your wishlist is currently empty.', 'Start Browsing', window.closeUIModal);
+                    } else {
+                        let listHtml = `<div class="fav-vertical-list">`;
+                        favListToCheck.forEach(id => {
+                            let p = productsDB.find(x => x.id === id);
+                            if(p) { 
+                                const dInfo = window.getDiscountInfo(p.id, p.price);
+                                listHtml += `<div class="fav-list-item" onclick="window.closeUIModal(); window.openProduct('${p.id}')"><img src="${p.imgUrl}" class="fav-list-img"><div class="fav-list-info"><span class="fav-list-title">${p.title}</span><span class="fav-list-price">$${dInfo.price.toFixed(2)}</span></div></div>`; 
+                            }
+                        });
+                        listHtml += `</div>`;
+                        
+                        let extraBtn = !currentCustomer ? '<button class="ui-modal-btn" onclick="window.showLoginUI()" style="margin-top: 15px;">Log In to Save Permanently</button>' : '';
+                        window.showUIModal(`Favorites 🤍`, `You have saved <b>${favListToCheck.length}</b> item(s).`, 'Close', window.closeUIModal, listHtml + extraBtn);
+                    }
+                }
+
+                    window.handleUser = (event) => { 
+                    if(event) event.preventDefault(); 
+                    // មិនបាច់បង្ខំឱ្យ Login ទេ គឺបើកផ្ទាំង Profile អោយចូលមើលប្រវត្តិទិញ (Guest Tracking) តែម្តង
+                    window.showPage('profile', null); 
+                }
+
+
+
+                    window.showLoginUI = () => { 
+                    let body = `
+                        <div style="text-align:left; margin-top:20px;">
+                            <label class="form-label" style="color:white;">Email</label>
+                            <input type="email" id="auth-email" class="ui-search-input" style="margin-bottom:15px; text-align:left; padding-left:15px;" placeholder="Enter email">
+                            <label class="form-label" style="color:white;">Password</label>
+                            <input type="password" id="auth-password" class="ui-search-input" style="margin-bottom:10px; text-align:left; padding-left:15px;" placeholder="Enter password">
+                            <div id="auth-error" style="color:#ff4444; font-size:12px; margin-bottom:10px; display:none;"></div>
+                        </div>
+                    `;
+        let extra = `
+                        <button class="ui-modal-btn" onclick="window.processLogin()">Sign In</button>
+                        <div class="auth-divider"><span>OR</span></div>
+                        <button class="btn-social btn-phone" onclick="window.showPhoneAuthUI(false)">📱 Continue with Phone</button>
+                        <div style="margin-top:20px; font-size:13px; color:var(--text-muted);">New here? <span style="color:white; cursor:pointer; text-decoration:underline; font-weight:bold;" onclick="window.showSignUpUI()">Create an account</span></div>
+                    `; 
+                    window.showUIModal('Log In 👤', body, null, null, extra); 
+                }
+
+                window.showSignUpUI = () => { 
+                    let body = `
+                        <div style="text-align:left; margin-top:20px;">
+                            <label class="form-label" style="color:white;">Email</label>
+                            <input type="email" id="auth-email" class="ui-search-input" style="margin-bottom:15px; text-align:left; padding-left:15px;" placeholder="Enter email">
+                            <label class="form-label" style="color:white;">Password</label>
+                            <input type="password" id="auth-password" class="ui-search-input" style="margin-bottom:10px; text-align:left; padding-left:15px;" placeholder="Create password (min 6 chars)">
+                            <div id="auth-error" style="color:#ff4444; font-size:12px; margin-bottom:10px; display:none;"></div>
+                        </div>
+                    `; 
+        let extra = `
+                        <button class="ui-modal-btn" onclick="window.processSignUp()">Create Account</button>
+                        <div class="auth-divider"><span>OR</span></div>
+                        <button class="btn-social btn-phone" onclick="window.showPhoneAuthUI(true)">📱 Sign up with Phone</button>
+                        <div style="margin-top:20px; font-size:13px; color:var(--text-muted);">Already have an account? <span style="color:white; cursor:pointer; text-decoration:underline; font-weight:bold;" onclick="window.showLoginUI()">Log In</span></div>
+                    `;
+                    window.showUIModal('Sign Up 👤', body, null, null, extra); 
+                }
+
+
+
+                // ==========================================
+                // 🔴 មុខងារថ្មី៖ Login/Sign Up តាមលេខទូរស័ព្ទ (គ្មាន OTP) 🔴
+                // ==========================================
+                window.showPhoneAuthUI = (isSignUp = false) => {
+                    let title = isSignUp ? 'Phone Sign Up 📱' : 'Phone Login 📱';
+                    let btnText = isSignUp ? 'Create Account' : 'Sign In';
+                    let action = isSignUp ? 'window.processPhoneSignUp()' : 'window.processPhoneLogin()';
+                    let toggleText = isSignUp 
+                        ? 'Already have an account? <span style="color:white; cursor:pointer; text-decoration:underline; font-weight:bold;" onclick="window.showPhoneAuthUI(false)">Log In</span>' 
+                        : 'New here? <span style="color:white; cursor:pointer; text-decoration:underline; font-weight:bold;" onclick="window.showPhoneAuthUI(true)">Create an account</span>';
+
+                    let body = `
+                        <div style="text-align:left; margin-top:20px;">
+                            <label class="form-label" style="color:white;">Phone Number</label>
+                            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                                <select id="country-code" class="ui-search-input" style="width: 35%; padding: 12px 5px; text-align: center; margin-bottom: 0; outline: none;">
+                                    <option value="+855">🇰🇭 +855</option>
+                                    <option value="+66">🇹🇭 +66</option>
+                                    <option value="+84">🇻🇳 +84</option>
+                                </select>
+                                <input type="tel" id="auth-phone" class="ui-search-input" style="width: 65%; text-align:left; padding-left:15px; margin-bottom: 0;" placeholder="12 345 678">
+                            </div>
+                            <label class="form-label" style="color:white;">Password</label>
+                            <input type="password" id="auth-phone-password" class="ui-search-input" style="margin-bottom:10px; text-align:left; padding-left:15px;" placeholder="${isSignUp ? 'Create password (min 6 chars)' : 'Enter password'}">
+                            <div id="auth-error" style="color:#ff4444; font-size:12px; margin-bottom:10px; display:none;"></div>
+                        </div>
+                    `;
+                    let extra = `
+                        <button class="ui-modal-btn" onclick="${action}">${btnText}</button>
+                        <div style="margin-top:20px; font-size:13px; color:var(--text-muted); text-align:center;">${toggleText}</div>
+                        <div class="auth-divider"><span>OR</span></div>
+                        <button class="ui-modal-btn outline" onclick="window.showLoginUI()">Back to Email</button>
+                    `;
+                    window.showUIModal(title, body, null, null, extra);
+                }
+
+                window.processPhoneLogin = async () => {
+                    const countryCode = document.getElementById('country-code').value;
+                    let rawPhone = document.getElementById('auth-phone').value.trim();
+                    const p = document.getElementById('auth-phone-password').value;
+                    const errBox = document.getElementById('auth-error');
+
+                    if(!rawPhone || !p) { errBox.innerText = "សូមបំពេញលេខទូរស័ព្ទ និងលេខសម្ងាត់។"; errBox.style.display="block"; return; }
+                    if (rawPhone.startsWith('0')) { rawPhone = rawPhone.substring(1); }
+                    
+                    // បំប្លែងទៅជា Email ដើម្បីប្រើប្រាស់មុខងារ Login ធម្មតា
+                    const fakeEmail = `${countryCode.replace('+','')}${rawPhone}@idkshop.phone`;
+
+                    try { 
+                        await signInWithEmailAndPassword(auth, fakeEmail, p); 
+                        window.showUIModal('Success ✅', 'អ្នកបានចូលគណនីដោយជោគជ័យ។', 'Continue', window.closeUIModal); 
+                    } catch(err) { 
+                        errBox.innerText = "លេខទូរស័ព្ទ ឬលេខសម្ងាត់មិនត្រឹមត្រូវ។"; errBox.style.display = "block"; 
+                    }
+                }
+
+                window.processPhoneSignUp = async () => {
+                    const countryCode = document.getElementById('country-code').value;
+                    let rawPhone = document.getElementById('auth-phone').value.trim();
+                    const p = document.getElementById('auth-phone-password').value;
+                    const errBox = document.getElementById('auth-error');
+
+                    if(!rawPhone || !p) { errBox.innerText = "សូមបំពេញលេខទូរស័ព្ទ និងលេខសម្ងាត់។"; errBox.style.display="block"; return; }
+                    if(p.length < 6) { errBox.innerText = "លេខសម្ងាត់ត្រូវមានយ៉ាងហោចណាស់ ៦ ខ្ទង់។"; errBox.style.display="block"; return; }
+                    if (rawPhone.startsWith('0')) { rawPhone = rawPhone.substring(1); }
+
+                    const fakeEmail = `${countryCode.replace('+','')}${rawPhone}@idkshop.phone`;
+
+                    try { 
+                        await createUserWithEmailAndPassword(auth, fakeEmail, p); 
+                        window.showUIModal('Welcome! 🎉', 'គណនីរបស់អ្នកត្រូវបានបង្កើត។', 'Continue', window.closeUIModal); 
+                    } catch(err) { 
+                        errBox.innerText = "លេខទូរស័ព្ទនេះមានគេប្រើរួចហើយ។"; errBox.style.display = "block"; 
+                    }
+                }
+
+                window.processLogin = async () => { const e = document.getElementById('auth-email').value; const p = document.getElementById('auth-password').value; const errBox = document.getElementById('auth-error'); if(!e || !p) { errBox.innerText = "Please fill all fields."; errBox.style.display = "block"; return; } try { await signInWithEmailAndPassword(auth, e, p); window.showUIModal('Success ✅', 'You have successfully logged in.', 'Continue', window.closeUIModal); } catch(err) { errBox.innerText = "Invalid email or password."; errBox.style.display = "block"; } }
+                
+                window.processSignUp = async () => { const e = document.getElementById('auth-email').value; const p = document.getElementById('auth-password').value; const errBox = document.getElementById('auth-error'); if(!e || !p) { errBox.innerText = "Please fill all fields."; errBox.style.display = "block"; return; } if(p.length < 6) { errBox.innerText = "Password must be at least 6 characters."; errBox.style.display = "block"; return; } try { await createUserWithEmailAndPassword(auth, e, p); window.showUIModal('Welcome! 🎉', 'Your account has been created.', 'Continue', window.closeUIModal); } catch(err) { errBox.innerText = "Error creating account. Email might be in use."; errBox.style.display = "block"; } }
+                
+                window.processLogout = async () => { 
+                    await signOut(auth); 
+                    window.closeUIModal(); 
+                    if(document.getElementById('page-profile').classList.contains('active')) {
+                        window.showPage('home', null);
+                    }
+                }
+
+        window.syncDetailButtonState = () => {
+                    const detailBtn = document.getElementById('detail-add-btn');
+                    const checkoutBtn = document.querySelector('.btn-checkout');
+                    if(!detailBtn || !checkoutBtn) return;
+                    
+                    const isOut = currentItem.isOutOfStock === true;
+                    if (isOut) {
+                        detailBtn.innerHTML = "🚫 OUT OF STOCK";
+                        detailBtn.style.background = "#333";
+                        detailBtn.style.color = "#888";
+                        detailBtn.style.borderColor = "#333";
+                        detailBtn.style.cursor = "not-allowed";
+                        detailBtn.onclick = (e) => e.preventDefault();
+                        checkoutBtn.style.display = 'none'; // លាក់ប៊ូតុង Checkout ពេលអស់ស្តុក
+                        return;
+                    } else {
+                        detailBtn.style = ""; // Clear ពណ៌ចោល
+                        checkoutBtn.style.display = 'flex'; // បង្ហាញវិញ
+                        detailBtn.onclick = window.toggleDetailCart;
+                    }
+
+                    const isAdded = cartItems.some(item => item.id === currentItem.id);
+                    if(isAdded) {
+                        detailBtn.innerHTML = "✅ ADDED TO BAG";
+                        detailBtn.classList.add('added');
+                    } else {
+                        detailBtn.innerHTML = "👜 ADD TO BAG";
+                        detailBtn.classList.remove('added');
+                    }
+                };
 
 
         window.updateCartBadge = () => {
@@ -2484,20 +2536,7 @@ window.openFullscreen = (src) => {
             document.getElementById('checkout-total').innerText = "$" + finalTotal.toFixed(2);
         }
 
-   window.processPurchase = async () => {
-            // 🔴 ១. ប្រព័ន្ធការពារ Spam (ទិញបានតែ ២ ដង ក្នុង ១ នាទី) 🔴
-            const now = Date.now();
-            let orderHistory = JSON.parse(localStorage.getItem('anti_spam_orders') || '[]');
-            
-            // លុបចោលកំណត់ត្រាណាដែលហួស ១ នាទី (60000 ms)
-            orderHistory = orderHistory.filter(time => now - time < 60000);
-            
-            // បើកត់ត្រាឃើញថាទិញ ២ ដងហើយក្នុង ១ នាទី គឺបិទមិនឲ្យទៅមុខទៀតទេ
-            if (orderHistory.length >= 2) {
-                return window.showUIModal('Warning ⚠️', 'អ្នកបានបញ្ជាទិញញឹកញាប់ពេកហើយ! សូមរង់ចាំ ១ នាទីសិន មុននឹងបន្ត។', 'OK', window.closeUIModal);
-            }
-            // -----------------------------------------------------------
-
+window.processPurchase = async () => {
             if(cartItems.length === 0) return window.showUIModal('Error', 'Your cart is empty!', 'OK', window.closeUIModal);
             
             let name = document.getElementById('buyer-name').value; 
@@ -2507,9 +2546,47 @@ window.openFullscreen = (src) => {
             let note = document.getElementById('buyer-note').value;
             
             if(!name || !phone || !address) return window.showUIModal('Missing Info', 'សូមបំពេញឈ្មោះ លេខទូរស័ព្ទ និងអាសយដ្ឋានឲ្យបានគ្រប់គ្រាន់!', 'OK', window.closeUIModal);
+
+          // 🔴 ១. ប្រព័ន្ធការពារ Spam ជាមួយ Redis (ទាញពី Cloudflare Worker) 🔴
+            const purchaseBtn = document.querySelector('.btn-purchase');
+            const originalBtnText = purchaseBtn.innerText;
+            try {
+                // ប្តូរប៊ូតុងទៅជាកំពុង Loading ដើម្បីកុំឲ្យគាត់ចុចផ្ទួនៗ
+                purchaseBtn.innerText = "កំពុងពិនិត្យ...";
+                purchaseBtn.style.pointerEvents = "none";
+                
+                // 🔴 បន្ថែមលីង Worker នៅទីនេះទើបវាស្គាល់ 🔴
+                const workerURL = "https://idk-backend.vannvirakboth372.workers.dev";
+
+                const checkRes = await fetch(workerURL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: "check_spam" })
+                });
+
+                const checkData = await checkRes.json();
+
+                // ប្រសិនបើ Worker ប្រាប់ថាជា Spam (ទិញញឹកញាប់ពេក)
+                if (checkData.success === false) {
+                    purchaseBtn.innerText = originalBtnText;
+                    purchaseBtn.style.pointerEvents = "auto";
+                    return window.showUIModal('Warning ⚠️', checkData.message, 'OK', window.closeUIModal);
+                }
+
+                // បើជោគជ័យ (មិនមែន Spam) បន្តដំណើរការទូទាត់
+                purchaseBtn.innerText = originalBtnText;
+                purchaseBtn.style.pointerEvents = "auto";
+
+            } catch (error) {
+                console.error("Spam check failed:", error);
+                // បើ Error server ក៏អនុញ្ញាតឲ្យគាត់ទិញធម្មតាសិនទៅ កុំឲ្យគាត់ទិញអត់បាន
+                purchaseBtn.innerText = originalBtnText;
+                purchaseBtn.style.pointerEvents = "auto";
+            }
+            // -----------------------------------------------------------
             
             let finalAddress = address;
-if(coords) finalAddress += ` | Maps: https://maps.google.com/?q=${coords}`;
+            if(coords) finalAddress += ` | Maps: https://maps.google.com/?q=$${coords}`;
             let subtotal = 0;
             let finalItems = [];
             
@@ -2547,17 +2624,13 @@ if(coords) finalAddress += ` | Maps: https://maps.google.com/?q=${coords}`;
                 items: finalItems 
             };
 
-            // 🔴 ២. កត់ត្រាទុកក្នុង LocalStorage ថាគាត់ទើបតែបានចុចទិញម្តង 🔴
-            orderHistory.push(Date.now());
-            localStorage.setItem('anti_spam_orders', JSON.stringify(orderHistory));
-            // -----------------------------------------------------------
-
             if(typeof window.startKHQRPayment === 'function') {
                 window.startKHQRPayment(finalPayAmount, orderData);
             } else {
                 console.error("រកមិនឃើញ File khqr.js ទេ!"); alert("ប្រព័ន្ធទូទាត់កំពុងមានបញ្ហា សូមព្យាយាមម្តងទៀតពេលក្រោយ។");
             }
         };
+
 
  window.getLocation = (e) => {
             e.preventDefault();
@@ -2589,15 +2662,24 @@ if(coords) finalAddress += ` | Maps: https://maps.google.com/?q=${coords}`;
 
         window.saveOrderToFirebase = async (orderData) => {
             try {
-                // 1. Upload រូបវិក្កយបត្រទៅ Cloudflare R2
+               // 1. Upload រូបវិក្កយបត្រទៅ Cloudflare R2 កាត់តាម Worker
                 if (orderData.receiptImage && orderData.receiptImage.startsWith('data:image')) {
-                    console.log("Uploading receipt to Cloudflare R2...");
-                    const response = await fetch(orderData.receiptImage);
-                    const blob = await response.blob();
-                    const file = new File([blob], "receipt_" + Date.now() + ".jpg", { type: "image/jpeg" });
+                    console.log("Uploading receipt to Cloudflare Worker...");
+                    const workerURL = "https://idk-backend.vannvirakboth372.workers.dev";
                     
-                    const r2Url = await uploadFileToR2(file);
-                    orderData.receiptImage = r2Url; 
+                    const uploadRes = await fetch(workerURL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ 
+                            action: "upload_receipt", 
+                            imageData: orderData.receiptImage 
+                        })
+                    });
+                    
+                    const uploadData = await uploadRes.json();
+                    if(uploadData.success) {
+                        orderData.receiptImage = uploadData.url; 
+                    }
                 }
 
                 if (!orderData.status || orderData.status === "Pending") {
@@ -2723,240 +2805,146 @@ if(coords) finalAddress += ` | Maps: https://maps.google.com/?q=${coords}`;
                     );
                 }, 1500); 
 
-            } catch (error) { 
+        } catch (error) { 
                 console.error("Error saving order:", error); 
                 window.showUIModal('Error ❌', 'មានបញ្ហាក្នុងការរក្សាទុកវិក្កយបត្រ។ សូមទាក់ទងមកកាន់យើងខ្ញុំ!', 'បិទ', window.closeUIModal);
             }
-
-        
         };
-
-
-        window.processPurchase = async () => {
-            if(cartItems.length === 0) return window.showUIModal('Error', 'Your cart is empty!', 'OK', window.closeUIModal);
-            
-            let name = document.getElementById('buyer-name').value; 
-            let phone = document.getElementById('buyer-phone').value; 
-            let address = document.getElementById('buyer-address').value; 
-            let coords = document.getElementById('buyer-coords').value;
-            let note = document.getElementById('buyer-note').value;
-            
-            if(!name || !phone || !address) return window.showUIModal('Missing Info', 'សូមបំពេញឈ្មោះ លេខទូរស័ព្ទ និងអាសយដ្ឋាន!', 'OK', window.closeUIModal);
-            
-            let finalAddress = address;
-            if(coords) finalAddress += ` | Maps: https://www.google.com/maps?q=${coords}`;
-            let subtotal = 0;
-            let finalItems = [];
-            
-            cartItems.forEach(item => {
-                const dInfo = window.getDiscountInfo(item.id, item.price);
-                const activePrice = dInfo.price;
-                subtotal += activePrice * item.qty;
-                
-                let sizeCounts = {};
-                item.selectedSizes.forEach(s => { sizeCounts[s] = (sizeCounts[s] || 0) + 1; });
-                
-                Object.keys(sizeCounts).forEach(s => {
-                    finalItems.push({ title: item.title, size: s, qty: sizeCounts[s], price: activePrice });
-                });
-            });
-
-            const orderID = "ORD-" + Math.floor(1000 + Math.random() * 9000);
-            const orderData = { 
-                orderId: orderID, 
-                date: new Date().toLocaleString(), 
-                timestamp: Date.now(), 
-                status: "Pending", 
-                total: subtotal + deliveryFee, 
-                customer: { name, phone, address: finalAddress, note, email: currentCustomer ? (currentCustomer.email || currentCustomer.phoneNumber || "Guest") : "Guest" }, 
-                items: finalItems 
-            };
-
-            if(typeof window.startKHQRPayment === 'function') {
-                window.startKHQRPayment(subtotal + deliveryFee, orderData);
-            } else {
-                console.error("រកមិនឃើញ File khqr.js ទេ!");
-                alert("ប្រព័ន្ធទូទាត់កំពុងមានបញ្ហា សូមព្យាយាមម្តងទៀតពេលក្រោយ។");
-            }
-        
-        };
-
-            function listenToProducts() {
-            if (unsub) { unsub(); } 
-            const q = query(collection(db, "products"), limit(homeDisplayCount));
-            
-          unsub = onSnapshot(q, (querySnapshot) => {
-                let tempProducts = [];
-                querySnapshot.forEach((doc) => {
-                    let data = doc.data(); 
-                    let finalSizes = data.inventory ? Object.keys(data.inventory) : (data.sizes || ["One Size"]); 
-                    let coverImg = (data.images && data.images.length > 0) ? data.images[0] : (data.img || 'https://via.placeholder.com/300'); 
-let allImages = (data.images && data.images.length > 1) ? data.images.slice(1) : []; 
-                    
-                    // 🔴 ថែម masonryImages ទាញចេញពី Database មក 🔴
-tempProducts.push({ id: doc.id, title: data.title, price: data.price, description: data.description || "", sizes: finalSizes, imgUrl: coverImg, imagesArray: allImages, masonryImages: data.masonryImages || [], orderIndex: data.orderIndex || 0, isOutOfStock: data.isOutOfStock || false });
-                });
-                
-                // 🔴 តម្រៀបទំនិញតាមលំដាប់ OrderIndex ដែល Admin បានកំណត់ 🔴
-                tempProducts.sort((a, b) => a.orderIndex - b.orderIndex);
-                
-                productsDB = tempProducts;
-                window.updateCartBadge();
-                
-                if(!window.pageRestored) {
-                    const savedPage = localStorage.getItem('idk_currentPage') || 'home';
-                    if (savedPage === 'detail') {
-                        const savedProduct = localStorage.getItem('idk_currentProduct');
-                        if (savedProduct && productsDB.some(p => p.id === savedProduct)) { window.openProduct(savedProduct); } 
-                        else { window.showPage('home', null); }
-                    } else if (savedPage === 'checkout') {
-                        window.updateCheckoutUI(); window.showPage('checkout', null);
-                    } else { window.showPage('home', null); }
-                    window.pageRestored = true;
-                } else {
-                    const savedPage = localStorage.getItem('idk_currentPage') || 'home';
-                    if (savedPage === 'detail') {
-                        const savedProduct = localStorage.getItem('idk_currentProduct');
-                        if (savedProduct && productsDB.some(p => p.id === savedProduct)) { 
-                            window.syncDetailButtonState();
-                            window.updateRelatedGrid();
-                            window.updateDetailPrice(); 
-                        }
-                    }
-                }
-
-        }, (error) => { 
-                console.error(error); 
-                document.getElementById('product-grid').innerHTML = '<div style="grid-column: 1/-1; padding: 20px; color: #ff4444; text-align: center;">Error connecting to database. Please check your network.</div>';
-            });
-        }
-
-        listenToProducts();
-
-        // ==========================================
-        // 🔴 មុខងារទាញទិន្នន័យ MODELS ពិតប្រាកដ 🔴
-        // ==========================================
-        function listenToModels() {
-            const q = query(collection(db, "models")); 
-            onSnapshot(q, (querySnapshot) => {
-                let tempModels = [];
-                querySnapshot.forEach((doc) => {
-                    tempModels.push({ id: doc.id, ...doc.data() });
-                });
-                
-                // តម្រៀបរូបដែល Upload ថ្មីៗឲ្យនៅខាងដើមគេ
-                tempModels.sort((a, b) => b.timestamp - a.timestamp);
-                modelsDB = tempModels;
-                
-                window.renderModelsGrid();
-            }, (error) => {
-                console.error("Error fetching models: ", error);
-            });
-        }
-
-window.renderModelsGrid = () => {
-            const grid = document.getElementById('model-grid');
-            if(!grid) return;
-            if(modelsDB.length === 0) {
-                grid.innerHTML = '<div style="width: 100%; padding: 20px; text-align: center; color: var(--text-muted);">No models available yet.</div>';
-                return;
-            }
-            
-            // 🔴 ១. ចម្លងទិន្នន័យ ៥ សំណុំ ដើម្បីបង្កើតទម្រង់ "អូសមិនចេះអស់" (Infinite Loop) 🔴
-            let infiniteModels = [...modelsDB, ...modelsDB, ...modelsDB, ...modelsDB, ...modelsDB];
-            
-            grid.innerHTML = infiniteModels.map(m => {
-                const isVideo = m.imgUrl.includes('.mp4') || m.imgUrl.includes('.mov') || m.imgUrl.includes('.webm');
-                const mediaHtml = isVideo 
-                    ? `<video src="${m.imgUrl}" autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; pointer-events: none;"></video>`
-                    : `<img src="${m.imgUrl}" fetchpriority="low" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">`;
-
-                return `
-                <div class="model-item-card product-card" style="border: none; background: transparent; cursor: default;">
-                    <div class="product-image-container" style="height: auto; aspect-ratio: 3/4; cursor: zoom-in;" onclick="window.openFullscreen('${m.imgUrl}')">
-                        ${mediaHtml}
-                    </div>
-                    
-                    <div class="product-info-wrap" style="padding: 15px 0 5px 0; background: transparent; text-align: center;">
-                        <span class="product-title" style="font-size: 14px; color: var(--text-main); max-width: 100%; white-space: normal; line-height: 1.4;">${m.title || ''}</span>
-                        ${m.description ? `<div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">${m.description}</div>` : ''}
-                    </div>
-                </div>
-                `;
-            }).join('');
-
-            // 🔴 ២. Effect រីកធំពេលរូបមកដល់កណ្តាលអេក្រង់ (Focus) 🔴
-            const cards = grid.querySelectorAll('.model-item-card');
-            const observerOptions = {
-                root: grid,
-                rootMargin: '0px',
-                threshold: 0.6 
-            };
-
-            const modelObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('model-focus'); 
-                    } else {
-                        entry.target.classList.remove('model-focus'); 
-                    }
-                });
-            }, observerOptions);
-
-            cards.forEach(card => modelObserver.observe(card));
-
-     // 🔴 ៣. កំណត់មុខងារ Auto-Scroll ទៅ Item ទី 2 (កែប្រែថ្មីការពារការលោតទំព័រ) 🔴
-            // យើងចាប់ផ្តើមពីសំណុំទី 3 (កណ្តាលគេបង្អស់) ដើម្បីទុកកន្លែងឲ្យអូសទៅឆ្វេងក៏បាន ស្តាំក៏បាន
-            const realStartIndex = modelsDB.length * 2; 
-            
-            setTimeout(() => {
-                const firstRealItem = grid.children[realStartIndex];
-                if (firstRealItem) {
-                    // 🔴 ប្រើ grid.scrollLeft ជំនួស scrollIntoView ដើម្បីកុំឲ្យទំព័រលោតចុះក្រោម 🔴
-                    const scrollPos1 = firstRealItem.offsetLeft - (grid.clientWidth / 2) + (firstRealItem.clientWidth / 2);
-                    grid.scrollLeft = scrollPos1; 
-                    
-                    // បន្ទាប់ពី 1.5 វិនាទី, ឲ្យវា Auto Scroll ទៅកាន់ Item ទី២ ផ្ដេកយ៉ាងរលូន
-                    setTimeout(() => {
-                        const secondRealItem = grid.children[realStartIndex + 1];
-                        if (secondRealItem) {
-                            const scrollPos2 = secondRealItem.offsetLeft - (grid.clientWidth / 2) + (secondRealItem.clientWidth / 2);
-                            grid.scrollTo({ left: scrollPos2, behavior: 'smooth' });
-                        }
-                    }, 1500);
-                }
-            }, 100);
-
-            // 🔴 ៤. មុខងារលោតវិលជុំ (Infinite Scroll - អូសមិនចេះអស់) 🔴
-            grid.addEventListener('scroll', () => {
-                if (grid.isJumping) return; // ការពារកុំឲ្យកូដដើរជាន់គ្នាពេលវាកំពុងលោត
-                
-                const firstItem = grid.children[0];
-                if (!firstItem) return;
-                
-                const itemWidth = firstItem.offsetWidth;
-                const gap = 15; // គម្លាត 15px ដែលយើងកំណត់ក្នុង CSS
-                const singleSetWidth = (itemWidth + gap) * modelsDB.length; // ទំហំនៃ ១ សំណុំ
-                
-                // បើភ្ញៀវអូសទៅឆ្វេងហួស លោតមកមុខវិញឲ្យទាន់
-                if (grid.scrollLeft < singleSetWidth * 1.5) {
-                    grid.isJumping = true;
-                    grid.scrollLeft += singleSetWidth; 
-                    setTimeout(() => grid.isJumping = false, 50);
-                } 
-                // បើភ្ញៀវអូសទៅស្តាំហួស លោតមកក្រោយវិញឲ្យទាន់
-                else if (grid.scrollLeft > singleSetWidth * 3.5) {
-                    grid.isJumping = true;
-                    grid.scrollLeft -= singleSetWidth; 
-                    setTimeout(() => grid.isJumping = false, 50);
-                }
-            });
-        };
-
-listenToModels(); // បញ្ជាឲ្យមុខងារនេះដំណើរការ
 
         // 🔴 ត្រូវបន្ថែមជួរនេះ ដើម្បីប្រកាសអថេរម៉ោង ទើបកូដលែងគាំង Error 🔴
-        let slideInterval; 
+        let slideInterval;
+
+        // ========================================================
+        // 🔴 ប្រព័ន្ធខួរក្បាលកណ្តាល ទាញទិន្នន័យកាត់តាម REDIS (Fast Load)
+        // ========================================================
+        const WORKER_API_URL = "https://idk-backend.vannvirakboth372.workers.dev";
+
+        window.initStoreData = async () => {
+            try {
+                // ១. សួរទៅកាន់ Redis សិន (ល្បឿនលឿនដូចរន្ទះ)
+                const cacheRes = await fetch(WORKER_API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: "get_cache", key: "idk_full_store_data" })
+                });
+                const cacheResult = await cacheRes.json();
+
+                if (cacheResult.success && cacheResult.data) {
+                    console.log("⚡ Loaded from Redis Cache!");
+                    const fullData = JSON.parse(cacheResult.data);
+                    window.applyStoreDataToUI(fullData);
+                    return; // បញ្ចប់ត្រឹមនេះ មិនបាច់សួរ Firebase ទេ គឺចំណេញខ្លាំង!
+                }
+
+                // ២. បើអត់មានក្នុង Redis ទេ ទើបទាញពី Firebase ផ្ទាល់ (Cache Miss)
+                console.log("☁️ Fetching from Firebase (Cache Miss)...");
+                
+                // ទាញ Settings
+                const settingsSnap = await getDoc(doc(db, "settings", "store_config"));
+                const settingsData = settingsSnap.exists() ? settingsSnap.data() : {};
+
+                // ទាញ Products ទាំងអស់
+                const prodSnap = await getDocs(collection(db, "products"));
+                let productsData = [];
+                prodSnap.forEach(doc => {
+                    let d = doc.data(); 
+                    let finalSizes = d.inventory ? Object.keys(d.inventory) : (d.sizes || ["One Size"]); 
+                    let coverImg = (d.images && d.images.length > 0) ? d.images[0] : (d.img || 'https://via.placeholder.com/300'); 
+                    let allImages = (d.images && d.images.length > 1) ? d.images.slice(1) : []; 
+                    productsData.push({ id: doc.id, title: d.title, price: d.price, description: d.description || "", sizes: finalSizes, imgUrl: coverImg, imagesArray: allImages, masonryImages: d.masonryImages || [], orderIndex: d.orderIndex || 0, isOutOfStock: d.isOutOfStock || false });
+                });
+                productsData.sort((a, b) => a.orderIndex - b.orderIndex);
+
+                // ទាញ Models ទាំងអស់
+                const modSnap = await getDocs(collection(db, "models"));
+                let modelsData = [];
+                modSnap.forEach(doc => modelsData.push({ id: doc.id, ...doc.data() }));
+                modelsData.sort((a, b) => b.timestamp - a.timestamp);
+
+                const fullData = { settings: settingsData, products: productsData, models: modelsData };
+
+                // ៣. បញ្ចូលទៅក្នុង UI
+                window.applyStoreDataToUI(fullData);
+
+                // ៤. ផ្ញើទិន្នន័យទៅឲ្យ Worker ដើម្បីរក្សាទុកក្នុង Redis រយៈពេល ៥ នាទី
+                fetch(WORKER_API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: "set_cache", key: "idk_full_store_data", ttl: 300, data: JSON.stringify(fullData) })
+                });
+
+            } catch (err) {
+                console.error("Error initializing store:", err);
+            }
+        };
+
+        window.applyStoreDataToUI = (data) => {
+            const sData = data.settings;
+            deliveryFee = sData.deliveryFee || 0;
+            if(sData.heroBanners !== undefined) {
+                if(typeof window.renderDynamicBanners === 'function') {
+                    document.documentElement.style.setProperty('--banner-ratio-pc', sData.bannerRatioDesktop || '16/9');
+                    document.documentElement.style.setProperty('--banner-ratio-mobile', sData.bannerRatioMobile || '1/1');
+                    window.renderDynamicBanners(sData.heroBanners, sData.bannerInterval);
+                }
+            } else { if(typeof window.renderDynamicBanners === 'function') window.renderDynamicBanners(['Cover.png', 'Cover2.png']); }
+            
+            if (sData.announcements && sData.announcements.length > 0) {
+                let now = new Date();
+                let activeAnn = sData.announcements.find(ann => {
+                    if(!ann.active) return false;
+                    let start = ann.start ? new Date(ann.start) : null;
+                    let end = ann.end ? new Date(ann.end) : null;
+                    if(start && now < start) return false;
+                    if(end && now > end) return false;
+                    return true;
+                });
+                if (activeAnn) {
+                    let today = now.toDateString();
+                    let viewsData = JSON.parse(localStorage.getItem('idk_promo_views') || '{"date":"","count":0, "id":""}');
+                    if (viewsData.date !== today || viewsData.id !== activeAnn.id) { viewsData = { date: today, count: 0, id: activeAnn.id }; }
+                    if (viewsData.count < (activeAnn.dailyLimit || 1)) {
+                        document.getElementById('promo-title').innerText = activeAnn.title || 'Notice';
+                        document.getElementById('promo-title').style.color = activeAnn.color || '#ffffff';
+                        document.getElementById('promo-text').innerText = activeAnn.text || '';
+                        document.getElementById('promo-modal').classList.add('active');
+                        viewsData.count++;
+                        localStorage.setItem('idk_promo_views', JSON.stringify(viewsData));
+                    }
+                }
+            }
+            currentPromos = sData.discounts ? sData.discounts.filter(d => d.active) : [];
+
+            productsDB = data.products;
+            modelsDB = data.models;
+
+            window.updateCartBadge();
+            window.renderHomeGrid();
+            window.renderModelsGrid();
+            window.updateRelatedGrid();
+            window.refreshCartUI();
+            
+            if(!window.pageRestored) {
+                const savedPage = localStorage.getItem('idk_currentPage') || 'home';
+                if (savedPage === 'detail') {
+                    const savedProduct = localStorage.getItem('idk_currentProduct');
+                    if (savedProduct && productsDB.some(p => p.id === savedProduct)) { window.openProduct(savedProduct); } 
+                    else { window.showPage('home', null); }
+                } else if (savedPage === 'checkout') {
+                    window.updateCheckoutUI(); window.showPage('checkout', null);
+                } else { window.showPage('home', null); }
+                window.pageRestored = true;
+            } else {
+                const savedPage = localStorage.getItem('idk_currentPage') || 'home';
+                if (savedPage === 'detail') {
+                    const savedProduct = localStorage.getItem('idk_currentProduct');
+                    if (savedProduct && productsDB.some(p => p.id === savedProduct)) { window.syncDetailButtonState(); window.updateRelatedGrid(); window.updateDetailPrice(); }
+                }
+            }
+        };
+
+        // អំពាវនាវឲ្យកូដដើរពេលបើកវេបសាយដំបូង
+        window.initStoreData();
         
         window.renderDynamicBanners = (banners, intervalSec) => {
             const sliderEl = document.getElementById('main-hero-slider');
@@ -3040,7 +3028,7 @@ listenToModels(); // បញ្ជាឲ្យមុខងារនេះដំ�
             }
         };
 
-        // ==========================================
+// ==========================================
         // 🔴 មុខងារ Auto-Refresh ពេលភ្ញៀវទុកវេបសាយចោលយូរ 🔴
         // ==========================================
         let lastLeaveTime = 0;
@@ -3048,23 +3036,27 @@ listenToModels(); // បញ្ជាឲ្យមុខងារនេះដំ�
 
         document.addEventListener("visibilitychange", () => {
             if (document.hidden) {
-                // ពេលភ្ញៀវចុចចេញពីវេបសាយ (អូសទៅមើល App ផ្សេង ឬបិទអេក្រង់)
-                // យើងកត់ត្រាម៉ោងទុក
+                // កត់ត្រាម៉ោង ពេលភ្ញៀវចុចបិទអេក្រង់ ឬអូសទៅ App ផ្សេង
                 lastLeaveTime = Date.now();
             } else {
                 // ពេលភ្ញៀវបើកត្រលប់ចូលមកវេបសាយវិញ
                 if (lastLeaveTime > 0) {
                     const timeAway = Date.now() - lastLeaveTime;
                     
-                    // បើពេលវេលាដែលគាត់ចេញទៅ ធំជាង ឬស្មើ ២០ នាទី
+                    // បើលើសពី ២០ នាទី
                     if (timeAway >= REFRESH_THRESHOLD) {
-                        // បង្ខំឲ្យទំព័រ Refresh ខ្លួនឯង ដើម្បីទាញទិន្នន័យថ្មី និងការពារការគាំង
-                        window.location.reload();
+                        // 🔴 មុននឹង Refresh យើងបញ្ជាឲ្យវាលុបការចងចាំ Page ចោល ដើម្បីឲ្យវាលោតទៅ Home វិញ 🔴
+                        localStorage.setItem('idk_currentPage', 'home');
+                        localStorage.removeItem('idk_currentProduct'); 
+                        
+                        // បង្ខំឲ្យ Refresh យកទិន្នន័យថ្មី (Clear Cache បណ្តោះអាសន្ន)
+                        window.location.reload(true);
                     }
                 }
             }
         });
 
+        
 // ==========================================
         // 🔴 មុខងារ គ្រប់គ្រង THEME (Auto Device + Toggle) 🔴
         // ==========================================
