@@ -100,10 +100,14 @@ sessionStorage.setItem('pending_order_data', JSON.stringify(orderData));
         window.currentOrderData = orderData; // រក្សាទុកជាសកល
         window.isPaymentProcessed = false; // ការពារកុំអោយវា Save ជាន់គ្នា ២ ដង
 
-        // បង្កើតមុខងារ Force Check សម្រាប់ឱ្យកូដពី index.html ហៅប្រើបានពេលភ្ញៀវចូល App វិញ
+  window.isCheckingNow = false; // 🔴 សោរការពារកុំឲ្យការឆែករត់ជាន់គ្នាពេលទូរស័ព្ទគាំង
+
         window.forceCheckPayment = async () => {
-            if (window.isPaymentProcessed || !window.currentQrMd5) return;
+            // បើទូទាត់រួចហើយ ឬអត់មានកូដ ឬកំពុងឆែក គឺមិនឲ្យកូដនេះដើរទេ
+            if (window.isPaymentProcessed || !window.currentQrMd5 || window.isCheckingNow) return;
             
+            window.isCheckingNow = true; // ចាក់សោរ
+
             try {
                 const workerURL = "https://idk-backend.vannvirakboth372.workers.dev"; 
                 const response = await fetch(workerURL, {
@@ -118,22 +122,28 @@ sessionStorage.setItem('pending_order_data', JSON.stringify(orderData));
                 if (checkData.success === true) {
                     window.isPaymentProcessed = true; // បិទកុំឱ្យកូដនេះដើរម្តងទៀត
                     
-                    if(window.checkPaymentInterval) clearInterval(window.checkPaymentInterval); // បញ្ឈប់ការសួរ
-                    if(timerInterval) clearInterval(timerInterval); // បញ្ឈប់ម៉ោង
+                    if(window.checkPaymentInterval) clearInterval(window.checkPaymentInterval); 
+                    if(timerInterval) clearInterval(timerInterval); 
                     
                     window.currentOrderData.status = "Paid via KHQR (Auto)";
                     window.currentOrderData.transaction_id = checkData.data.hash; 
                     window.currentOrderData.receiptImage = null; 
                     
-                    statusEl.innerHTML = `<span style="color:#4caf50; font-weight:bold;">✅ ទូទាត់ជោគជ័យ! កំពុងបញ្ជូនវិក្កយបត្រ...</span>`;
+                    statusEl.innerHTML = `<span style="color:#4caf50; font-weight:bold;">✅ ទូទាត់ជោគជ័យ! កំពុងបញ្ជូន...</span>`;
                     
-                    // ហៅមុខងារ Save ចូល Firebase ដោយស្វ័យប្រវត្តិ
                     if(typeof window.saveOrderToFirebase === 'function') {
                         window.saveOrderToFirebase(window.currentOrderData);
                     }
+                } else {
+                    // បើមិនទាន់ជោគជ័យ ឲ្យវាត្រឡប់មកអក្សរធម្មតាវិញ (ក្នុងករណីវាប្តូរអក្សរពេលដាស់)
+                    if (statusEl.innerHTML.includes("កំពុងផ្ទៀងផ្ទាត់ធនាគារ")) {
+                        statusEl.innerHTML = `<div class="spinner"></div> <span style="color:var(--text-muted);">កំពុងរង់ចាំការទូទាត់...</span>`;
+                    }
                 }
             } catch (error) {
-                console.log("Polling/ForceCheck error:", error);
+                console.log("Polling error:", error);
+            } finally {
+                window.isCheckingNow = false; // ដោះសោរវិញ
             }
         };
 
