@@ -908,7 +908,7 @@
     .page.active {
         animation: smoothEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-    
+
     @keyframes smoothEntrance {
         0% {
             opacity: 0;
@@ -2793,36 +2793,43 @@ window.processPurchase = async () => {
         // 🔴 ត្រូវបន្ថែមជួរនេះ ដើម្បីប្រកាសអថេរម៉ោង ទើបកូដលែងគាំង Error 🔴
         let slideInterval;
 
-        // ========================================================
-        // 🔴 ប្រព័ន្ធខួរក្បាលកណ្តាល ទាញទិន្នន័យកាត់តាម REDIS (Fast Load)
+// ========================================================
+        // 🔴 ប្រព័ន្ធខួរក្បាលកណ្តាល ទាញទិន្នន័យ (Robust Version)
         // ========================================================
         const WORKER_API_URL = "https://idk-backend.vannvirakboth372.workers.dev";
 
         window.initStoreData = async () => {
             try {
+                let hasCache = false;
+                
                 // ១. សួរទៅកាន់ Redis សិន (ល្បឿនលឿនដូចរន្ទះ)
-                const cacheRes = await fetch(WORKER_API_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ action: "get_cache", key: "idk_full_store_data" })
-                });
-                const cacheResult = await cacheRes.json();
+                try {
+                    const cacheRes = await fetch(WORKER_API_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ action: "get_cache", key: "idk_full_store_data" })
+                    });
+                    const cacheResult = await cacheRes.json();
 
-                if (cacheResult.success && cacheResult.data) {
-                    console.log("⚡ Loaded from Redis Cache!");
-                    const fullData = JSON.parse(cacheResult.data);
-                    window.applyStoreDataToUI(fullData);
-                    return; // បញ្ចប់ត្រឹមនេះ មិនបាច់សួរ Firebase ទេ គឺចំណេញខ្លាំង!
+                    if (cacheResult.success && cacheResult.data) {
+                        console.log("⚡ Loaded from Redis Cache!");
+                        const fullData = JSON.parse(cacheResult.data);
+                        window.applyStoreDataToUI(fullData);
+                        hasCache = true;
+                        return; // បញ្ចប់ត្រឹមនេះ បើជោគជ័យ
+                    }
+                } catch (cacheErr) {
+                    console.log("Redis cache failed, falling back to Firebase...", cacheErr);
                 }
 
-                // ២. បើអត់មានក្នុង Redis ទេ ទើបទាញពី Firebase ផ្ទាល់ (Cache Miss)
+                if (hasCache) return;
+
+                // ២. បើអត់មានក្នុង Redis ទេ ទើបទាញពី Firebase ផ្ទាល់
                 console.log("☁️ Fetching from Firebase (Cache Miss)...");
                 
-                // ទាញ Settings
                 const settingsSnap = await getDoc(doc(db, "settings", "store_config"));
                 const settingsData = settingsSnap.exists() ? settingsSnap.data() : {};
 
-                // ទាញ Products ទាំងអស់
                 const prodSnap = await getDocs(collection(db, "products"));
                 let productsData = [];
                 prodSnap.forEach(doc => {
@@ -2834,7 +2841,6 @@ window.processPurchase = async () => {
                 });
                 productsData.sort((a, b) => a.orderIndex - b.orderIndex);
 
-                // ទាញ Models ទាំងអស់
                 const modSnap = await getDocs(collection(db, "models"));
                 let modelsData = [];
                 modSnap.forEach(doc => modelsData.push({ id: doc.id, ...doc.data() }));
@@ -2850,13 +2856,24 @@ window.processPurchase = async () => {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ action: "set_cache", key: "idk_full_store_data", ttl: 300, data: JSON.stringify(fullData) })
-                });
+                }).catch(e => console.log("Cache set error:", e));
 
             } catch (err) {
-                console.error("Error initializing store:", err);
+                console.error("Critical Error loading store:", err);
+                
+                // 🔴 បើមានបញ្ហា (ឧ. Firebase លោត Error) វានឹងបង្ហាញប្រអប់ក្រហមលើអេក្រង់ 🔴
+                const grid = document.getElementById('product-grid');
+                if(grid) {
+                    grid.innerHTML = `
+                    <div style="grid-column: 1/-1; padding: 40px 20px; text-align: center; background: rgba(255, 68, 68, 0.1); border: 1px solid #ff4444; border-radius: 8px;">
+                        <h3 style="color:#ff4444; margin-bottom: 10px;">⚠️ បញ្ហាទាញយកទិន្នន័យ</h3>
+                        <p style="color:#ccc; font-size:13px; margin-bottom: 15px;">${err.message}</p>
+                        <p style="color:#888; font-size:11px;">(ភាគច្រើនមកពី Database Firebase ត្រូវ Google Block ឬលើស Quota)</p>
+                    </div>`;
+                }
             }
         };
-
+        
         window.applyStoreDataToUI = (data) => {
             const sData = data.settings;
             deliveryFee = sData.deliveryFee || 0;
