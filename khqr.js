@@ -83,10 +83,6 @@ window.startKHQRPayment = async (totalAmount, orderData) => {
 // 🔴 ១. ទាញយកកូដ MD5 ពី QR ដែលទើបនឹងបង្កើត 🔴
         let qrMd5 = result.data?.md5;
 
-        // បន្ថែមនៅបន្ទាត់បន្ទាប់ពី let qrMd5 = result.data?.md5;
-sessionStorage.setItem('pending_payment_md5', qrMd5);
-sessionStorage.setItem('pending_order_data', JSON.stringify(orderData));
-
         // 🔴 ២. ប្តូរផ្ទាំង UI ប្រាប់ភ្ញៀវថាមិនបាច់ Upload ទេ 🔴
         statusEl.innerHTML = `
             <div style="width: 100%; margin-top: 15px; background: #0a0a0a; padding: 15px; border-radius: 12px; border: 1px solid #222;">
@@ -95,60 +91,40 @@ sessionStorage.setItem('pending_order_data', JSON.stringify(orderData));
             </div>
         `;
 
-        // 🔴 ៣. បង្កើតមុខងារឆែកលុយ និងប្រព័ន្ធ Polling 🔴
-        window.currentQrMd5 = qrMd5; // រក្សាទុកជាសកល
-        window.currentOrderData = orderData; // រក្សាទុកជាសកល
-        window.isPaymentProcessed = false; // ការពារកុំអោយវា Save ជាន់គ្នា ២ ដង
-
-  window.isCheckingNow = false; // 🔴 សោរការពារកុំឲ្យការឆែករត់ជាន់គ្នាពេលទូរស័ព្ទគាំង
-
-        window.forceCheckPayment = async () => {
-            // បើទូទាត់រួចហើយ ឬអត់មានកូដ ឬកំពុងឆែក គឺមិនឲ្យកូដនេះដើរទេ
-            if (window.isPaymentProcessed || !window.currentQrMd5 || window.isCheckingNow) return;
-            
-            window.isCheckingNow = true; // ចាក់សោរ
-
+        // 🔴 ៣. បង្កើតប្រព័ន្ធ Polling សួរ Worker រៀងរាល់ ៣ វិនាទីម្តង 🔴
+        window.checkPaymentInterval = setInterval(async () => {
             try {
+                // បញ្ជាក់៖ កន្លែងនេះត្រូវដាក់ Link Worker ថ្មីរបស់បង (ដែលបងបានថែមការ Check Bakong លើកមុន)
                 const workerURL = "https://idk-backend.vannvirakboth372.workers.dev"; 
+                
                 const response = await fetch(workerURL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ action: "check_payment", md5: window.currentQrMd5 })
+                    body: JSON.stringify({ action: "check_payment", md5: qrMd5 })
                 });
                 
                 const checkData = await response.json();
                 
                 // បើ Worker ឆែកឃើញថាជោគជ័យ
                 if (checkData.success === true) {
-                    window.isPaymentProcessed = true; // បិទកុំឱ្យកូដនេះដើរម្តងទៀត
+                    clearInterval(window.checkPaymentInterval); // បញ្ឈប់ការសួរ (Polling)
+                    clearInterval(timerInterval); // បញ្ឈប់ម៉ោងដើរថយក្រោយ
                     
-                    if(window.checkPaymentInterval) clearInterval(window.checkPaymentInterval); 
-                    if(timerInterval) clearInterval(timerInterval); 
+                    orderData.status = "Paid via KHQR (Auto)";
+                    orderData.transaction_id = checkData.data.hash; // កត់ត្រាលេខកូដប្រតិបត្តិការ (Hash) របស់បាគង
+                    orderData.receiptImage = null; // លែងត្រូវការរូបភាពហើយ
                     
-                    window.currentOrderData.status = "Paid via KHQR (Auto)";
-                    window.currentOrderData.transaction_id = checkData.data.hash; 
-                    window.currentOrderData.receiptImage = null; 
+                    statusEl.innerHTML = `<span style="color:#4caf50; font-weight:bold;">✅ ទូទាត់ជោគជ័យ! កំពុងបញ្ជូនវិក្កយបត្រ...</span>`;
                     
-                    statusEl.innerHTML = `<span style="color:#4caf50; font-weight:bold;">✅ ទូទាត់ជោគជ័យ! កំពុងបញ្ជូន...</span>`;
-                    
+                    // ហៅមុខងារ Save ចូល Firebase ដោយស្វ័យប្រវត្តិ
                     if(typeof window.saveOrderToFirebase === 'function') {
-                        window.saveOrderToFirebase(window.currentOrderData);
-                    }
-                } else {
-                    // បើមិនទាន់ជោគជ័យ ឲ្យវាត្រឡប់មកអក្សរធម្មតាវិញ (ក្នុងករណីវាប្តូរអក្សរពេលដាស់)
-                    if (statusEl.innerHTML.includes("កំពុងផ្ទៀងផ្ទាត់ធនាគារ")) {
-                        statusEl.innerHTML = `<div class="spinner"></div> <span style="color:var(--text-muted);">កំពុងរង់ចាំការទូទាត់...</span>`;
+                        window.saveOrderToFirebase(orderData);
                     }
                 }
             } catch (error) {
                 console.log("Polling error:", error);
-            } finally {
-                window.isCheckingNow = false; // ដោះសោរវិញ
             }
-        };
-
-        // បញ្ជាឱ្យប្រព័ន្ធអូតូសួររៀងរាល់ ៣ វិនាទីម្តង (ប្រើប្រាស់មុខងារខាងលើ)
-        window.checkPaymentInterval = setInterval(window.forceCheckPayment, 3000);
+        }, 3000); // 3000 ms = 3 វិនាទី
 
    // 🔴 ដូរពី 600 មក 300 (ព្រោះ 300 វិនាទី = ៥ នាទី) 🔴
         let timeLeft = 300; 
