@@ -886,50 +886,29 @@
             100% { opacity: 1; transform: translateY(0); }
         }
 
-        /* ចាប់យកគ្រប់ Section ទាំងអស់ក្នុងទំព័រ Home មកលាក់សិន រួចចាំឲ្យចលនាដើរ */
-        #page-home .hero,
-        #page-home #arrivals-section,
-        #page-home #models-section,
-        #page-home .site-footer {
-            opacity: 0; /* លាក់ឲ្យបាត់ពីភ្នែកសិន */
+/* 🔴 ត្រូវមាន .active ដើម្បីឲ្យចលនាគូររូបរត់ឡើងវិញពេលត្រលប់មក Home 🔴 */
+        #page-home.active .hero,
+        #page-home.active #arrivals-section,
+        #page-home.active #models-section,
+        #page-home.active .site-footer {
+            opacity: 0; 
             animation: smoothSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         /* 🔴 កំណត់វិនាទីឲ្យវាចេញមកម្តងមួយៗ (Delay) 🔴 */
-        
-        /* ទី១: Banner ចេញមកមុនគេបង្អស់ (0.1s) */
-        #page-home .hero { 
-            animation-delay: 0.1s; 
-        }
-        
-        /* ទី២: ទំនិញ New Arrivals ចេញមកបន្ទាប់ (0.3s) */
-        #page-home #arrivals-section { 
-            animation-delay: 0.3s; 
-        }
-        
-        /* ទី៣: ផ្ទាំង Model រូបភាពអូសៗ ចេញមកបន្ទាប់ទៀត (0.5s) */
-        #page-home #models-section { 
-            animation-delay: 0.5s; 
-        }
-        
-        /* ទី៤: ផ្នែក Footer ខាងក្រោមគេបង្អស់ ចេញមកក្រោយគេ (0.7s) */
-        #page-home .site-footer { 
-            animation-delay: 0.7s; 
-        }
+        #page-home.active .hero { animation-delay: 0.1s; }
+        #page-home.active #arrivals-section { animation-delay: 0.3s; }
+        #page-home.active #models-section { animation-delay: 0.5s; }
+        #page-home.active .site-footer { animation-delay: 0.7s; }
 
-        /* 🔴 បច្ចេកទេសបង្កើនល្បឿន Render 🔴 */
-        #arrivals-section,
-        #models-section,
-        .related-section {
-            content-visibility: auto; /* មិនទាន់គូរ បើភ្ញៀវមិនទាន់អូសមកដល់ */
-            contain-intrinsic-size: 500px; /* ប្រាប់ Browser ថាកម្ពស់វាប្រហែល 500px ដើម្បីកុំឲ្យលោត */
-        }
+        /* ចំណាំ៖ បានលុបមុខងារ content-visibility ចេញ ព្រោះវាធ្វើឲ្យទូរស័ព្ទគាំងអេក្រង់ខ្មៅ */
 
         /* 🔴 ធ្វើឲ្យគ្រប់ទំព័រទាំងមូលមានចលនាពេលបើក (Page Transition) 🔴 */
-    .page {
-        animation: smoothEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    /* ត្រូវប្រើ .page.active ទើបវាដើរនៅពេលយើងចុចឆ្លាស់ទំព័រ */
+    .page.active {
+        animation: smoothEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-
+    
     @keyframes smoothEntrance {
         0% {
             opacity: 0;
