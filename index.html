@@ -2128,12 +2128,21 @@ window.getCartModalHtml = () => {
 
         window.scrollToArrivals = () => { window.scrollTo({ top: document.getElementById('arrivals-section').offsetTop - 80, behavior: 'smooth' }); }
         
-  window.showPage = (pageId, event) => {
+       window.showPage = (pageId, event) => {
             if(event) event.preventDefault();
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('page-' + pageId).classList.add('active');
             if (pageId !== 'detail') { window.savePageLocally(pageId); }
             if (pageId !== 'detail') window.scrollTo(0, 0); 
+            
+            // 🔴 លុប ?product ចេញពី URL ពេលភ្ញៀវចេញពីទំព័រ Detail 🔴
+            if (pageId === 'home' || pageId === 'checkout' || pageId === 'profile') {
+                const currentUrl = new URL(window.location);
+                if (currentUrl.searchParams.has('product')) {
+                    currentUrl.searchParams.delete('product');
+                    window.history.pushState({}, '', currentUrl.pathname); // កែ URL អោយស្អាតវិញ
+                }
+            }
             
             // បើទំព័រដែលបើកជា profile ឱ្យវាហៅកូដទាញប្រវត្តិទិញខាងក្រោមមកដំណើរការ
             if (pageId === 'profile' && window.fetchOrderHistory) {
@@ -2957,15 +2966,25 @@ window.openFullscreen = (src) => {
             window.refreshCartUI();
             window.updateMetaTags(p); 
 
-            if(!window.pageRestored) {
-                const savedPage = localStorage.getItem('idk_currentPage') || 'home';
-                if (savedPage === 'detail') {
-                    const savedProduct = localStorage.getItem('idk_currentProduct');
-                    if (savedProduct && productsDB.some(p => p.id === savedProduct)) { window.openProduct(savedProduct); } 
-                    else { window.showPage('home', null); }
-                } else if (savedPage === 'checkout') {
-                    window.updateCheckoutUI(); window.showPage('checkout', null);
-                } else { window.showPage('home', null); }
+if(!window.pageRestored) {
+                // 🔴 ១. អាន URL ថាមានជាប់លីងទំនិញឬអត់ (ឧ. ?product=ORD-123)
+                const urlParams = new URLSearchParams(window.location.search);
+                const productParam = urlParams.get('product');
+
+                if (productParam && productsDB.some(p => p.id === productParam)) {
+                    // បើមានលីង គឺបញ្ជាឲ្យបើកទំព័រទំនិញហ្នឹងផ្ទាល់តែម្តង
+                    window.openProduct(productParam);
+                } else {
+                    // បើអត់មានលីងទេ ទើបបើកទៅតាមធម្មតា
+                    const savedPage = localStorage.getItem('idk_currentPage') || 'home';
+                    if (savedPage === 'detail') {
+                        const savedProduct = localStorage.getItem('idk_currentProduct');
+                        if (savedProduct && productsDB.some(p => p.id === savedProduct)) { window.openProduct(savedProduct); } 
+                        else { window.showPage('home', null); }
+                    } else if (savedPage === 'checkout') {
+                        window.updateCheckoutUI(); window.showPage('checkout', null);
+                    } else { window.showPage('home', null); }
+                }
                 window.pageRestored = true;
             } else {
                 const savedPage = localStorage.getItem('idk_currentPage') || 'home';
@@ -3181,3 +3200,4 @@ window.openFullscreen = (src) => {
 
 </body>
 </html>
+
