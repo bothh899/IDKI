@@ -3067,29 +3067,36 @@ window.openFullscreen = (src) => {
         let lastLeaveTime = 0;
         const REFRESH_THRESHOLD = 20 * 60 * 1000; // ២០ នាទី (គិតជាមិល្លីវិនាទី)
 
-      document.addEventListener("visibilitychange", () => {
+    document.addEventListener("visibilitychange", () => {
             if (document.hidden) {
-                // កត់ត្រាម៉ោង ពេលភ្ញៀវចុចបិទអេក្រង់ ឬអូសទៅ App ផ្សេង
                 lastLeaveTime = Date.now();
             } else {
-                // ពេលភ្ញៀវបើកត្រលប់ចូលមកវេបសាយវិញ
                 if (lastLeaveTime > 0) {
                     const timeAway = Date.now() - lastLeaveTime;
-                    
                     if (timeAway >= REFRESH_THRESHOLD) {
                         localStorage.setItem('idk_currentPage', 'home');
                         localStorage.removeItem('idk_currentProduct'); 
                         window.location.reload(true);
+                        return; // ត្រូវមាន return ការពារកុំឲ្យកូដខាងក្រោមរត់ បើវា Reload ហើយ
                     }
                 }
 
-                // 🔴 កូដបន្ថែមថ្មី៖ ដាស់ប្រព័ន្ធអោយឆែកលុយភ្លាមៗ 🔴
-                // បើផ្ទាំង KHQR កំពុងបើក មានន័យថាគាត់ទើបតែចេញទៅវាយលុយ ហើយត្រលប់មកវិញ
+                // 🔴 មុខងារដាស់ប្រព័ន្ធពេលភ្ញៀវត្រលប់ពី App ធនាគារមកវិញ 🔴
                 const khqrModal = document.getElementById('khqr-modal');
                 if (khqrModal && khqrModal.classList.contains('active')) {
-                    // ប្រសិនបើក្នុង khqr.js មាន function សម្រាប់ Force Check យើងហៅវានៅទីនេះ
+                    const statusEl = document.getElementById('khqr-polling-status');
+                    
+                    // លោតអក្សរប្រាប់ភ្ញៀវឲ្យគាត់ដឹងថាយើងកំពុងឆែក (បំបាត់ការអន្ទះសារបស់គាត់)
+                    if (statusEl && !window.isPaymentProcessed) {
+                        statusEl.innerHTML = `<div class="spinner"></div> <span style="color:#ffaa00; font-weight:bold;">កំពុងផ្ទៀងផ្ទាត់ជាមួយធនាគារ...</span>`;
+                    }
+
                     if (typeof window.forceCheckPayment === 'function') {
-                        window.forceCheckPayment();
+                        // ១. ឆែកលើកទី១ (រង់ចាំ 0.8s សិន ព្រោះអ៊ីនធឺណិតទូរស័ព្ទពេលខ្លះទើបតែចាប់បានវិញ)
+                        setTimeout(() => window.forceCheckPayment(), 800);
+                        
+                        // ២. ឆែកលើកទី២ (រង់ចាំ 3.5s បន្ទាប់ ព្រោះ Server បាគងភាគច្រើន Update លុយចូលយឺត)
+                        setTimeout(() => window.forceCheckPayment(), 3500);
                     }
                 }
             }
